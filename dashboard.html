@@ -431,6 +431,33 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <main class="dashboard">
+        <!-- Account Status Block -->
+        <div id="account-block" class="card" style="margin-bottom: 24px; display: none;">
+            <div style="padding: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 48px; height: 48px; background: var(--gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">👤</div>
+                    <div>
+                        <div id="account-email" style="font-weight: 600; font-size: 1.1rem;">--</div>
+                        <div style="color: var(--text-secondary); font-size: 0.85rem;">Connected account</div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 24px; align-items: center;">
+                    <div style="text-align: center;">
+                        <div id="account-plan" style="font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--accent);">--</div>
+                        <div style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase;">Plan</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div id="account-status" style="font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700;">--</div>
+                        <div style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase;">Status</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div id="account-expires" style="font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 500;">--</div>
+                        <div style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase;">Valid Until</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="dashboard-header">
             <h1>🧭 Subnet Navigator</h1>
             <p>Real-time Bittensor network analytics</p>
@@ -492,6 +519,7 @@
             <div class="card">
                 <div class="card-header">
                     <span class="card-title">🐋 Whale Activity</span>
+                    <span style="font-size: 0.7rem; padding: 3px 8px; border-radius: 4px; background: rgba(255,165,0,0.2); color: #FFA500;">SIMULATED • Real data coming soon</span>
                 </div>
                 <div class="card-body whale-list" id="whale-list">
                     <div class="loading">
@@ -622,6 +650,33 @@
                         planBadge.style.background = colors.bg;
                         planBadge.style.color = colors.color;
                         planBadge.textContent = statusIcon + data.planName;
+                    }
+                    
+                    // Update Account Block
+                    const accountBlock = document.getElementById('account-block');
+                    if (accountBlock) {
+                        accountBlock.style.display = 'block';
+                        document.getElementById('account-email').textContent = session.user.email;
+                        
+                        const planEl = document.getElementById('account-plan');
+                        const planEmojis = { 'explorer': '🔭', 'navigator': '🧭', 'captain': '👨‍✈️' };
+                        planEl.textContent = (planEmojis[data.plan] || '🔭') + ' ' + data.planName;
+                        if (data.plan === 'captain') planEl.style.color = '#FFD700';
+                        
+                        const statusEl = document.getElementById('account-status');
+                        const statusLabels = { 'active': '✅ Active', 'trialing': '🎁 Trial', 'canceled': '⚠️ Canceled', 'past_due': '❌ Past Due' };
+                        statusEl.textContent = statusLabels[data.status] || '✅ Active';
+                        statusEl.style.color = data.status === 'active' || data.status === 'trialing' ? 'var(--green)' : 'var(--red)';
+                        
+                        const expiresEl = document.getElementById('account-expires');
+                        if (data.currentPeriodEnd) {
+                            const expDate = new Date(data.currentPeriodEnd * 1000);
+                            expiresEl.textContent = expDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                        } else if (data.plan !== 'explorer') {
+                            expiresEl.textContent = 'Lifetime';
+                        } else {
+                            expiresEl.textContent = '∞ Free';
+                        }
                     }
                     
                     // Store plan for feature gating
