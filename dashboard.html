@@ -566,11 +566,11 @@
         // Supabase Auth
         const SUPABASE_URL = 'https://srvfbbehmpnvocwodcpq.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_PWMkW8e2UJBdxcfX0DN_VQ_dvJCu_Vq';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Check auth status
         async function checkAuth() {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await supabaseClient.auth.getSession();
             const userStatus = document.getElementById('user-status');
             
             if (session) {
@@ -582,7 +582,7 @@
         }
 
         async function logout() {
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
             window.location.reload();
         }
 
