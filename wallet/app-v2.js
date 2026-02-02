@@ -2448,9 +2448,22 @@ async function showSettings() {
         <div class="asset-info"><div class="asset-name">Sécurité</div></div>
         <span>→</span>
       </div>
+      <div class="asset-item" onclick="showGainsStudy()">
+        <span class="asset-icon">📈</span>
+        <div class="asset-info">
+          <div class="asset-name">Étude de gains (3 ans)</div>
+          <div class="asset-subtitle" style="font-size: 11px; color: var(--text-tertiary);">Performance TAO historique</div>
+        </div>
+        <span>→</span>
+      </div>
       <div class="asset-item" onclick="showToast('🌐 Bientôt!')">
         <span class="asset-icon">🌐</span>
         <div class="asset-info"><div class="asset-name">Réseau</div></div>
+        <span>→</span>
+      </div>
+      <div class="asset-item" onclick="showDisclaimer()">
+        <span class="asset-icon">⚖️</span>
+        <div class="asset-info"><div class="asset-name">Non-responsabilité</div></div>
         <span>→</span>
       </div>
     </div>
@@ -2517,6 +2530,180 @@ function showSecuritySettings() {
     <p style="text-align: center; margin-top: 20px; color: var(--text-tertiary); font-size: 11px;">
       Vos clés sont chiffrées localement et ne quittent jamais votre appareil.
     </p>
+  `);
+}
+
+// Disclaimer / Non-responsabilité
+function showDisclaimer() {
+  showModal('⚖️ NON-RESPONSABILITÉ', `
+    <div style="max-height: 60vh; overflow-y: auto; padding-right: 8px;">
+      <div style="background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(239,68,68,0.05)); border: 1px solid var(--error); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+        <p style="color: var(--error); font-weight: 600; margin-bottom: 8px; font-family: monospace;">⚠️ AVERTISSEMENT IMPORTANT</p>
+        <p style="color: var(--text-secondary); font-size: 13px; line-height: 1.6;">
+          L'investissement dans les crypto-actifs comporte des risques significatifs, incluant la perte totale du capital investi.
+        </p>
+      </div>
+      
+      <div style="background: var(--bg-card); border-radius: 12px; padding: 16px; margin-bottom: 12px;">
+        <h4 style="color: var(--accent); margin-bottom: 8px; font-size: 14px;">📊 Risques liés aux crypto-actifs</h4>
+        <ul style="color: var(--text-secondary); font-size: 12px; line-height: 1.8; padding-left: 16px;">
+          <li>Volatilité extrême des cours</li>
+          <li>Absence de garantie de capital</li>
+          <li>Risques technologiques et de sécurité</li>
+          <li>Évolutions réglementaires incertaines</li>
+          <li>Liquidité variable selon les marchés</li>
+        </ul>
+      </div>
+      
+      <div style="background: var(--bg-card); border-radius: 12px; padding: 16px; margin-bottom: 12px;">
+        <h4 style="color: var(--accent); margin-bottom: 8px; font-size: 14px;">🔐 Responsabilité de l'utilisateur</h4>
+        <ul style="color: var(--text-secondary); font-size: 12px; line-height: 1.8; padding-left: 16px;">
+          <li>Vous êtes seul responsable de la sécurité de votre seed phrase</li>
+          <li>La perte de votre seed phrase entraîne la perte définitive de vos fonds</li>
+          <li>Subnavis n'a pas accès à vos clés privées</li>
+          <li>Aucune récupération n'est possible sans votre seed phrase</li>
+        </ul>
+      </div>
+      
+      <div style="background: var(--bg-card); border-radius: 12px; padding: 16px; margin-bottom: 12px;">
+        <h4 style="color: var(--accent); margin-bottom: 8px; font-size: 14px;">📝 Limitation de responsabilité</h4>
+        <p style="color: var(--text-secondary); font-size: 12px; line-height: 1.8;">
+          Subnavis est fourni "tel quel" sans garantie d'aucune sorte. Nous déclinons toute responsabilité pour :
+        </p>
+        <ul style="color: var(--text-secondary); font-size: 12px; line-height: 1.8; padding-left: 16px; margin-top: 8px;">
+          <li>Pertes financières liées à l'utilisation de l'application</li>
+          <li>Erreurs de transaction ou problèmes techniques</li>
+          <li>Décisions d'investissement prises par l'utilisateur</li>
+          <li>Interruptions de service du réseau Bittensor</li>
+        </ul>
+      </div>
+      
+      <div style="background: var(--bg-card); border-radius: 12px; padding: 16px;">
+        <h4 style="color: var(--accent); margin-bottom: 8px; font-size: 14px;">💡 Conseil</h4>
+        <p style="color: var(--text-secondary); font-size: 12px; line-height: 1.8;">
+          N'investissez que ce que vous pouvez vous permettre de perdre. Les performances passées ne préjugent pas des performances futures.
+        </p>
+      </div>
+    </div>
+    
+    <p style="text-align: center; margin-top: 16px; color: var(--text-tertiary); font-size: 10px;">
+      En utilisant Subnavis, vous acceptez ces conditions.
+    </p>
+  `);
+}
+
+// Étude de gains sur 3 ans
+function showGainsStudy() {
+  // Données historiques TAO (prix en USD)
+  const historicalData = {
+    '2023-02': { price: 35, event: 'Début du trading' },
+    '2023-05': { price: 31, event: 'ATL ~30$' },
+    '2023-12': { price: 280, event: 'Rally fin d\'année' },
+    '2024-03': { price: 758, event: '🚀 ATH 757$' },
+    '2024-06': { price: 380, event: 'Correction' },
+    '2024-12': { price: 500, event: 'Nouveau rally' },
+    '2025-02': { price: 350, event: 'Consolidation' },
+    '2026-02': { price: state.taoPrice, event: 'Aujourd\'hui' }
+  };
+  
+  // Calculs de performance
+  const currentPrice = state.taoPrice;
+  const athPrice = 757.60;
+  const atlPrice = 30.83;
+  
+  // Scénarios d'investissement
+  const scenarios = [
+    { date: 'Mai 2023 (ATL)', price: 31, invested: 1000 },
+    { date: 'Déc 2023', price: 280, invested: 1000 },
+    { date: 'Mars 2024 (ATH)', price: 758, invested: 1000 },
+    { date: 'Fév 2025', price: 350, invested: 1000 }
+  ];
+  
+  showModal('📈 ÉTUDE DE GAINS', `
+    <div style="max-height: 65vh; overflow-y: auto; padding-right: 8px;">
+      
+      <div style="background: linear-gradient(135deg, rgba(171,159,242,0.15), rgba(139,92,246,0.1)); border: 1px solid var(--accent); border-radius: 12px; padding: 16px; margin-bottom: 16px; text-align: center;">
+        <p style="color: var(--text-tertiary); font-size: 11px; margin-bottom: 4px;">Prix actuel TAO</p>
+        <p style="font-size: 28px; font-weight: 700; color: var(--text-primary);">$${currentPrice.toFixed(2)}</p>
+        <p style="color: var(--text-tertiary); font-size: 11px;">ATH: $${athPrice} | ATL: $${atlPrice}</p>
+      </div>
+      
+      <h4 style="color: var(--accent); margin-bottom: 12px; font-size: 14px; font-family: monospace;">📊 PERFORMANCE HISTORIQUE</h4>
+      
+      <div style="background: var(--bg-card); border-radius: 12px; padding: 12px; margin-bottom: 16px;">
+        ${Object.entries(historicalData).map(([date, data]) => {
+          const change = ((currentPrice - data.price) / data.price * 100).toFixed(0);
+          const isPositive = currentPrice > data.price;
+          return `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border);">
+              <div>
+                <div style="font-size: 12px; font-weight: 600;">${date}</div>
+                <div style="font-size: 10px; color: var(--text-tertiary);">${data.event}</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 12px;">$${data.price}</div>
+                <div style="font-size: 10px; color: ${isPositive ? 'var(--success)' : 'var(--error)'};">
+                  ${isPositive ? '+' : ''}${change}%
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+      
+      <h4 style="color: var(--accent); margin-bottom: 12px; font-size: 14px; font-family: monospace;">💰 SIMULATION 1000$ INVESTIS</h4>
+      
+      <div style="background: var(--bg-card); border-radius: 12px; padding: 12px; margin-bottom: 16px;">
+        ${scenarios.map(s => {
+          const taoAmount = s.invested / s.price;
+          const currentValue = taoAmount * currentPrice;
+          const gain = currentValue - s.invested;
+          const gainPercent = ((currentValue / s.invested - 1) * 100).toFixed(0);
+          const isPositive = gain > 0;
+          return `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border);">
+              <div>
+                <div style="font-size: 12px; font-weight: 600;">${s.date}</div>
+                <div style="font-size: 10px; color: var(--text-tertiary);">Acheté à $${s.price}</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 14px; font-weight: 600; color: ${isPositive ? 'var(--success)' : 'var(--error)'};">
+                  $${currentValue.toFixed(0)}
+                </div>
+                <div style="font-size: 10px; color: ${isPositive ? 'var(--success)' : 'var(--error)'};">
+                  ${isPositive ? '+' : ''}${gainPercent}% (${isPositive ? '+' : ''}$${gain.toFixed(0)})
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+      
+      <h4 style="color: var(--accent); margin-bottom: 12px; font-size: 14px; font-family: monospace;">🎯 PROJECTION STAKING (15% APY)</h4>
+      
+      <div style="background: var(--bg-card); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+        ${[1, 2, 3].map(years => {
+          const stakedTao = 10;
+          const finalAmount = stakedTao * Math.pow(1.15, years);
+          const rewards = finalAmount - stakedTao;
+          const rewardsUSD = rewards * currentPrice;
+          return `
+            <div style="display: flex; justify-content: space-between; padding: 8px 0; ${years < 3 ? 'border-bottom: 1px solid var(--border);' : ''}">
+              <span style="color: var(--text-secondary); font-size: 12px;">${years} an${years > 1 ? 's' : ''} (10 τ staké)</span>
+              <span style="color: var(--success); font-size: 12px; font-weight: 600;">
+                +${rewards.toFixed(2)} τ (~$${rewardsUSD.toFixed(0)})
+              </span>
+            </div>
+          `;
+        }).join('')}
+      </div>
+      
+      <div style="background: rgba(239,68,68,0.1); border: 1px solid var(--error); border-radius: 8px; padding: 12px;">
+        <p style="color: var(--error); font-size: 11px; text-align: center; font-family: monospace;">
+          ⚠️ Ces données sont indicatives. Les performances passées ne garantissent pas les résultats futurs.
+        </p>
+      </div>
+    </div>
   `);
 }
 
