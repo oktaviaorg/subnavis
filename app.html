@@ -342,12 +342,34 @@
         
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Check if already logged in
+        // Check if already logged in - show options instead of auto-redirect
         supabaseClient.auth.getSession().then(({ data: { session } }) => {
             if (session) {
-                window.location.href = '/dashboard.html';
+                // Show logged-in state with options
+                const container = document.querySelector('.auth-container');
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px;">
+                        <div style="font-size: 3rem; margin-bottom: 20px;">✅</div>
+                        <h2 style="margin-bottom: 10px;">Already logged in</h2>
+                        <p style="color: var(--text-secondary); margin-bottom: 8px;">${session.user.email}</p>
+                        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 24px;">
+                            <a href="/dashboard.html" class="btn-premium" style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                🚀 Go to Dashboard
+                            </a>
+                            <button onclick="logoutAndStay()" style="padding: 14px 24px; border-radius: 8px; background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); cursor: pointer; font-size: 1rem;">
+                                🔄 Switch Account
+                            </button>
+                        </div>
+                    </div>
+                `;
             }
         });
+        
+        // Logout but stay on login page
+        async function logoutAndStay() {
+            await supabaseClient.auth.signOut();
+            window.location.reload();
+        }
 
         // Tab switching
         const tabs = document.querySelectorAll('.tab');
