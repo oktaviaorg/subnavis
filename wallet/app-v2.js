@@ -901,22 +901,27 @@ async function createRealWallet() {
     const pair = keyring.addFromMnemonic(mnemonic);
     const address = pair.address;
     
-    // Encrypt mnemonic with password (simple XOR for demo - use AES in production)
-    const encryptedMnemonic = encryptMnemonic(mnemonic, password);
+    // Verify crypto is available
+    verifyCryptoAvailable();
     
-    // Save wallet
-    state.wallets.push({ 
-      name, 
-      address, 
+    // Encrypt mnemonic with AES-256-GCM + PBKDF2 (600k iterations)
+    const encryptedMnemonic = await encryptMnemonic(mnemonic, password);
+    
+    if (!encryptedMnemonic) {
+      throw new Error('Encryption failed');
+    }
+    
+    // Temporarily store for verification step
+    state.pendingWallet = {
+      name,
+      address,
       encryptedMnemonic,
-      created: Date.now(), 
-      watchOnly: false 
-    });
-    state.activeWalletIndex = state.wallets.length - 1;
-    saveWallets();
+      mnemonic, // Will be cleared after verification
+      created: Date.now()
+    };
     
-    // Show seed phrase (IMPORTANT!)
-    showSeedPhrase(mnemonic, address, name);
+    // Show seed phrase with verification step
+    showSeedPhraseWithVerification(mnemonic, address, name);
     
   } catch (err) {
     console.error('Wallet creation error:', err);
@@ -925,12 +930,18 @@ async function createRealWallet() {
   }
 }
 
-function showSeedPhrase(mnemonic, address, name) {
+function showSeedPhraseWithVerification(mnemonic, address, name) {
   const words = mnemonic.split(' ');
   
   showModal('🔐 Sauvegarde ta Seed Phrase !', `
     <div style="background: var(--error); color: #fff; border-radius: 12px; padding: 12px; margin-bottom: 16px; text-align: center;">
-      ⚠️ NOTE CES 12 MOTS - Tu ne les reverras plus !
+      ⚠️ NOTE CES ${words.length} MOTS - Tu ne les reverras plus !
+    </div>
+    
+    <div class="security-badges">
+      <span class="security-badge">🔒 AES-256-GCM</span>
+      <span class="security-badge">🔑 PBKDF2 600k</span>
+      <span class="security-badge">🎲 ${words.length * (words.length === 24 ? 10.67 : 10.67).toFixed(0) * words.length} bits</span>
     </div>
     
     <div class="seed-grid">
@@ -942,48 +953,257 @@ function showSeedPhrase(mnemonic, address, name) {
       `).join('')}
     </div>
     
+    <div class="seed-warnings">
+      <div class="seed-warning">❌ Ne fais PAS de screenshot</div>
+      <div class="seed-warning">❌ Ne copie PAS dans le presse-papier</div>
+      <div class="seed-warning">❌ Ne stocke PAS en ligne</div>
+      <div class="seed-warning">✅ Écris sur papier, garde en lieu sûr</div>
+    </div>
+    
     <div style="background: var(--bg-card); border-radius: 12px; padding: 12px; margin: 16px 0;">
       <div style="color: var(--text-tertiary); font-size: 12px; margin-bottom: 4px;">Ton adresse τ</div>
       <div style="font-family: monospace; font-size: 11px; word-break: break-all;">${address}</div>
     </div>
     
-    <button class="btn btn-primary" onclick="confirmSeedSaved()">✅ J'ai sauvegardé ma seed</button>
+    <button class="btn btn-primary" onclick="startSeedVerification()">✅ J'ai noté, vérifier</button>
     <p style="color: var(--text-tertiary); font-size: 11px; text-align: center; margin-top: 12px;">
-      Sans cette seed, tu perdras accès à tes fonds !
+      Tu devras confirmer 3 mots pour prouver que tu as bien sauvegardé
     </p>
-  `, false); // Don't allow closing by clicking outside
+  `, false);
+}
+
+function startSeedVerification() {
+  if (!state.pendingWallet) return;
+  
+  const words = state.pendingWallet.mnemonic.split(' ');
+  
+  // Pick 3 random word positions to verify
+  const positions = [];
+  while (positions.length < 3) {
+    const pos = Math.floor(Math.random() * words.length);
+    if (!positions.includes(pos)) positions.push(pos);
+  }
+  positions.sort((a, b) => a - b);
+  
+  state.verificationPositions = positions;
+  state.verificationWords = positions.map(p => words[p]);
+  
+  showModal('🔍 Vérifie ta Seed', `
+    <p style="color: var(--text-secondary); margin-bottom: 20px; text-align: center;">
+      Entre les mots aux positions demandées pour confirmer que tu as bien sauvegardé ta seed.
+    </p>
+    
+    <div class="verification-inputs">
+      ${positions.map((pos, i) => `
+        <div class="verification-input">
+          <label class="verification-label">Mot #${pos + 1}</label>
+          <input type="text" class="input-field" id="verify${i}" placeholder="Entre le mot ${pos + 1}" autocomplete="off" autocapitalize="none">
+        </div>
+      `).join('')}
+    </div>
+    
+    <button class="btn btn-primary" onclick="verifySeedWords()">Vérifier</button>
+    <button class="btn btn-ghost" style="margin-top: 8px;" onclick="showSeedPhraseWithVerification(state.pendingWallet.mnemonic, state.pendingWallet.address, state.pendingWallet.name)">↩️ Revoir la seed</button>
+  `, false);
+}
+
+function verifySeedWords() {
+  if (!state.verificationPositions || !state.verificationWords) return;
+  
+  const inputs = state.verificationPositions.map((_, i) => 
+    $(`verify${i}`)?.value?.trim().toLowerCase()
+  );
+  
+  const correct = inputs.every((input, i) => input === state.verificationWords[i]);
+  
+  if (correct) {
+    // Verification passed - save wallet
+    const wallet = state.pendingWallet;
+    
+    state.wallets.push({ 
+      name: wallet.name, 
+      address: wallet.address, 
+      encryptedMnemonic: wallet.encryptedMnemonic,
+      created: wallet.created, 
+      watchOnly: false,
+      security: {
+        algorithm: 'AES-256-GCM',
+        kdf: 'PBKDF2',
+        iterations: CRYPTO_CONFIG.pbkdf2Iterations
+      }
+    });
+    state.activeWalletIndex = state.wallets.length - 1;
+    saveWallets();
+    
+    // Clear sensitive data
+    state.pendingWallet = null;
+    state.verificationPositions = null;
+    state.verificationWords = null;
+    
+    haptic();
+    showToast('✅ Wallet créé avec succès!', 'success');
+    closeModal({target: document.querySelector('.modal-overlay'), currentTarget: document.querySelector('.modal-overlay')});
+    loadWalletData().then(renderMainUI);
+  } else {
+    haptic();
+    showToast('❌ Mots incorrects - Vérifie ta seed !', 'error');
+  }
+}
+
+// Legacy function for compatibility
+function showSeedPhrase(mnemonic, address, name) {
+  showSeedPhraseWithVerification(mnemonic, address, name);
 }
 
 function confirmSeedSaved() {
-  haptic();
-  showToast('✅ Wallet créé avec succès!', 'success');
-  closeModal({target: document.querySelector('.modal-overlay'), currentTarget: document.querySelector('.modal-overlay')});
-  loadWalletData().then(renderMainUI);
+  startSeedVerification();
 }
 
-// Simple encryption (use Web Crypto API for production)
-function encryptMnemonic(mnemonic, password) {
-  const encoded = new TextEncoder().encode(mnemonic);
-  const key = new TextEncoder().encode(password.padEnd(32, '0').slice(0, 32));
-  const encrypted = new Uint8Array(encoded.length);
-  for (let i = 0; i < encoded.length; i++) {
-    encrypted[i] = encoded[i] ^ key[i % key.length];
-  }
-  return btoa(String.fromCharCode(...encrypted));
+// ============ CRYPTO SECURITY (Bank-grade AES-256-GCM + PBKDF2) ============
+
+const CRYPTO_CONFIG = {
+  algorithm: 'AES-GCM',
+  keyLength: 256,
+  ivLength: 12,
+  saltLength: 32,
+  tagLength: 128,
+  pbkdf2Iterations: 600000, // OWASP 2023 recommendation
+  hashAlgorithm: 'SHA-256'
+};
+
+// Generate cryptographically secure random bytes
+function getSecureRandomBytes(length) {
+  const array = new Uint8Array(length);
+  crypto.getRandomValues(array);
+  return array;
 }
 
-function decryptMnemonic(encrypted, password) {
+// Derive encryption key from password using PBKDF2
+async function deriveKey(password, salt) {
+  const encoder = new TextEncoder();
+  const passwordBuffer = encoder.encode(password);
+  
+  // Import password as key material
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    passwordBuffer,
+    'PBKDF2',
+    false,
+    ['deriveKey']
+  );
+  
+  // Derive AES key using PBKDF2
+  return crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt: salt,
+      iterations: CRYPTO_CONFIG.pbkdf2Iterations,
+      hash: CRYPTO_CONFIG.hashAlgorithm
+    },
+    keyMaterial,
+    {
+      name: CRYPTO_CONFIG.algorithm,
+      length: CRYPTO_CONFIG.keyLength
+    },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+// Encrypt mnemonic with AES-256-GCM
+async function encryptMnemonic(mnemonic, password) {
   try {
-    const decoded = Uint8Array.from(atob(encrypted), c => c.charCodeAt(0));
-    const key = new TextEncoder().encode(password.padEnd(32, '0').slice(0, 32));
-    const decrypted = new Uint8Array(decoded.length);
-    for (let i = 0; i < decoded.length; i++) {
-      decrypted[i] = decoded[i] ^ key[i % key.length];
-    }
-    return new TextDecoder().decode(decrypted);
-  } catch {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(mnemonic);
+    
+    // Generate random salt and IV
+    const salt = getSecureRandomBytes(CRYPTO_CONFIG.saltLength);
+    const iv = getSecureRandomBytes(CRYPTO_CONFIG.ivLength);
+    
+    // Derive key from password
+    const key = await deriveKey(password, salt);
+    
+    // Encrypt with AES-256-GCM
+    const encrypted = await crypto.subtle.encrypt(
+      {
+        name: CRYPTO_CONFIG.algorithm,
+        iv: iv,
+        tagLength: CRYPTO_CONFIG.tagLength
+      },
+      key,
+      data
+    );
+    
+    // Combine: salt + iv + encrypted (includes auth tag)
+    const combined = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
+    combined.set(salt, 0);
+    combined.set(iv, salt.length);
+    combined.set(new Uint8Array(encrypted), salt.length + iv.length);
+    
+    // Return base64 encoded
+    return btoa(String.fromCharCode(...combined));
+  } catch (err) {
+    console.error('Encryption error:', err);
     return null;
   }
+}
+
+// Decrypt mnemonic with AES-256-GCM
+async function decryptMnemonic(encryptedBase64, password) {
+  try {
+    // Decode from base64
+    const combined = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
+    
+    // Extract salt, iv, and encrypted data
+    const salt = combined.slice(0, CRYPTO_CONFIG.saltLength);
+    const iv = combined.slice(CRYPTO_CONFIG.saltLength, CRYPTO_CONFIG.saltLength + CRYPTO_CONFIG.ivLength);
+    const encrypted = combined.slice(CRYPTO_CONFIG.saltLength + CRYPTO_CONFIG.ivLength);
+    
+    // Derive key from password
+    const key = await deriveKey(password, salt);
+    
+    // Decrypt with AES-256-GCM (automatically verifies auth tag)
+    const decrypted = await crypto.subtle.decrypt(
+      {
+        name: CRYPTO_CONFIG.algorithm,
+        iv: iv,
+        tagLength: CRYPTO_CONFIG.tagLength
+      },
+      key,
+      encrypted
+    );
+    
+    return new TextDecoder().decode(decrypted);
+  } catch (err) {
+    // Decryption failed (wrong password or tampered data)
+    console.error('Decryption error:', err);
+    return null;
+  }
+}
+
+// Securely clear sensitive data from memory
+function secureClear(str) {
+  if (typeof str === 'string') {
+    // Can't truly clear strings in JS, but we can overwrite arrays
+    return '';
+  }
+  if (str instanceof Uint8Array) {
+    crypto.getRandomValues(str); // Overwrite with random data
+  }
+}
+
+// Verify entropy source is cryptographically secure
+function verifyCryptoAvailable() {
+  if (!crypto || !crypto.subtle || !crypto.getRandomValues) {
+    throw new Error('Web Crypto API not available - insecure environment!');
+  }
+  // Test randomness
+  const test = new Uint8Array(32);
+  crypto.getRandomValues(test);
+  if (test.every(b => b === 0)) {
+    throw new Error('Random number generator failed!');
+  }
+  return true;
 }
 
 function showImportWallet() {
@@ -1077,20 +1297,32 @@ async function importRealWallet() {
     const pair = keyring.addFromMnemonic(seed);
     const address = pair.address;
     
-    // Encrypt and save
-    const encryptedMnemonic = encryptMnemonic(seed, password);
+    // Verify crypto is available
+    verifyCryptoAvailable();
+    
+    // Encrypt with AES-256-GCM
+    const encryptedMnemonic = await encryptMnemonic(seed, password);
+    
+    if (!encryptedMnemonic) {
+      throw new Error('Encryption failed');
+    }
     
     state.wallets.push({ 
       name, 
       address, 
       encryptedMnemonic,
       created: Date.now(), 
-      watchOnly: false 
+      watchOnly: false,
+      security: {
+        algorithm: 'AES-256-GCM',
+        kdf: 'PBKDF2',
+        iterations: CRYPTO_CONFIG.pbkdf2Iterations
+      }
     });
     state.activeWalletIndex = state.wallets.length - 1;
     saveWallets();
     
-    showToast('✅ Wallet importé!', 'success');
+    showToast('✅ Wallet importé avec chiffrement AES-256!', 'success');
     closeModal({target: document.querySelector('.modal-overlay'), currentTarget: document.querySelector('.modal-overlay')});
     loadWalletData().then(renderMainUI);
     

@@ -1415,6 +1415,69 @@
       margin-top: 8px;
       text-align: center;
     }
+    
+    /* Security Badges */
+    .security-badges {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .security-badge {
+      background: var(--bg-elevated);
+      border: 1px solid var(--success);
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 10px;
+      color: var(--success);
+      font-weight: 600;
+    }
+    
+    /* Seed Warnings */
+    .seed-warnings {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 12px;
+      margin: 16px 0;
+    }
+    
+    .seed-warning {
+      font-size: 12px;
+      padding: 4px 0;
+      color: var(--text-secondary);
+    }
+    
+    .seed-warning:first-child,
+    .seed-warning:nth-child(2),
+    .seed-warning:nth-child(3) {
+      color: var(--error);
+    }
+    
+    .seed-warning:last-child {
+      color: var(--success);
+    }
+    
+    /* Verification Inputs */
+    .verification-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .verification-input {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .verification-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
   </style>
 </head>
 <body>
