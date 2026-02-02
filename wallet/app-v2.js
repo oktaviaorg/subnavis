@@ -71,19 +71,91 @@ async function init() {
 async function showBiometricUnlock() {
   const stored = getBiometricCredential();
   const type = stored?.type || 'Biométrie';
+  const isFace = type.includes('Face');
   
   return new Promise(async (resolve) => {
-    // Show unlock UI
+    // Show cyberpunk unlock UI
     const app = document.getElementById('app');
     app.innerHTML = `
+      <style>
+        @keyframes neonPulse {
+          0%, 100% { filter: drop-shadow(0 0 8px var(--accent)) drop-shadow(0 0 20px var(--accent)); opacity: 1; }
+          50% { filter: drop-shadow(0 0 15px var(--accent)) drop-shadow(0 0 40px var(--accent)); opacity: 0.8; }
+        }
+        @keyframes scanLine {
+          0% { top: -10%; }
+          100% { top: 110%; }
+        }
+        .cyber-icon {
+          font-size: 72px;
+          animation: neonPulse 2s ease-in-out infinite;
+        }
+        .cyber-box {
+          position: relative;
+          border: 1px solid var(--accent);
+          border-radius: 16px;
+          padding: 48px 40px;
+          background: linear-gradient(135deg, rgba(171,159,242,0.05) 0%, rgba(139,92,246,0.08) 100%);
+          box-shadow: 0 0 30px rgba(171,159,242,0.15), inset 0 0 30px rgba(171,159,242,0.03);
+          overflow: hidden;
+        }
+        .cyber-box::before {
+          content: '';
+          position: absolute;
+          top: -10%;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: linear-gradient(90deg, transparent, var(--accent), transparent);
+          animation: scanLine 3s linear infinite;
+          opacity: 0.5;
+        }
+        .cyber-title {
+          font-family: 'Space Mono', monospace;
+          font-size: 24px;
+          font-weight: 700;
+          letter-spacing: 2px;
+          text-transform: uppercase;
+          background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          text-shadow: 0 0 30px var(--accent);
+        }
+        .cyber-btn {
+          background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
+          border: none;
+          padding: 16px 32px;
+          border-radius: 12px;
+          font-weight: 600;
+          font-size: 16px;
+          color: #0d0d12;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          box-shadow: 0 0 20px rgba(171,159,242,0.4);
+        }
+        .cyber-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 0 30px rgba(171,159,242,0.6);
+        }
+        .cyber-btn:disabled {
+          opacity: 0.7;
+          cursor: wait;
+        }
+      </style>
       <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 40px;">
-        <div style="font-size: 80px; margin-bottom: 24px;">🔐</div>
-        <h2 style="margin-bottom: 8px;">TAO Wallet</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 32px;">Déverrouillez avec ${type}</p>
-        <button class="btn btn-primary" id="unlockBtn" style="width: 200px;">
-          ${type.includes('Face') ? '👤' : '👆'} Déverrouiller
-        </button>
-        <p id="unlockError" style="color: var(--error); margin-top: 16px; display: none;"></p>
+        <div class="cyber-box">
+          <div class="cyber-icon">${isFace ? '👤' : '👆'}</div>
+          <h2 class="cyber-title" style="margin: 24px 0 8px;">TAO Wallet</h2>
+          <p style="color: var(--text-secondary); margin-bottom: 32px; font-size: 14px;">
+            [ ${type.toUpperCase()} REQUIRED ]
+          </p>
+          <button class="cyber-btn" id="unlockBtn">
+            ⚡ UNLOCK
+          </button>
+        </div>
+        <p id="unlockError" style="color: var(--error); margin-top: 24px; display: none; font-family: monospace;">
+          ⚠ ACCESS DENIED
+        </p>
       </div>
     `;
     
@@ -92,18 +164,19 @@ async function showBiometricUnlock() {
     
     const attemptUnlock = async () => {
       unlockBtn.disabled = true;
-      unlockBtn.innerHTML = '<span class="ptr-spinner" style="width: 20px; height: 20px; display: inline-block;"></span>';
+      unlockBtn.innerHTML = '◌ SCANNING...';
       
       const result = await verifyBiometric('Déverrouiller TAO Wallet');
       
       if (result.success) {
-        resolve(true);
+        unlockBtn.innerHTML = '✓ ACCESS GRANTED';
+        unlockBtn.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
+        setTimeout(() => resolve(true), 300);
       } else {
         unlockBtn.disabled = false;
-        unlockBtn.innerHTML = `${type.includes('Face') ? '👤' : '👆'} Réessayer`;
+        unlockBtn.innerHTML = '⚡ RETRY';
         
         if (result.reason !== 'cancelled') {
-          errorEl.textContent = 'Échec de la vérification';
           errorEl.style.display = 'block';
         }
       }
@@ -120,11 +193,31 @@ async function showBiometricUnlock() {
 function renderLockedScreen() {
   const app = document.getElementById('app');
   app.innerHTML = `
+    <style>
+      @keyframes glitch {
+        0%, 100% { transform: translate(0); }
+        20% { transform: translate(-2px, 2px); }
+        40% { transform: translate(2px, -2px); }
+        60% { transform: translate(-2px, -2px); }
+        80% { transform: translate(2px, 2px); }
+      }
+      .locked-icon {
+        font-size: 72px;
+        animation: glitch 0.5s ease-in-out infinite;
+        filter: drop-shadow(0 0 20px var(--error));
+      }
+    </style>
     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 40px;">
-      <div style="font-size: 80px; margin-bottom: 24px;">🔒</div>
-      <h2 style="margin-bottom: 8px; color: var(--error);">Wallet Verrouillé</h2>
-      <p style="color: var(--text-secondary); margin-bottom: 32px;">Rechargez la page pour réessayer</p>
-      <button class="btn btn-primary" onclick="location.reload()">Recharger</button>
+      <div class="locked-icon">🔒</div>
+      <h2 style="margin: 24px 0 8px; color: var(--error); font-family: monospace; letter-spacing: 2px;">
+        SYSTEM LOCKED
+      </h2>
+      <p style="color: var(--text-secondary); margin-bottom: 32px; font-family: monospace;">
+        [ BIOMETRIC VERIFICATION FAILED ]
+      </p>
+      <button class="btn btn-primary" onclick="location.reload()" style="font-family: monospace;">
+        ↻ REBOOT
+      </button>
     </div>
   `;
 }
@@ -1451,34 +1544,43 @@ async function requireBiometric(reason = 'Vérification biométrique requise') {
     return true; // No biometric set up, allow
   }
   
-  // Show verification modal
+  const isFace = stored.type?.includes('Face');
+  
+  // Show cyberpunk verification modal
   return new Promise(async (resolve) => {
-    showModal(`🔐 ${stored.type || 'Biométrie'}`, `
+    showModal(`⚡ VERIFY`, `
       <div style="text-align: center; padding: 20px 0;">
-        <div style="font-size: 64px; margin-bottom: 16px;">
-          ${stored.type?.includes('Face') ? '👤' : '👆'}
+        <div style="font-size: 64px; margin-bottom: 16px; filter: drop-shadow(0 0 15px var(--accent));">
+          ${isFace ? '👤' : '👆'}
         </div>
-        <p style="color: var(--text-secondary); margin-bottom: 24px;">${reason}</p>
-        <button class="btn btn-primary" id="biometricVerifyBtn">Vérifier avec ${stored.type || 'Biométrie'}</button>
-        <button class="btn" style="margin-top: 12px; background: var(--bg-elevated);" onclick="closeModal(event)">Annuler</button>
+        <p style="color: var(--accent); margin-bottom: 8px; font-family: monospace; font-size: 12px; letter-spacing: 1px;">
+          [ ${stored.type?.toUpperCase() || 'BIOMETRIC'} SCAN ]
+        </p>
+        <p style="color: var(--text-secondary); margin-bottom: 24px; font-size: 14px;">${reason}</p>
+        <button class="btn btn-primary" id="biometricVerifyBtn" style="font-family: monospace;">⚡ AUTHENTICATE</button>
+        <button class="btn" style="margin-top: 12px; background: var(--bg-elevated); font-family: monospace;" onclick="closeModal(event)">✕ CANCEL</button>
       </div>
     `, false);
     
     const btn = document.getElementById('biometricVerifyBtn');
     btn.onclick = async () => {
       btn.disabled = true;
-      btn.innerHTML = '<span class="ptr-spinner" style="width: 20px; height: 20px;"></span>';
+      btn.innerHTML = '◌ SCANNING...';
       
       const result = await verifyBiometric(reason);
       
       if (result.success) {
-        closeModal();
-        resolve(true);
+        btn.innerHTML = '✓ VERIFIED';
+        btn.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
+        setTimeout(() => {
+          closeModal();
+          resolve(true);
+        }, 300);
       } else {
         btn.disabled = false;
-        btn.innerHTML = `Réessayer`;
+        btn.innerHTML = `⚡ RETRY`;
         if (result.reason !== 'cancelled') {
-          showToast(`❌ Échec: ${result.reason}`, 2000);
+          showToast(`⚠ DENIED: ${result.reason}`, 2000);
         }
       }
     };
@@ -1502,51 +1604,56 @@ async function showBiometricSettings() {
   const check = await isBiometricAvailable();
   const stored = getBiometricCredential();
   const isEnabled = stored?.enabled || false;
+  const isFace = (stored?.type || check.type || '').includes('Face');
   
   if (!check.available) {
-    showModal('🔐 Biométrie', `
+    showModal('⚠ UNAVAILABLE', `
       <div style="text-align: center; padding: 20px 0;">
-        <div style="font-size: 64px; margin-bottom: 16px;">🚫</div>
-        <p style="color: var(--text-secondary);">Biométrie non disponible sur cet appareil</p>
-        <p style="color: var(--text-tertiary); font-size: 12px; margin-top: 8px;">${check.reason}</p>
+        <div style="font-size: 64px; margin-bottom: 16px; opacity: 0.5;">🚫</div>
+        <p style="color: var(--text-secondary); font-family: monospace;">BIOMETRIC MODULE NOT DETECTED</p>
+        <p style="color: var(--text-tertiary); font-size: 11px; margin-top: 8px; font-family: monospace;">${check.reason}</p>
       </div>
     `);
     return;
   }
   
   if (isEnabled) {
-    showModal(`🔐 ${stored.type || 'Biométrie'}`, `
+    showModal(`⚡ ${stored.type?.toUpperCase() || 'BIOMETRIC'}`, `
       <div style="text-align: center; padding: 20px 0;">
-        <div style="font-size: 64px; margin-bottom: 16px;">✅</div>
-        <p style="color: var(--success); font-weight: 600; margin-bottom: 8px;">${stored.type} activé</p>
-        <p style="color: var(--text-tertiary); font-size: 12px; margin-bottom: 24px;">
-          Configuré le ${new Date(stored.createdAt).toLocaleDateString('fr-FR')}
+        <div style="font-size: 64px; margin-bottom: 16px; filter: drop-shadow(0 0 20px var(--success));">
+          ${isFace ? '👤' : '👆'}
+        </div>
+        <p style="color: var(--success); font-weight: 600; margin-bottom: 4px; font-family: monospace; letter-spacing: 1px;">
+          STATUS: ACTIVE
+        </p>
+        <p style="color: var(--text-tertiary); font-size: 11px; margin-bottom: 24px; font-family: monospace;">
+          LINKED: ${new Date(stored.createdAt).toLocaleDateString('fr-FR')}
         </p>
         <div class="security-badges" style="margin-bottom: 24px;">
-          <span class="security-badge">🔒 Clé sécurisée</span>
-          <span class="security-badge">📱 Liée à cet appareil</span>
+          <span class="security-badge" style="border-color: var(--accent); color: var(--accent);">🔐 ENCRYPTED KEY</span>
+          <span class="security-badge" style="border-color: var(--accent); color: var(--accent);">📱 DEVICE BOUND</span>
         </div>
-        <button class="btn" style="background: var(--error);" onclick="disableBiometric(); closeModal(event);">
-          Désactiver ${stored.type}
+        <button class="btn" style="background: var(--error); font-family: monospace;" onclick="disableBiometric(); closeModal(event);">
+          ✕ DEACTIVATE
         </button>
       </div>
     `);
   } else {
-    showModal(`🔐 ${check.type}`, `
+    showModal(`⚡ ${check.type?.toUpperCase() || 'BIOMETRIC'}`, `
       <div style="text-align: center; padding: 20px 0;">
-        <div style="font-size: 64px; margin-bottom: 16px;">
-          ${check.type?.includes('Face') ? '👤' : '👆'}
+        <div style="font-size: 64px; margin-bottom: 16px; filter: drop-shadow(0 0 15px var(--accent)); opacity: 0.8;">
+          ${isFace ? '👤' : '👆'}
         </div>
-        <p style="color: var(--text-secondary); margin-bottom: 16px;">
-          Protégez votre wallet avec ${check.type}
+        <p style="color: var(--accent); margin-bottom: 16px; font-family: monospace; font-size: 12px; letter-spacing: 1px;">
+          [ ENHANCE SECURITY ]
         </p>
         <div class="security-badges" style="margin-bottom: 24px;">
-          <span class="security-badge">🔐 Ouverture app</span>
-          <span class="security-badge">👁️ Voir seed phrase</span>
-          <span class="security-badge">📤 Transactions</span>
+          <span class="security-badge">🔐 APP UNLOCK</span>
+          <span class="security-badge">👁️ SEED ACCESS</span>
+          <span class="security-badge">📤 TX SIGNING</span>
         </div>
-        <button class="btn btn-primary" onclick="enableBiometricFromSettings()">
-          Activer ${check.type}
+        <button class="btn btn-primary" style="font-family: monospace;" onclick="enableBiometricFromSettings()">
+          ⚡ ACTIVATE ${check.type?.toUpperCase() || 'BIOMETRIC'}
         </button>
       </div>
     `);
