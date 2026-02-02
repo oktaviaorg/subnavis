@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Tracker - Subnavis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-primary: #0a0b0d;
+            --bg-secondary: #12141a;
+            --bg-card: #1a1d26;
+            --accent: #00d4aa;
+            --accent-dim: #00d4aa22;
+            --accent-blue: #00a3ff;
+            --text-primary: #ffffff;
+            --text-secondary: #8b8f9a;
+            --border: #2a2d38;
+            --green: #00d4aa;
+            --red: #ff4757;
+            --gradient: linear-gradient(135deg, #00d4aa 0%, #00a3ff 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 16px 24px;
+            background: rgba(10, 11, 13, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--text-primary); }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 100px 24px 40px;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-header h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+        }
+
+        /* Wallet Input */
+        .wallet-input-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .wallet-input-section h3 {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .wallet-form {
+            display: flex;
+            gap: 12px;
+        }
+
+        .wallet-form input {
+            flex: 1;
+            padding: 14px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: monospace;
+        }
+
+        .wallet-form input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .wallet-form input::placeholder {
+            color: var(--text-secondary);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 170, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Portfolio Overview */
+        .portfolio-overview {
+            display: none;
+        }
+
+        .portfolio-overview.active {
+            display: block;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .stat-change {
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+
+        .stat-change.positive { color: var(--green); }
+        .stat-change.negative { color: var(--red); }
+
+        /* Positions Table */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .positions-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .positions-table th,
+        .positions-table td {
+            padding: 14px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .positions-table th {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .positions-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .positions-table tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .subnet-name {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .subnet-badge {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .positive { color: var(--green); }
+        .negative { color: var(--red); }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state h3 {
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        /* Premium Banner */
+        .premium-banner {
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.1) 0%, rgba(0, 163, 255, 0.1) 100%);
+            border: 1px dashed var(--accent);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .premium-banner h3 {
+            margin-bottom: 8px;
+        }
+
+        .premium-banner p {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .wallet-form {
+                flex-direction: column;
+            }
+        }
+
+        /* Wallet address display */
+        .wallet-address {
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-top: 12px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="logo">🧭 Subnavis</a>
+        <div class="nav-links">
+            <a href="/dashboard.html">Dashboard</a>
+            <a href="/portfolio.html" style="color: var(--accent);">Portfolio</a>
+            <a href="/app.html">Account</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>💼 Portfolio Tracker</h1>
+            <p>Track your TAO positions across all subnets</p>
+        </div>
+
+        <!-- Wallet Input -->
+        <div class="wallet-input-section">
+            <h3>🔗 Connect Your Wallet</h3>
+            <form class="wallet-form" id="wallet-form">
+                <input type="text" id="wallet-input" placeholder="Enter your TAO wallet address (5Gx...)" required>
+                <button type="submit" class="btn btn-primary" id="track-btn">Track Wallet</button>
+            </form>
+            <div id="current-wallet" class="wallet-address" style="display: none;"></div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Fetching your positions...</p>
+        </div>
+
+        <!-- Portfolio Overview -->
+        <div class="portfolio-overview" id="portfolio">
+            <!-- Stats -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-label">Total Balance</div>
+                    <div class="stat-value" id="total-balance">0 τ</div>
+                    <div class="stat-change positive" id="balance-usd">$0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Staked</div>
+                    <div class="stat-value" id="total-staked">0 τ</div>
+                    <div class="stat-change" id="staked-percent">0% of balance</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Free Balance</div>
+                    <div class="stat-value" id="free-balance">0 τ</div>
+                    <div class="stat-change">Available to stake</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Active Subnets</div>
+                    <div class="stat-value" id="active-subnets">0</div>
+                    <div class="stat-change">Positions</div>
+                </div>
+            </div>
+
+            <!-- Positions -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">📊 Your Positions</span>
+                </div>
+                <div id="positions-container">
+                    <table class="positions-table" id="positions-table">
+                        <thead>
+                            <tr>
+                                <th>Subnet</th>
+                                <th>Staked</th>
+                                <th>Value (USD)</th>
+                                <th>APR</th>
+                            </tr>
+                        </thead>
+                        <tbody id="positions-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Premium Banner -->
+            <div class="premium-banner">
+                <h3>🔔 Want alerts when your positions change?</h3>
+                <p>Get notified when validators change, rewards arrive, or large movements happen.</p>
+                <button class="btn btn-primary" onclick="document.getElementById('upgrade-modal').style.display='flex'">
+                    Upgrade to Pro — €15/mo
+                </button>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="empty-state">
+            <h3>👆 Enter your wallet address above</h3>
+            <p>We'll show you all your staked positions across Bittensor subnets</p>
+        </div>
+    </div>
+
+    <!-- Upgrade Modal -->
+    <div id="upgrade-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; max-width: 420px; width: 90%; text-align: center;">
+            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 8px;">🚀 Upgrade to Pro</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">Get alerts, unlimited wallets, and more</p>
+            
+            <form id="upgrade-form" style="display: flex; flex-direction: column; gap: 12px;">
+                <input type="email" placeholder="Enter your email" required style="padding: 14px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-secondary); color: var(--text-primary); font-size: 1rem;">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    Join Waitlist — Get 50% Off
+                </button>
+            </form>
+            
+            <button onclick="document.getElementById('upgrade-modal').style.display='none'" style="margin-top: 16px; background: none; border: none; color: var(--text-secondary); cursor: pointer;">
+                Maybe later
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Supabase
+        const SUPABASE_URL = 'https://srvfbbehmpnvocwodcpq.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_PWMkW8e2UJBdxcfX0DN_VQ_dvJCu_Vq';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // TAO price (mock for now)
+        const TAO_PRICE = 285;
+
+        // DOM elements
+        const walletForm = document.getElementById('wallet-form');
+        const walletInput = document.getElementById('wallet-input');
+        const trackBtn = document.getElementById('track-btn');
+        const loading = document.getElementById('loading');
+        const portfolio = document.getElementById('portfolio');
+        const emptyState = document.getElementById('empty-state');
+        const currentWallet = document.getElementById('current-wallet');
+
+        // Check for saved wallet
+        const savedWallet = localStorage.getItem('subnavis_wallet');
+        if (savedWallet) {
+            walletInput.value = savedWallet;
+            loadPortfolio(savedWallet);
+        }
+
+        // Form submit
+        walletForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const address = walletInput.value.trim();
+            if (address) {
+                localStorage.setItem('subnavis_wallet', address);
+                loadPortfolio(address);
+            }
+        });
+
+        async function loadPortfolio(address) {
+            // Show loading
+            loading.classList.add('active');
+            portfolio.classList.remove('active');
+            emptyState.style.display = 'none';
+            trackBtn.disabled = true;
+            trackBtn.textContent = 'Loading...';
+
+            // Show current wallet
+            currentWallet.textContent = '📍 ' + address;
+            currentWallet.style.display = 'block';
+
+            // Simulate API call (replace with real Taostats API)
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            // Mock data based on address (in production, call Taostats API)
+            const portfolioData = generateMockPortfolio(address);
+
+            // Update UI
+            displayPortfolio(portfolioData);
+
+            // Hide loading
+            loading.classList.remove('active');
+            portfolio.classList.add('active');
+            trackBtn.disabled = false;
+            trackBtn.textContent = 'Track Wallet';
+        }
+
+        function generateMockPortfolio(address) {
+            // Generate realistic mock data
+            const isJulien = address.startsWith('5Gxc');
+            
+            const positions = [
+                { netuid: 7, name: 'Subvortex', staked: isJulien ? 1.16 : 45.5, apr: 22.5 },
+                { netuid: 1, name: 'Apex', staked: isJulien ? 0 : 120.3, apr: 18.2 },
+                { netuid: 13, name: 'Dataverse', staked: isJulien ? 0 : 35.8, apr: 25.1 },
+            ].filter(p => p.staked > 0);
+
+            const totalStaked = positions.reduce((sum, p) => sum + p.staked, 0);
+            const freeBalance = isJulien ? 0.10 : 15.5;
+            const totalBalance = totalStaked + freeBalance;
+
+            return {
+                address,
+                totalBalance,
+                totalStaked,
+                freeBalance,
+                positions
+            };
+        }
+
+        function displayPortfolio(data) {
+            // Stats
+            document.getElementById('total-balance').textContent = data.totalBalance.toFixed(2) + ' τ';
+            document.getElementById('balance-usd').textContent = '$' + (data.totalBalance * TAO_PRICE).toLocaleString(undefined, {maximumFractionDigits: 0});
+            document.getElementById('total-staked').textContent = data.totalStaked.toFixed(2) + ' τ';
+            document.getElementById('staked-percent').textContent = ((data.totalStaked / data.totalBalance) * 100).toFixed(0) + '% of balance';
+            document.getElementById('free-balance').textContent = data.freeBalance.toFixed(2) + ' τ';
+            document.getElementById('active-subnets').textContent = data.positions.length;
+
+            // Positions table
+            const tbody = document.getElementById('positions-body');
+            tbody.innerHTML = '';
+
+            if (data.positions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">No staked positions found</td></tr>';
+                return;
+            }
+
+            data.positions.forEach(pos => {
+                const value = pos.staked * TAO_PRICE;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div class="subnet-name">
+                            <div class="subnet-badge">${pos.netuid}</div>
+                            <div>
+                                <strong>${pos.name}</strong>
+                                <div style="font-size: 0.8rem; color: var(--text-secondary);">SN${pos.netuid}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><strong>${pos.staked.toFixed(2)} τ</strong></td>
+                    <td>$${value.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+                    <td class="positive">${pos.apr.toFixed(1)}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Upgrade form
+        document.getElementById('upgrade-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = e.target.querySelector('input').value;
+            const btn = e.target.querySelector('button');
+            
+            btn.textContent = 'Joining...';
+            btn.disabled = true;
+
+            try {
+                await fetch(`${SUPABASE_URL}/rest/v1/subnavis_waitlist`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, source: 'portfolio_upgrade' })
+                });
+            } catch (err) {}
+
+            btn.textContent = '✓ You\'re on the list!';
+            setTimeout(() => {
+                document.getElementById('upgrade-modal').style.display = 'none';
+                btn.textContent = 'Join Waitlist — Get 50% Off';
+                btn.disabled = false;
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
