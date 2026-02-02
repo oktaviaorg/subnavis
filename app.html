@@ -454,25 +454,45 @@
         });
 
         // Google Sign In
-        document.getElementById('google-btn').addEventListener('click', async () => {
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: window.location.origin + '/dashboard.html'
+        document.getElementById('google-btn').addEventListener('click', async function(e) {
+            e.preventDefault();
+            console.log('Google button clicked');
+            try {
+                const { data, error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin + '/dashboard.html'
+                    }
+                });
+                console.log('Google OAuth response:', data, error);
+                if (error) {
+                    showError(error.message);
                 }
-            });
-            if (error) showError(error.message);
+            } catch (err) {
+                console.error('Google OAuth error:', err);
+                showError('Error connecting to Google');
+            }
         });
 
         // GitHub Sign In
-        document.getElementById('github-btn').addEventListener('click', async () => {
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: 'github',
-                options: {
-                    redirectTo: window.location.origin + '/dashboard.html'
+        document.getElementById('github-btn').addEventListener('click', async function(e) {
+            e.preventDefault();
+            console.log('GitHub button clicked');
+            try {
+                const { data, error } = await supabase.auth.signInWithOAuth({
+                    provider: 'github',
+                    options: {
+                        redirectTo: window.location.origin + '/dashboard.html'
+                    }
+                });
+                console.log('GitHub OAuth response:', data, error);
+                if (error) {
+                    showError(error.message);
                 }
-            });
-            if (error) showError(error.message);
+            } catch (err) {
+                console.error('GitHub OAuth error:', err);
+                showError('Error connecting to GitHub');
+            }
         });
 
         // Magic Link
