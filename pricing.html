@@ -572,13 +572,71 @@
             document.getElementById('tao-captain').textContent = '~' + taoCaptain.toFixed(1) + ' τ';
         }
 
-        function subscribe(plan) {
-            // For now, show waitlist modal
-            alert('🚀 Coming soon!\n\nJoin the waitlist to get notified when payments go live.\n\nEarly supporters get 50% off for life!');
+        async function subscribe(plan) {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = 'Loading...';
+
+            try {
+                const planId = plan === 'navigator' ? 'navigator_monthly' : 'captain_monthly';
+                
+                const response = await fetch('/api/create-checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ plan: planId })
+                });
+
+                const data = await response.json();
+                
+                if (data.url) {
+                    // Redirect to Stripe Checkout
+                    window.location.href = data.url;
+                } else {
+                    throw new Error(data.error || 'Failed to create checkout');
+                }
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert('Error creating checkout. Please try again.');
+                btn.disabled = false;
+                btn.textContent = plan === 'navigator' ? 'Subscribe Now' : 'Subscribe Now';
+            }
         }
 
         function payWithTao() {
-            alert('🐉 TAO Payments Coming Soon!\n\nWe\'re setting up on-chain payments.\n\nJoin the waitlist to be first to pay in TAO!');
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:1000;';
+            modal.innerHTML = `
+                <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:480px;width:90%;text-align:center;">
+                    <h2 style="margin-bottom:16px;">🐉 Pay with TAO</h2>
+                    <p style="color:var(--text-secondary);margin-bottom:24px;">Send TAO to the address below. We'll activate your account within 24h.</p>
+                    
+                    <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px;">
+                        <div style="font-family:monospace;font-size:0.85rem;word-break:break-all;margin-bottom:8px;">
+                            5GxcV1SNdHPzrNGCdETY6QR9jPzZgY6igMjDmWDcEuXoibMY
+                        </div>
+                        <button onclick="navigator.clipboard.writeText('5GxcV1SNdHPzrNGCdETY6QR9jPzZgY6igMjDmWDcEuXoibMY');this.textContent='✓ Copied!'" 
+                                style="padding:8px 16px;border-radius:6px;background:var(--accent);color:white;border:none;cursor:pointer;">
+                            📋 Copy Address
+                        </button>
+                    </div>
+                    
+                    <div style="text-align:left;margin-bottom:24px;font-size:0.9rem;">
+                        <p><strong>Navigator (1 year):</strong> ~0.4 τ</p>
+                        <p><strong>Captain (1 year):</strong> ~1.0 τ</p>
+                    </div>
+                    
+                    <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:24px;">
+                        After sending, email <strong>support@subnavis.io</strong> with your TX hash and Telegram username.
+                    </p>
+                    
+                    <button onclick="this.parentElement.parentElement.remove()" 
+                            style="padding:12px 24px;border-radius:8px;background:var(--bg-secondary);border:1px solid var(--border);color:white;cursor:pointer;">
+                        Close
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
         }
     </script>
 </body>
