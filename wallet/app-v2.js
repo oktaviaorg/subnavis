@@ -725,22 +725,124 @@ function showCreateWallet() {
       <input type="text" class="input-field" id="walletName" placeholder="Mon Wallet" maxlength="20">
     </div>
     <div class="input-group">
-      <label class="input-label">Mot de passe (min 6 caractères)</label>
-      <input type="password" class="input-field" id="walletPassword" placeholder="••••••••" minlength="6">
+      <label class="input-label">Mot de passe sécurisé</label>
+      <input type="password" class="input-field" id="walletPassword" placeholder="••••••••••••" oninput="updatePasswordStrength()">
+      <div class="password-strength" id="passwordStrength"></div>
     </div>
-    <p style="color: var(--text-tertiary); font-size: 12px; margin-bottom: 20px;">
-      🔐 Ce mot de passe chiffre ta seed phrase localement.
+    <div class="input-group">
+      <label class="input-label">Confirmer le mot de passe</label>
+      <input type="password" class="input-field" id="walletPasswordConfirm" placeholder="••••••••••••" oninput="checkPasswordMatch()">
+      <div class="password-match" id="passwordMatch"></div>
+    </div>
+    <div class="password-rules">
+      <div class="rule" id="rule-length">❌ Minimum 12 caractères</div>
+      <div class="rule" id="rule-upper">❌ Une majuscule</div>
+      <div class="rule" id="rule-lower">❌ Une minuscule</div>
+      <div class="rule" id="rule-number">❌ Un chiffre</div>
+      <div class="rule" id="rule-special">❌ Un caractère spécial (!@#$...)</div>
+    </div>
+    <p style="color: var(--text-tertiary); font-size: 11px; margin: 12px 0;">
+      🔐 Ce mot de passe chiffre ta seed phrase. Sans lui, impossible de récupérer tes fonds !
     </p>
-    <button class="btn btn-primary" onclick="createRealWallet()">Créer mon wallet τ</button>
+    <button class="btn btn-primary" id="createWalletBtn" onclick="createRealWallet()" disabled>Créer mon wallet τ</button>
   `);
+}
+
+function updatePasswordStrength() {
+  const password = $('walletPassword')?.value || '';
+  const rules = {
+    length: password.length >= 12,
+    upper: /[A-Z]/.test(password),
+    lower: /[a-z]/.test(password),
+    number: /[0-9]/.test(password),
+    special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+  };
+  
+  // Update rule indicators
+  for (const [rule, valid] of Object.entries(rules)) {
+    const el = $(`rule-${rule}`);
+    if (el) {
+      el.innerHTML = (valid ? '✅' : '❌') + ' ' + el.innerHTML.substring(2);
+      el.style.color = valid ? 'var(--success)' : 'var(--text-tertiary)';
+    }
+  }
+  
+  // Calculate strength
+  const passed = Object.values(rules).filter(Boolean).length;
+  const strengthEl = $('passwordStrength');
+  if (strengthEl) {
+    const labels = ['', 'Très faible', 'Faible', 'Moyen', 'Fort', 'Très fort'];
+    const colors = ['', 'var(--error)', 'var(--warning)', 'var(--warning)', 'var(--success)', 'var(--success)'];
+    strengthEl.innerHTML = `<div class="strength-bar"><div class="strength-fill" style="width: ${passed * 20}%; background: ${colors[passed]}"></div></div><span style="color: ${colors[passed]}">${labels[passed]}</span>`;
+  }
+  
+  checkPasswordMatch();
+  updateCreateButton();
+}
+
+function checkPasswordMatch() {
+  const password = $('walletPassword')?.value || '';
+  const confirm = $('walletPasswordConfirm')?.value || '';
+  const matchEl = $('passwordMatch');
+  
+  if (confirm.length === 0) {
+    matchEl.innerHTML = '';
+  } else if (password === confirm) {
+    matchEl.innerHTML = '<span style="color: var(--success)">✅ Les mots de passe correspondent</span>';
+  } else {
+    matchEl.innerHTML = '<span style="color: var(--error)">❌ Les mots de passe ne correspondent pas</span>';
+  }
+  
+  updateCreateButton();
+}
+
+function updateCreateButton() {
+  const password = $('walletPassword')?.value || '';
+  const confirm = $('walletPasswordConfirm')?.value || '';
+  const btn = $('createWalletBtn');
+  
+  const isValid = 
+    password.length >= 12 &&
+    /[A-Z]/.test(password) &&
+    /[a-z]/.test(password) &&
+    /[0-9]/.test(password) &&
+    /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) &&
+    password === confirm;
+  
+  if (btn) {
+    btn.disabled = !isValid;
+    btn.style.opacity = isValid ? '1' : '0.5';
+  }
 }
 
 async function createRealWallet() {
   const name = $('walletName')?.value || 'Wallet';
   const password = $('walletPassword')?.value;
+  const confirm = $('walletPasswordConfirm')?.value;
   
-  if (!password || password.length < 6) {
-    showToast('❌ Mot de passe trop court (min 6)', 'error');
+  // Validate password strength
+  if (!password || password.length < 12) {
+    showToast('❌ Mot de passe trop court (min 12)', 'error');
+    return;
+  }
+  if (!/[A-Z]/.test(password)) {
+    showToast('❌ Il faut une majuscule', 'error');
+    return;
+  }
+  if (!/[a-z]/.test(password)) {
+    showToast('❌ Il faut une minuscule', 'error');
+    return;
+  }
+  if (!/[0-9]/.test(password)) {
+    showToast('❌ Il faut un chiffre', 'error');
+    return;
+  }
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    showToast('❌ Il faut un caractère spécial', 'error');
+    return;
+  }
+  if (password !== confirm) {
+    showToast('❌ Les mots de passe ne correspondent pas', 'error');
     return;
   }
   
@@ -859,28 +961,61 @@ function showImportWallet() {
       <textarea class="input-field" id="importSeed" placeholder="word1 word2 word3..." style="height: 100px;"></textarea>
     </div>
     <div class="input-group">
-      <label class="input-label">Mot de passe (min 6 caractères)</label>
-      <input type="password" class="input-field" id="importPassword" placeholder="••••••••">
+      <label class="input-label">Mot de passe sécurisé</label>
+      <input type="password" class="input-field" id="importPassword" placeholder="••••••••••••" oninput="updateImportPasswordStrength()">
+      <div class="password-strength" id="importPasswordStrength"></div>
     </div>
-    <p style="color: var(--text-tertiary); font-size: 12px; margin-bottom: 16px;">
-      🔐 Ta seed sera chiffrée localement
-    </p>
+    <div class="input-group">
+      <label class="input-label">Confirmer le mot de passe</label>
+      <input type="password" class="input-field" id="importPasswordConfirm" placeholder="••••••••••••">
+    </div>
+    <div class="password-rules" id="importRules">
+      <div class="rule">⚠️ Min 12 caractères, 1 majuscule, 1 minuscule, 1 chiffre, 1 spécial</div>
+    </div>
     <button class="btn btn-primary" onclick="importRealWallet()">Importer</button>
   `);
+}
+
+function updateImportPasswordStrength() {
+  const password = $('importPassword')?.value || '';
+  const passed = [
+    password.length >= 12,
+    /[A-Z]/.test(password),
+    /[a-z]/.test(password),
+    /[0-9]/.test(password),
+    /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+  ].filter(Boolean).length;
+  
+  const strengthEl = $('importPasswordStrength');
+  if (strengthEl) {
+    const labels = ['', 'Très faible', 'Faible', 'Moyen', 'Fort', 'Très fort'];
+    const colors = ['', 'var(--error)', 'var(--warning)', 'var(--warning)', 'var(--success)', 'var(--success)'];
+    strengthEl.innerHTML = `<div class="strength-bar"><div class="strength-fill" style="width: ${passed * 20}%; background: ${colors[passed]}"></div></div><span style="color: ${colors[passed]}">${labels[passed]}</span>`;
+  }
 }
 
 async function importRealWallet() {
   const name = $('importName')?.value || 'Importé';
   const seed = $('importSeed')?.value?.trim().toLowerCase();
   const password = $('importPassword')?.value;
+  const confirm = $('importPasswordConfirm')?.value;
   
   if (!seed || ![12, 24].includes(seed.split(/\s+/).length)) {
     showToast('❌ Seed invalide (12 ou 24 mots)', 'error');
     return;
   }
   
-  if (!password || password.length < 6) {
-    showToast('❌ Mot de passe trop court', 'error');
+  // Validate password
+  if (!password || password.length < 12) {
+    showToast('❌ Mot de passe min 12 caractères', 'error');
+    return;
+  }
+  if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password) || !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    showToast('❌ Mot de passe pas assez fort', 'error');
+    return;
+  }
+  if (password !== confirm) {
+    showToast('❌ Mots de passe différents', 'error');
     return;
   }
   
