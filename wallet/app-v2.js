@@ -2438,6 +2438,10 @@ async function showSeedPhrase() {
   `);
 }
 
+// Store mnemonic temporarily for copy/share actions
+let tempMnemonic = null;
+let tempMnemonicTimeout = null;
+
 async function decryptAndShowSeed() {
   const password = document.getElementById('seedPassword')?.value;
   if (!password) return;
@@ -2450,14 +2454,23 @@ async function decryptAndShowSeed() {
     return;
   }
   
+  // Store temporarily for copy/share
+  tempMnemonic = mnemonic;
+  
+  // Clear after 2 minutes
+  if (tempMnemonicTimeout) clearTimeout(tempMnemonicTimeout);
+  tempMnemonicTimeout = setTimeout(() => {
+    tempMnemonic = null;
+  }, 120000);
+  
   const words = mnemonic.split(' ');
+  const canShare = navigator.share !== undefined;
   
   showModal('🔑 Seed Phrase', `
     <div class="seed-warnings">
-      <div class="seed-warning">❌ Ne fais PAS de screenshot</div>
-      <div class="seed-warning">❌ Ne copie PAS dans le presse-papier</div>
-      <div class="seed-warning">❌ Ne stocke PAS en ligne</div>
-      <div class="seed-warning">✅ Écris sur papier, garde en lieu sûr</div>
+      <div class="seed-warning">⚠️ Risque si stockage cloud (iCloud, Google, Samsung)</div>
+      <div class="seed-warning">✅ OK : Note locale NON synchronisée</div>
+      <div class="seed-warning">✅ Mieux : Papier dans un coffre</div>
     </div>
     <div class="seed-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 0;">
       ${words.map((word, i) => `
@@ -2467,16 +2480,109 @@ async function decryptAndShowSeed() {
         </div>
       `).join('')}
     </div>
-    <button class="btn" style="background: var(--bg-elevated);" onclick="closeModal(event)">Fermer</button>
+    
+    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+      <button class="btn" style="flex: 1; background: var(--bg-elevated);" onclick="copySeedToClipboard()">
+        📋 Copier
+      </button>
+      ${canShare ? `
+        <button class="btn" style="flex: 1; background: var(--bg-elevated);" onclick="shareSeedToNotes()">
+          📝 Notes
+        </button>
+      ` : ''}
+    </div>
+    
+    <button class="btn" style="background: var(--bg-card); border: 1px solid var(--border);" onclick="closeModal(event)">Fermer</button>
+    
+    <p style="text-align: center; margin-top: 12px; color: var(--text-tertiary); font-size: 11px;">
+      🔒 Auto-masquage dans 2 min
+    </p>
   `, false);
   
   // Auto-close after 2 minutes for security
   setTimeout(() => {
     if (document.querySelector('.modal')) {
       closeModal();
+      tempMnemonic = null;
       showToast('🔒 Seed masquée (sécurité)', 2000);
     }
   }, 120000);
+}
+
+// Copy seed to clipboard with auto-clear
+async function copySeedToClipboard() {
+  if (!tempMnemonic) {
+    showToast('❌ Session expirée', 2000);
+    return;
+  }
+  
+  try {
+    // Format nicely with numbers
+    const formatted = tempMnemonic.split(' ')
+      .map((word, i) => `${i + 1}. ${word}`)
+      .join('\n');
+    
+    await navigator.clipboard.writeText(formatted);
+    showToast('📋 Copié! Auto-effacement dans 60s', 2000);
+    
+    // Auto-clear clipboard after 60 seconds
+    setTimeout(async () => {
+      try {
+        const current = await navigator.clipboard.readText();
+        if (current === formatted) {
+          await navigator.clipboard.writeText('');
+          showToast('🔒 Presse-papier effacé', 1500);
+        }
+      } catch (e) {
+        // Can't read clipboard, that's fine
+      }
+    }, 60000);
+    
+  } catch (err) {
+    // Fallback for older browsers
+    const textarea = document.createElement('textarea');
+    textarea.value = tempMnemonic;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    showToast('📋 Copié!', 2000);
+  }
+}
+
+// Share seed to Notes app (iOS/Android)
+async function shareSeedToNotes() {
+  if (!tempMnemonic) {
+    showToast('❌ Session expirée', 2000);
+    return;
+  }
+  
+  if (!navigator.share) {
+    showToast('❌ Partage non supporté', 2000);
+    return;
+  }
+  
+  try {
+    // Format with numbers and title
+    const formatted = `🔐 TAO Wallet Seed Phrase\n` +
+      `⚠️ NE PAS SYNCHRONISER AVEC LE CLOUD!\n\n` +
+      tempMnemonic.split(' ')
+        .map((word, i) => `${i + 1}. ${word}`)
+        .join('\n') +
+      `\n\n📅 Sauvegardé le ${new Date().toLocaleDateString('fr-FR')}`;
+    
+    await navigator.share({
+      title: 'TAO Wallet Seed',
+      text: formatted
+    });
+    
+    showToast('📝 Envoyé vers Notes!', 2000);
+    
+  } catch (err) {
+    if (err.name !== 'AbortError') {
+      showToast('❌ Partage annulé', 2000);
+    }
+  }
 }
 
 function exportWallet() {
