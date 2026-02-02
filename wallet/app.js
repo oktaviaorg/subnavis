@@ -223,7 +223,15 @@ function importWallet() {
       <button class="btn-primary" onclick="doImport()">
         Track Address
       </button>
-      <button class="btn-secondary" onclick="renderNoWallet()">
+      
+      <div style="margin: 20px 0; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+        <p style="font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 12px;">Try an example:</p>
+        <button class="btn-secondary" onclick="loadExample('baby-tao')" style="font-size: 14px; padding: 12px;">
+          🍼 Baby TAO (SN49 Owner)
+        </button>
+      </div>
+      
+      <button class="btn-secondary" onclick="renderNoWallet()" style="margin-top: 12px;">
         Back
       </button>
     </div>
@@ -231,6 +239,23 @@ function importWallet() {
   
   // Focus input
   setTimeout(() => document.getElementById('tao-address').focus(), 100);
+}
+
+// Load example wallet
+function loadExample(example) {
+  const examples = {
+    'baby-tao': {
+      address: '5FL781vfkLNnYBUi58JnhZ3r2waHDMiehxRhzcMaMWvKDfXf',
+      name: 'Baby TAO (SN49)'
+    }
+  };
+  
+  const ex = examples[example];
+  if (ex) {
+    document.getElementById('tao-address').value = ex.address;
+    document.getElementById('wallet-name').value = ex.name;
+    showToast('✓ Example loaded - tap Track!');
+  }
 }
 
 // Do import
