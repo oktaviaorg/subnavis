@@ -415,12 +415,19 @@
             <div class="logo-icon"></div>
             Subnavis
         </a>
-        <div class="nav-status">
-            <span class="status-dot"></span>
-            <span>Live data</span>
-            <span class="beta-badge">BETA</span>
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="nav-status">
+                <span class="status-dot"></span>
+                <span>Live data</span>
+                <span class="beta-badge">BETA</span>
+            </div>
+            <div id="user-status">
+                <a href="/app.html" class="btn-login" style="padding: 8px 16px; border-radius: 6px; background: var(--accent-dim); color: var(--accent); text-decoration: none; font-size: 0.85rem; font-weight: 500;">Log In</a>
+            </div>
         </div>
     </nav>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <main class="dashboard">
         <div class="dashboard-header">
@@ -556,6 +563,31 @@
     </div>
 
     <script>
+        // Supabase Auth
+        const SUPABASE_URL = 'https://srvfbbehmpnvocwodcpq.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_PWMkW8e2UJBdxcfX0DN_VQ_dvJCu_Vq';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Check auth status
+        async function checkAuth() {
+            const { data: { session } } = await supabase.auth.getSession();
+            const userStatus = document.getElementById('user-status');
+            
+            if (session) {
+                userStatus.innerHTML = `
+                    <span style="color: var(--text-secondary); font-size: 0.85rem; margin-right: 8px;">${session.user.email}</span>
+                    <button onclick="logout()" style="padding: 8px 16px; border-radius: 6px; background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); cursor: pointer; font-size: 0.85rem;">Log Out</button>
+                `;
+            }
+        }
+
+        async function logout() {
+            await supabase.auth.signOut();
+            window.location.reload();
+        }
+
+        checkAuth();
+
         // Taostats API
         const TAOSTATS_API = 'https://api.taostats.io/api';
         const API_KEY = 'tao-7525a19d-5392-42f5-b854-7aae224818a7:82ca85cf';
