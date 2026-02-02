@@ -226,8 +226,14 @@ function importWallet() {
       
       <div style="margin: 20px 0; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
         <p style="font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 12px;">Try an example:</p>
-        <button class="btn-secondary" onclick="loadExample('baby-tao')" style="font-size: 14px; padding: 12px;">
-          🍼 Baby TAO (SN49 Owner)
+        <button class="btn-secondary" onclick="loadExample('taostats')" style="font-size: 14px; padding: 12px; margin-bottom: 8px;">
+          📊 Taostats Validator
+        </button>
+        <button class="btn-secondary" onclick="loadExample('baby-tao')" style="font-size: 14px; padding: 12px; margin-bottom: 8px;">
+          🍼 Baby TAO (SN49)
+        </button>
+        <button class="btn-secondary" onclick="loadExample('tao5')" style="font-size: 14px; padding: 12px;">
+          🔷 tao5 Validator
         </button>
       </div>
       
@@ -247,6 +253,14 @@ function loadExample(example) {
     'baby-tao': {
       address: '5FL781vfkLNnYBUi58JnhZ3r2waHDMiehxRhzcMaMWvKDfXf',
       name: 'Baby TAO (SN49)'
+    },
+    'taostats': {
+      address: '5GcCZ2BPXBjgG88tXJCEtkbdg2hNrPbL4EFfbiVRvBZdSQDC',
+      name: 'Taostats Validator'
+    },
+    'tao5': {
+      address: '5EJAqczgzCMvWcmXhKMZH4vMS5gPy8BjeuHjz5o5yN6RYzX2',
+      name: 'tao5 Validator'
     }
   };
   
