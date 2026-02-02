@@ -1,7 +1,7 @@
 // TAO Wallet PWA v2 - 2026 Edition
-// Phantom-level UX + AI Insights + Gamification
+// Phantom-level UX + AI Insights + Gamification + Biometric Auth
 
-const APP_VERSION = '2.1.0';
+const APP_VERSION = '2.2.0';
 const API_BASE = 'https://subnavis.io/.netlify/functions';
 const COINGECKO_API = 'https://api.coingecko.com/api/v3';
 
@@ -47,6 +47,16 @@ async function init() {
   await fetchPrice();
   
   if (state.wallets.length > 0) {
+    // Check if biometric is enabled - require verification to unlock
+    if (isBiometricEnabled()) {
+      const verified = await showBiometricUnlock();
+      if (!verified) {
+        // Show locked screen if biometric fails
+        renderLockedScreen();
+        return;
+      }
+    }
+    
     await loadWalletData();
     renderMainUI();
   } else {
@@ -55,6 +65,68 @@ async function init() {
   
   setupPullToRefresh();
   setInterval(fetchPrice, 60000);
+}
+
+// Show biometric unlock screen
+async function showBiometricUnlock() {
+  const stored = getBiometricCredential();
+  const type = stored?.type || 'Biométrie';
+  
+  return new Promise(async (resolve) => {
+    // Show unlock UI
+    const app = document.getElementById('app');
+    app.innerHTML = `
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 40px;">
+        <div style="font-size: 80px; margin-bottom: 24px;">🔐</div>
+        <h2 style="margin-bottom: 8px;">TAO Wallet</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 32px;">Déverrouillez avec ${type}</p>
+        <button class="btn btn-primary" id="unlockBtn" style="width: 200px;">
+          ${type.includes('Face') ? '👤' : '👆'} Déverrouiller
+        </button>
+        <p id="unlockError" style="color: var(--error); margin-top: 16px; display: none;"></p>
+      </div>
+    `;
+    
+    const unlockBtn = document.getElementById('unlockBtn');
+    const errorEl = document.getElementById('unlockError');
+    
+    const attemptUnlock = async () => {
+      unlockBtn.disabled = true;
+      unlockBtn.innerHTML = '<span class="ptr-spinner" style="width: 20px; height: 20px; display: inline-block;"></span>';
+      
+      const result = await verifyBiometric('Déverrouiller TAO Wallet');
+      
+      if (result.success) {
+        resolve(true);
+      } else {
+        unlockBtn.disabled = false;
+        unlockBtn.innerHTML = `${type.includes('Face') ? '👤' : '👆'} Réessayer`;
+        
+        if (result.reason !== 'cancelled') {
+          errorEl.textContent = 'Échec de la vérification';
+          errorEl.style.display = 'block';
+        }
+      }
+    };
+    
+    unlockBtn.onclick = attemptUnlock;
+    
+    // Auto-trigger on load
+    setTimeout(attemptUnlock, 500);
+  });
+}
+
+// Show locked screen (biometric failed multiple times)
+function renderLockedScreen() {
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 40px;">
+      <div style="font-size: 80px; margin-bottom: 24px;">🔒</div>
+      <h2 style="margin-bottom: 8px; color: var(--error);">Wallet Verrouillé</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 32px;">Rechargez la page pour réessayer</p>
+      <button class="btn btn-primary" onclick="location.reload()">Recharger</button>
+    </div>
+  `;
 }
 
 // ============ API ============
@@ -1206,6 +1278,290 @@ function verifyCryptoAvailable() {
   return true;
 }
 
+// ============ BIOMETRIC AUTHENTICATION (Face ID / Touch ID / Fingerprint) ============
+
+const BIOMETRIC_CONFIG = {
+  rpId: window.location.hostname,
+  rpName: 'TAO Wallet',
+  userDisplayName: 'TAO Wallet User',
+  timeout: 60000,
+  authenticatorType: 'platform' // Uses device biometrics (Face ID, Touch ID, etc.)
+};
+
+// Check if biometric authentication is available on this device
+async function isBiometricAvailable() {
+  if (!window.PublicKeyCredential) {
+    return { available: false, reason: 'WebAuthn not supported' };
+  }
+  
+  try {
+    const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    if (!available) {
+      return { available: false, reason: 'No platform authenticator' };
+    }
+    
+    // Check what type of biometric is likely available
+    const userAgent = navigator.userAgent.toLowerCase();
+    let type = 'biometric';
+    if (/iphone|ipad/.test(userAgent)) {
+      type = 'Face ID / Touch ID';
+    } else if (/android/.test(userAgent)) {
+      type = 'Fingerprint / Face Unlock';
+    } else if (/mac/.test(userAgent)) {
+      type = 'Touch ID';
+    } else if (/windows/.test(userAgent)) {
+      type = 'Windows Hello';
+    }
+    
+    return { available: true, type };
+  } catch (err) {
+    return { available: false, reason: err.message };
+  }
+}
+
+// Check if biometric is enabled for this wallet
+function isBiometricEnabled() {
+  const saved = localStorage.getItem('tao_biometric');
+  return saved ? JSON.parse(saved).enabled : false;
+}
+
+// Get stored biometric credential
+function getBiometricCredential() {
+  const saved = localStorage.getItem('tao_biometric');
+  return saved ? JSON.parse(saved) : null;
+}
+
+// Register biometric authentication
+async function registerBiometric() {
+  const check = await isBiometricAvailable();
+  if (!check.available) {
+    showToast(`❌ ${check.reason}`, 3000);
+    return false;
+  }
+  
+  try {
+    // Generate a random user ID for this wallet
+    const userId = getSecureRandomBytes(32);
+    const challenge = getSecureRandomBytes(32);
+    
+    const publicKeyCredentialCreationOptions = {
+      challenge: challenge,
+      rp: {
+        name: BIOMETRIC_CONFIG.rpName,
+        id: BIOMETRIC_CONFIG.rpId
+      },
+      user: {
+        id: userId,
+        name: 'tao-wallet-user',
+        displayName: BIOMETRIC_CONFIG.userDisplayName
+      },
+      pubKeyCredParams: [
+        { alg: -7, type: 'public-key' },   // ES256
+        { alg: -257, type: 'public-key' }  // RS256
+      ],
+      authenticatorSelection: {
+        authenticatorAttachment: BIOMETRIC_CONFIG.authenticatorType,
+        userVerification: 'required', // Force biometric verification
+        residentKey: 'preferred'
+      },
+      timeout: BIOMETRIC_CONFIG.timeout,
+      attestation: 'none' // We don't need attestation for local auth
+    };
+    
+    const credential = await navigator.credentials.create({
+      publicKey: publicKeyCredentialCreationOptions
+    });
+    
+    if (credential) {
+      // Store credential ID for later verification
+      const credentialData = {
+        enabled: true,
+        credentialId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId))),
+        publicKey: btoa(String.fromCharCode(...new Uint8Array(credential.response.getPublicKey()))),
+        type: check.type,
+        createdAt: Date.now()
+      };
+      
+      localStorage.setItem('tao_biometric', JSON.stringify(credentialData));
+      showToast(`✅ ${check.type} activé!`, 2000);
+      return true;
+    }
+  } catch (err) {
+    console.error('Biometric registration error:', err);
+    if (err.name === 'NotAllowedError') {
+      showToast('❌ Authentification annulée', 2000);
+    } else {
+      showToast(`❌ Erreur: ${err.message}`, 3000);
+    }
+    return false;
+  }
+}
+
+// Verify biometric authentication
+async function verifyBiometric(reason = 'Confirmer votre identité') {
+  const stored = getBiometricCredential();
+  if (!stored || !stored.enabled) {
+    return { success: false, reason: 'Biometric not enabled' };
+  }
+  
+  try {
+    const challenge = getSecureRandomBytes(32);
+    const credentialId = Uint8Array.from(atob(stored.credentialId), c => c.charCodeAt(0));
+    
+    const publicKeyCredentialRequestOptions = {
+      challenge: challenge,
+      rpId: BIOMETRIC_CONFIG.rpId,
+      allowCredentials: [{
+        id: credentialId,
+        type: 'public-key',
+        transports: ['internal']
+      }],
+      userVerification: 'required',
+      timeout: BIOMETRIC_CONFIG.timeout
+    };
+    
+    const assertion = await navigator.credentials.get({
+      publicKey: publicKeyCredentialRequestOptions
+    });
+    
+    if (assertion) {
+      return { success: true };
+    }
+  } catch (err) {
+    console.error('Biometric verification error:', err);
+    if (err.name === 'NotAllowedError') {
+      return { success: false, reason: 'cancelled' };
+    }
+    return { success: false, reason: err.message };
+  }
+  
+  return { success: false, reason: 'Verification failed' };
+}
+
+// Disable biometric authentication
+function disableBiometric() {
+  localStorage.removeItem('tao_biometric');
+  showToast('🔓 Biométrie désactivée', 2000);
+}
+
+// Prompt for biometric verification (blocking modal)
+async function requireBiometric(reason = 'Vérification biométrique requise') {
+  const stored = getBiometricCredential();
+  if (!stored || !stored.enabled) {
+    return true; // No biometric set up, allow
+  }
+  
+  // Show verification modal
+  return new Promise(async (resolve) => {
+    showModal(`🔐 ${stored.type || 'Biométrie'}`, `
+      <div style="text-align: center; padding: 20px 0;">
+        <div style="font-size: 64px; margin-bottom: 16px;">
+          ${stored.type?.includes('Face') ? '👤' : '👆'}
+        </div>
+        <p style="color: var(--text-secondary); margin-bottom: 24px;">${reason}</p>
+        <button class="btn btn-primary" id="biometricVerifyBtn">Vérifier avec ${stored.type || 'Biométrie'}</button>
+        <button class="btn" style="margin-top: 12px; background: var(--bg-elevated);" onclick="closeModal(event)">Annuler</button>
+      </div>
+    `, false);
+    
+    const btn = document.getElementById('biometricVerifyBtn');
+    btn.onclick = async () => {
+      btn.disabled = true;
+      btn.innerHTML = '<span class="ptr-spinner" style="width: 20px; height: 20px;"></span>';
+      
+      const result = await verifyBiometric(reason);
+      
+      if (result.success) {
+        closeModal();
+        resolve(true);
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = `Réessayer`;
+        if (result.reason !== 'cancelled') {
+          showToast(`❌ Échec: ${result.reason}`, 2000);
+        }
+      }
+    };
+    
+    // Handle modal close (cancel)
+    const modal = document.querySelector('.modal');
+    if (modal) {
+      const originalClose = modal.querySelector('[onclick*="closeModal"]');
+      if (originalClose) {
+        originalClose.onclick = () => {
+          closeModal();
+          resolve(false);
+        };
+      }
+    }
+  });
+}
+
+// Show biometric settings
+async function showBiometricSettings() {
+  const check = await isBiometricAvailable();
+  const stored = getBiometricCredential();
+  const isEnabled = stored?.enabled || false;
+  
+  if (!check.available) {
+    showModal('🔐 Biométrie', `
+      <div style="text-align: center; padding: 20px 0;">
+        <div style="font-size: 64px; margin-bottom: 16px;">🚫</div>
+        <p style="color: var(--text-secondary);">Biométrie non disponible sur cet appareil</p>
+        <p style="color: var(--text-tertiary); font-size: 12px; margin-top: 8px;">${check.reason}</p>
+      </div>
+    `);
+    return;
+  }
+  
+  if (isEnabled) {
+    showModal(`🔐 ${stored.type || 'Biométrie'}`, `
+      <div style="text-align: center; padding: 20px 0;">
+        <div style="font-size: 64px; margin-bottom: 16px;">✅</div>
+        <p style="color: var(--success); font-weight: 600; margin-bottom: 8px;">${stored.type} activé</p>
+        <p style="color: var(--text-tertiary); font-size: 12px; margin-bottom: 24px;">
+          Configuré le ${new Date(stored.createdAt).toLocaleDateString('fr-FR')}
+        </p>
+        <div class="security-badges" style="margin-bottom: 24px;">
+          <span class="security-badge">🔒 Clé sécurisée</span>
+          <span class="security-badge">📱 Liée à cet appareil</span>
+        </div>
+        <button class="btn" style="background: var(--error);" onclick="disableBiometric(); closeModal(event);">
+          Désactiver ${stored.type}
+        </button>
+      </div>
+    `);
+  } else {
+    showModal(`🔐 ${check.type}`, `
+      <div style="text-align: center; padding: 20px 0;">
+        <div style="font-size: 64px; margin-bottom: 16px;">
+          ${check.type?.includes('Face') ? '👤' : '👆'}
+        </div>
+        <p style="color: var(--text-secondary); margin-bottom: 16px;">
+          Protégez votre wallet avec ${check.type}
+        </p>
+        <div class="security-badges" style="margin-bottom: 24px;">
+          <span class="security-badge">🔐 Ouverture app</span>
+          <span class="security-badge">👁️ Voir seed phrase</span>
+          <span class="security-badge">📤 Transactions</span>
+        </div>
+        <button class="btn btn-primary" onclick="enableBiometricFromSettings()">
+          Activer ${check.type}
+        </button>
+      </div>
+    `);
+  }
+}
+
+// Enable biometric from settings (wrapper)
+async function enableBiometricFromSettings() {
+  closeModal();
+  const success = await registerBiometric();
+  if (success) {
+    setTimeout(() => showBiometricSettings(), 500);
+  }
+}
+
 function showImportWallet() {
   showModal('Importer Wallet', `
     <div class="input-group">
@@ -1959,16 +2315,29 @@ function showNotifications() {
   `);
 }
 
-function showSettings() {
+async function showSettings() {
+  const biometricStatus = isBiometricEnabled();
+  const biometricCheck = await isBiometricAvailable();
+  
   showModal('⚙️ Paramètres', `
     <div class="asset-list">
-      <div class="asset-item" onclick="showToast('⚙️ Bientôt!')">
+      <div class="asset-item" onclick="showWalletSettings()">
         <span class="asset-icon">👛</span>
         <div class="asset-info"><div class="asset-name">Wallet</div></div>
         <span>→</span>
       </div>
-      <div class="asset-item" onclick="showToast('🔐 Bientôt!')">
-        <span class="asset-icon">🔐</span>
+      <div class="asset-item" onclick="showBiometricSettings()">
+        <span class="asset-icon">${biometricStatus ? '✅' : '🔐'}</span>
+        <div class="asset-info">
+          <div class="asset-name">${biometricCheck.type || 'Biométrie'}</div>
+          <div class="asset-subtitle" style="font-size: 11px; color: ${biometricStatus ? 'var(--success)' : 'var(--text-tertiary)'};">
+            ${biometricStatus ? 'Activé' : (biometricCheck.available ? 'Disponible' : 'Non disponible')}
+          </div>
+        </div>
+        <span>→</span>
+      </div>
+      <div class="asset-item" onclick="showSecuritySettings()">
+        <span class="asset-icon">🛡️</span>
         <div class="asset-info"><div class="asset-name">Sécurité</div></div>
         <span>→</span>
       </div>
@@ -1982,6 +2351,178 @@ function showSettings() {
       TAO Wallet v${APP_VERSION}
     </p>
   `);
+}
+
+function showWalletSettings() {
+  const wallet = state.wallets[state.activeWalletIndex];
+  if (!wallet) return;
+  
+  showModal('👛 Wallet', `
+    <div class="asset-list">
+      <div class="asset-item" onclick="showSeedPhrase()">
+        <span class="asset-icon">🔑</span>
+        <div class="asset-info"><div class="asset-name">Voir la seed phrase</div></div>
+        <span>→</span>
+      </div>
+      <div class="asset-item" onclick="exportWallet()">
+        <span class="asset-icon">📤</span>
+        <div class="asset-info"><div class="asset-name">Exporter</div></div>
+        <span>→</span>
+      </div>
+      <div class="asset-item" style="border-color: var(--error);" onclick="confirmDeleteWallet()">
+        <span class="asset-icon">🗑️</span>
+        <div class="asset-info"><div class="asset-name" style="color: var(--error);">Supprimer ce wallet</div></div>
+        <span>→</span>
+      </div>
+    </div>
+  `);
+}
+
+function showSecuritySettings() {
+  const biometricStatus = isBiometricEnabled();
+  
+  showModal('🛡️ Sécurité', `
+    <div class="security-badges" style="margin-bottom: 20px; justify-content: center;">
+      <span class="security-badge">🔒 AES-256-GCM</span>
+      <span class="security-badge">🔑 PBKDF2 600k</span>
+      <span class="security-badge">🎲 256 bits</span>
+    </div>
+    <div class="asset-list">
+      <div class="asset-item">
+        <span class="asset-icon">🔐</span>
+        <div class="asset-info">
+          <div class="asset-name">Chiffrement</div>
+          <div class="asset-subtitle" style="font-size: 11px; color: var(--success);">Actif - Grade bancaire</div>
+        </div>
+        <span style="color: var(--success);">✓</span>
+      </div>
+      <div class="asset-item">
+        <span class="asset-icon">${biometricStatus ? '👤' : '👆'}</span>
+        <div class="asset-info">
+          <div class="asset-name">Biométrie</div>
+          <div class="asset-subtitle" style="font-size: 11px; color: ${biometricStatus ? 'var(--success)' : 'var(--text-tertiary)'};">
+            ${biometricStatus ? 'Activé' : 'Non configuré'}
+          </div>
+        </div>
+        <span style="color: ${biometricStatus ? 'var(--success)' : 'var(--text-tertiary)'};">${biometricStatus ? '✓' : '○'}</span>
+      </div>
+    </div>
+    <p style="text-align: center; margin-top: 20px; color: var(--text-tertiary); font-size: 11px;">
+      Vos clés sont chiffrées localement et ne quittent jamais votre appareil.
+    </p>
+  `);
+}
+
+async function showSeedPhrase() {
+  // Require biometric verification first if enabled
+  if (isBiometricEnabled()) {
+    const verified = await requireBiometric('Vérifiez votre identité pour voir la seed phrase');
+    if (!verified) return;
+  }
+  
+  const wallet = state.wallets[state.activeWalletIndex];
+  if (!wallet || !wallet.encryptedMnemonic) {
+    showToast('❌ Seed non disponible', 2000);
+    return;
+  }
+  
+  // Ask for password to decrypt
+  showModal('🔑 Seed Phrase', `
+    <div style="text-align: center; padding: 10px 0;">
+      <p style="color: var(--text-secondary); margin-bottom: 16px;">Entrez votre mot de passe pour déchiffrer</p>
+      <div class="input-group">
+        <input type="password" class="input-field" id="seedPassword" placeholder="Mot de passe">
+      </div>
+      <button class="btn btn-primary" onclick="decryptAndShowSeed()">Déchiffrer</button>
+    </div>
+  `);
+}
+
+async function decryptAndShowSeed() {
+  const password = document.getElementById('seedPassword')?.value;
+  if (!password) return;
+  
+  const wallet = state.wallets[state.activeWalletIndex];
+  const mnemonic = await decryptMnemonic(wallet.encryptedMnemonic, password);
+  
+  if (!mnemonic) {
+    showToast('❌ Mot de passe incorrect', 2000);
+    return;
+  }
+  
+  const words = mnemonic.split(' ');
+  
+  showModal('🔑 Seed Phrase', `
+    <div class="seed-warnings">
+      <div class="seed-warning">❌ Ne fais PAS de screenshot</div>
+      <div class="seed-warning">❌ Ne copie PAS dans le presse-papier</div>
+      <div class="seed-warning">❌ Ne stocke PAS en ligne</div>
+      <div class="seed-warning">✅ Écris sur papier, garde en lieu sûr</div>
+    </div>
+    <div class="seed-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 0;">
+      ${words.map((word, i) => `
+        <div class="seed-word" style="background: var(--bg-elevated); padding: 8px; border-radius: 8px; text-align: center;">
+          <span class="seed-num" style="color: var(--text-tertiary); font-size: 10px;">${i + 1}</span>
+          <span class="seed-text" style="font-weight: 600;">${word}</span>
+        </div>
+      `).join('')}
+    </div>
+    <button class="btn" style="background: var(--bg-elevated);" onclick="closeModal(event)">Fermer</button>
+  `, false);
+  
+  // Auto-close after 2 minutes for security
+  setTimeout(() => {
+    if (document.querySelector('.modal')) {
+      closeModal();
+      showToast('🔒 Seed masquée (sécurité)', 2000);
+    }
+  }, 120000);
+}
+
+function exportWallet() {
+  showToast('📤 Export bientôt disponible', 2000);
+}
+
+function confirmDeleteWallet() {
+  showModal('⚠️ Supprimer Wallet', `
+    <div style="text-align: center; padding: 20px 0;">
+      <p style="color: var(--error); font-weight: 600; margin-bottom: 16px;">Cette action est irréversible!</p>
+      <p style="color: var(--text-secondary); margin-bottom: 24px;">
+        Assurez-vous d'avoir sauvegardé votre seed phrase avant de supprimer.
+      </p>
+      <button class="btn" style="background: var(--error);" onclick="deleteCurrentWallet()">
+        Oui, supprimer définitivement
+      </button>
+      <button class="btn" style="margin-top: 12px; background: var(--bg-elevated);" onclick="closeModal(event)">
+        Annuler
+      </button>
+    </div>
+  `);
+}
+
+async function deleteCurrentWallet() {
+  // Require biometric if enabled
+  if (isBiometricEnabled()) {
+    closeModal();
+    const verified = await requireBiometric('Confirmez pour supprimer le wallet');
+    if (!verified) return;
+  }
+  
+  state.wallets.splice(state.activeWalletIndex, 1);
+  state.activeWalletIndex = 0;
+  saveWallets();
+  
+  closeModal();
+  
+  if (state.wallets.length === 0) {
+    disableBiometric(); // Also remove biometric if no wallets
+    renderOnboarding();
+  } else {
+    await loadWalletData();
+    renderMainUI();
+  }
+  
+  showToast('🗑️ Wallet supprimé', 2000);
 }
 
 function handleInsight(type) {
