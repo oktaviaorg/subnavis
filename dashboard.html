@@ -224,6 +224,28 @@
             margin-left: 8px;
         }
 
+        .coming-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: rgba(139,143,154,0.2);
+            color: var(--text-secondary);
+            margin-left: 8px;
+        }
+
+        .feature-card.coming-soon {
+            opacity: 0.6;
+            cursor: default;
+        }
+
+        .feature-card.coming-soon:hover {
+            transform: none;
+            border-color: var(--border);
+            background: var(--bg-card);
+        }
+
         /* Account Card (special styling) */
         .account-card {
             background: linear-gradient(135deg, rgba(0,212,170,0.1) 0%, rgba(0,163,255,0.1) 100%);
@@ -414,28 +436,28 @@
             </a>
 
             <!-- Whale Alerts -->
-            <a href="#" class="feature-card" id="whale-card">
+            <div class="feature-card coming-soon" id="whale-card">
                 <div class="feature-icon">🐋</div>
-                <h3>Whale Alerts <span class="locked-badge">NAVIGATOR+</span></h3>
+                <h3>Whale Alerts <span class="coming-badge">COMING SOON</span></h3>
                 <p>Get instant Telegram notifications when whales stake or unstake large amounts.</p>
-                <div class="feature-link">Setup Alerts <span>→</span></div>
-            </a>
+                <div class="feature-link" style="color: var(--text-secondary);">Coming soon</div>
+            </div>
 
             <!-- Analytics -->
-            <a href="/analytics.html" class="feature-card">
+            <div class="feature-card coming-soon" id="analytics-card">
                 <div class="feature-icon">📈</div>
-                <h3>Analytics</h3>
+                <h3>Analytics <span class="coming-badge">COMING SOON</span></h3>
                 <p>Historical charts, emission trends, and subnet performance over time.</p>
-                <div class="feature-link">View Analytics <span>→</span></div>
-            </a>
+                <div class="feature-link" style="color: var(--text-secondary);">Coming soon</div>
+            </div>
 
             <!-- API -->
-            <a href="#" class="feature-card" id="api-card">
+            <div class="feature-card coming-soon" id="api-card">
                 <div class="feature-icon">🔑</div>
-                <h3>API Access <span class="locked-badge">CAPTAIN</span></h3>
+                <h3>API Access <span class="coming-badge">COMING SOON</span></h3>
                 <p>Full REST API access with blockchain data, subnet details, and validator statistics.</p>
-                <div class="feature-link">Get API Keys <span>→</span></div>
-            </a>
+                <div class="feature-link" style="color: var(--text-secondary);">Coming soon</div>
+            </div>
 
             <!-- Account -->
             <div class="feature-card account-card" id="account-card">
@@ -521,18 +543,8 @@
                     document.getElementById('account-status').textContent = statusLabels[data.status] || '✅ Active';
                     document.getElementById('account-action').innerHTML = 'Manage subscription <span>→</span>';
                     
-                    // Unlock features based on plan
+                    // Store plan for future feature gating
                     window.userPlan = data.plan;
-                    
-                    if (data.plan === 'navigator' || data.plan === 'captain') {
-                        document.getElementById('whale-card').querySelector('.locked-badge').style.display = 'none';
-                        document.getElementById('whale-card').classList.remove('locked');
-                    }
-                    
-                    if (data.plan === 'captain') {
-                        document.getElementById('api-card').querySelector('.locked-badge').style.display = 'none';
-                        document.getElementById('api-card').classList.remove('locked');
-                    }
                     
                 } catch (e) {
                     console.error('Subscription check failed:', e);
@@ -589,20 +601,8 @@
         // Refresh price every minute
         setInterval(fetchLiveData, 60000);
 
-        // Handle locked features click
-        document.getElementById('whale-card').addEventListener('click', function(e) {
-            if (this.classList.contains('locked') || !window.userPlan || window.userPlan === 'explorer') {
-                e.preventDefault();
-                alert('🐋 Whale Alerts require Navigator plan or higher.\n\nUpgrade to get instant Telegram notifications!');
-            }
-        });
-
-        document.getElementById('api-card').addEventListener('click', function(e) {
-            if (this.classList.contains('locked') || window.userPlan !== 'captain') {
-                e.preventDefault();
-                alert('🔑 API Access requires Captain plan.\n\nUpgrade to get full REST API access!');
-            }
-        });
+        // Coming soon features - no action needed
+        // Whale Alerts, API Access, Analytics are coming soon
 
         document.getElementById('account-card').addEventListener('click', async function() {
             const { data: { session } } = await supabaseClient.auth.getSession();
