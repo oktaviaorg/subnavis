@@ -40,6 +40,7 @@ exports.handler = async (event, context) => {
     params.append('cancel_url', 'https://subnavis.io/pricing.html?cancelled=true');
     params.append('line_items[0][price]', PRICES[plan]);
     params.append('line_items[0][quantity]', '1');
+    params.append('allow_promotion_codes', 'true');  // Enable promo codes for influencers
     
     if (email) {
       params.append('customer_email', email);
