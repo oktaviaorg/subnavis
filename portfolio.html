@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio Tracker - Subnavis</title>
+    <title>Portfolio - Subnavis</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-primary: #0a0b0d;
             --bg-secondary: #12141a;
             --bg-card: #1a1d26;
+            --bg-card-hover: #22262f;
             --accent: #00d4aa;
             --accent-dim: #00d4aa22;
             --accent-blue: #00a3ff;
@@ -21,6 +22,7 @@
             --border: #2a2d38;
             --green: #00d4aa;
             --red: #ff4757;
+            --gold: #FFD700;
             --gradient: linear-gradient(135deg, #00d4aa 0%, #00a3ff 100%);
         }
 
@@ -34,11 +36,10 @@
             min-height: 100vh;
         }
 
+        /* Navigation */
         nav {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             z-index: 100;
             padding: 16px 24px;
             background: rgba(10, 11, 13, 0.95);
@@ -57,42 +58,46 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             text-decoration: none;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 16px;
-            align-items: center;
-        }
+        .logo img { width: 32px; height: 32px; border-radius: 6px; }
 
-        .nav-links a {
+        .nav-right { display: flex; align-items: center; gap: 16px; }
+
+        .back-link {
             color: var(--text-secondary);
             text-decoration: none;
             font-size: 0.9rem;
-            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .nav-links a:hover { color: var(--text-primary); }
+        .back-link:hover { color: var(--accent); }
 
+        /* Main */
         .container {
+            padding-top: 100px;
+            padding-bottom: 60px;
             max-width: 1000px;
             margin: 0 auto;
-            padding: 100px 24px 40px;
+            padding-left: 24px;
+            padding-right: 24px;
         }
 
-        .page-header {
-            margin-bottom: 32px;
-        }
-
-        .page-header h1 {
+        h1 {
             font-family: 'Space Grotesk', sans-serif;
             font-size: 2rem;
             margin-bottom: 8px;
         }
 
-        .page-header p {
+        .subtitle {
             color: var(--text-secondary);
+            margin-bottom: 32px;
         }
 
         /* Wallet Input */
@@ -101,229 +106,236 @@
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 24px;
-            margin-bottom: 24px;
+            margin-bottom: 32px;
         }
 
         .wallet-input-section h3 {
+            font-size: 1rem;
             margin-bottom: 16px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .wallet-form {
+        .input-row {
             display: flex;
             gap: 12px;
         }
 
-        .wallet-form input {
+        .wallet-input {
             flex: 1;
-            padding: 14px 16px;
-            border-radius: 8px;
+            padding: 14px 18px;
+            border-radius: 10px;
             border: 1px solid var(--border);
             background: var(--bg-secondary);
             color: var(--text-primary);
             font-size: 0.95rem;
-            font-family: monospace;
+            font-family: 'Inter', monospace;
+            outline: none;
+            transition: border-color 0.2s;
         }
 
-        .wallet-form input:focus {
-            outline: none;
+        .wallet-input:focus {
             border-color: var(--accent);
         }
 
-        .wallet-form input::placeholder {
+        .wallet-input::placeholder {
             color: var(--text-secondary);
-            font-family: 'Inter', sans-serif;
-        }
-
-        .btn {
-            padding: 14px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
         }
 
         .btn-primary {
+            padding: 14px 28px;
+            border-radius: 10px;
             background: var(--gradient);
             color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 212, 170, 0.3);
+            box-shadow: 0 8px 24px rgba(0, 212, 170, 0.3);
         }
 
         .btn-primary:disabled {
-            opacity: 0.6;
+            opacity: 0.5;
             cursor: not-allowed;
             transform: none;
         }
 
-        /* Portfolio Overview */
-        .portfolio-overview {
-            display: none;
+        /* Saved Wallets */
+        .saved-wallets {
+            margin-top: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
-        .portfolio-overview.active {
-            display: block;
+        .wallet-chip {
+            padding: 8px 14px;
+            border-radius: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .stats-row {
+        .wallet-chip:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .wallet-chip .remove {
+            color: var(--red);
+            font-weight: bold;
+        }
+
+        /* Portfolio Summary */
+        .portfolio-summary {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 16px;
-            margin-bottom: 24px;
+            margin-bottom: 32px;
         }
 
-        .stat-card {
+        .summary-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 20px;
+            text-align: center;
         }
 
-        .stat-label {
-            font-size: 0.85rem;
+        .summary-label {
+            font-size: 0.8rem;
             color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             margin-bottom: 8px;
         }
 
-        .stat-value {
+        .summary-value {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             font-weight: 700;
         }
 
-        .stat-change {
+        .summary-sub {
             font-size: 0.85rem;
+            color: var(--text-secondary);
             margin-top: 4px;
         }
 
-        .stat-change.positive { color: var(--green); }
-        .stat-change.negative { color: var(--red); }
-
-        /* Positions Table */
-        .card {
+        /* Stakes Table */
+        .stakes-section {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
-            margin-bottom: 24px;
         }
 
-        .card-header {
-            padding: 16px 20px;
+        .stakes-header {
+            padding: 20px 24px;
             border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .card-title {
-            font-weight: 600;
+        .stakes-header h3 {
+            font-size: 1.1rem;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .positions-table {
+        .stakes-table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        .positions-table th,
-        .positions-table td {
-            padding: 14px 20px;
+        .stakes-table th,
+        .stakes-table td {
+            padding: 16px 24px;
             text-align: left;
             border-bottom: 1px solid var(--border);
         }
 
-        .positions-table th {
-            font-size: 0.8rem;
+        .stakes-table th {
+            font-size: 0.75rem;
             color: var(--text-secondary);
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        .positions-table tr:last-child td {
+        .stakes-table tr:last-child td {
             border-bottom: none;
         }
 
-        .positions-table tr:hover {
+        .stakes-table tr:hover td {
             background: var(--bg-secondary);
         }
 
-        .subnet-name {
+        .subnet-cell {
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
         .subnet-badge {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             background: var(--gradient);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 700;
+        }
+
+        .subnet-name {
+            font-weight: 600;
+        }
+
+        .subnet-id {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .amount-tao {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+        }
+
+        .amount-usd {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
         }
 
         .positive { color: var(--green); }
         .negative { color: var(--red); }
 
-        /* Empty State */
-        .empty-state {
+        /* Loading */
+        .loading {
             text-align: center;
             padding: 60px 20px;
             color: var(--text-secondary);
         }
 
-        .empty-state h3 {
-            color: var(--text-primary);
-            margin-bottom: 8px;
-        }
-
-        /* Premium Banner */
-        .premium-banner {
-            background: linear-gradient(135deg, rgba(0, 212, 170, 0.1) 0%, rgba(0, 163, 255, 0.1) 100%);
-            border: 1px dashed var(--accent);
-            border-radius: 12px;
-            padding: 24px;
-            text-align: center;
-            margin-top: 24px;
-        }
-
-        .premium-banner h3 {
-            margin-bottom: 8px;
-        }
-
-        .premium-banner p {
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-        }
-
-        /* Loading */
-        .loading {
-            text-align: center;
-            padding: 40px;
-            display: none;
-        }
-
-        .loading.active {
-            display: block;
-        }
-
         .spinner {
-            width: 32px;
-            height: 32px;
+            width: 40px;
+            height: 40px;
             border: 3px solid var(--border);
             border-top-color: var(--accent);
             border-radius: 50%;
@@ -335,375 +347,289 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .stats-row {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .wallet-form {
-                flex-direction: column;
-            }
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
         }
 
-        /* Wallet address display */
-        .wallet-address {
-            font-family: monospace;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            background: var(--bg-secondary);
-            padding: 8px 12px;
-            border-radius: 6px;
-            margin-top: 12px;
-            word-break: break-all;
+        .empty-state .icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .portfolio-summary {
+                grid-template-columns: 1fr;
+            }
+            .input-row {
+                flex-direction: column;
+            }
+            .stakes-table th:nth-child(3),
+            .stakes-table td:nth-child(3) {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
     <nav>
-        <a href="/" class="logo">🧭 Subnavis</a>
-        <div class="nav-links">
-            <a href="/dashboard.html">Dashboard</a>
-            <a href="/portfolio.html" style="color: var(--accent);">Portfolio</a>
-            <a href="/app.html">Account</a>
+        <a href="/" class="logo">
+            <img src="/logo-subnavis.png" alt="Subnavis">
+            Subnavis
+        </a>
+        <div class="nav-right">
+            <a href="/dashboard.html" class="back-link">← Dashboard</a>
         </div>
     </nav>
 
-    <div class="container">
-        <div class="page-header">
-            <h1>💼 Portfolio Tracker</h1>
-            <p>Track your TAO positions across all subnets</p>
-        </div>
+    <main class="container">
+        <h1>💼 Portfolio Tracker</h1>
+        <p class="subtitle">Track your TAO holdings across validators and subnets</p>
 
         <!-- Wallet Input -->
         <div class="wallet-input-section">
-            <h3>🔗 Connect Your Wallet</h3>
-            <form class="wallet-form" id="wallet-form">
-                <input type="text" id="wallet-input" placeholder="Enter your TAO wallet address (5Gx...)" required>
-                <button type="submit" class="btn btn-primary" id="track-btn">Track Wallet</button>
-            </form>
-            <div id="current-wallet" class="wallet-address" style="display: none;"></div>
-        </div>
-
-        <!-- Loading -->
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Fetching your positions...</p>
-        </div>
-
-        <!-- Portfolio Overview -->
-        <div class="portfolio-overview" id="portfolio">
-            <!-- Stats -->
-            <div class="stats-row">
-                <div class="stat-card">
-                    <div class="stat-label">Total Balance</div>
-                    <div class="stat-value" id="total-balance">0 τ</div>
-                    <div class="stat-change positive" id="balance-usd">$0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Staked</div>
-                    <div class="stat-value" id="total-staked">0 τ</div>
-                    <div class="stat-change" id="staked-percent">0% of balance</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Free Balance</div>
-                    <div class="stat-value" id="free-balance">0 τ</div>
-                    <div class="stat-change">Available to stake</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Active Subnets</div>
-                    <div class="stat-value" id="active-subnets">0</div>
-                    <div class="stat-change">Positions</div>
-                </div>
-            </div>
-
-            <!-- Positions -->
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title">📊 Your Positions</span>
-                </div>
-                <div id="positions-container">
-                    <table class="positions-table" id="positions-table">
-                        <thead>
-                            <tr>
-                                <th>Subnet</th>
-                                <th>Staked</th>
-                                <th>Value (USD)</th>
-                                <th>APR</th>
-                                <th>Trend</th>
-                            </tr>
-                        </thead>
-                        <tbody id="positions-body">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Premium Banner -->
-            <div class="premium-banner">
-                <h3>🔔 Want alerts when your positions change?</h3>
-                <p>Get notified when validators change, rewards arrive, or large movements happen.</p>
-                <button class="btn btn-primary" onclick="document.getElementById('upgrade-modal').style.display='flex'">
-                    Upgrade to Pro — €15/mo
+            <h3>🔗 Add Wallet Address</h3>
+            <div class="input-row">
+                <input type="text" class="wallet-input" id="wallet-input" 
+                       placeholder="Enter SS58 address (5...)" 
+                       spellcheck="false">
+                <button class="btn-primary" id="load-btn" onclick="loadWallet()">
+                    Load Wallet
                 </button>
             </div>
+            <div class="saved-wallets" id="saved-wallets">
+                <!-- Saved wallets appear here -->
+            </div>
         </div>
 
-        <!-- Empty State -->
-        <div class="empty-state" id="empty-state">
-            <h3>👆 Enter your wallet address above</h3>
-            <p>We'll show you all your staked positions across Bittensor subnets</p>
-        </div>
-    </div>
+        <!-- Portfolio Content (hidden until wallet loaded) -->
+        <div id="portfolio-content" style="display: none;">
+            <!-- Summary Cards -->
+            <div class="portfolio-summary">
+                <div class="summary-card">
+                    <div class="summary-label">Total Balance</div>
+                    <div class="summary-value" id="total-balance">0 τ</div>
+                    <div class="summary-sub" id="total-usd">$0.00</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Staked</div>
+                    <div class="summary-value" id="total-staked">0 τ</div>
+                    <div class="summary-sub" id="staked-percent">0% of portfolio</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Free Balance</div>
+                    <div class="summary-value" id="free-balance">0 τ</div>
+                    <div class="summary-sub">Available to transfer</div>
+                </div>
+            </div>
 
-    <!-- Upgrade Modal -->
-    <div id="upgrade-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; max-width: 420px; width: 90%; text-align: center;">
-            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 8px;">🚀 Upgrade to Pro</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 24px;">Get alerts, unlimited wallets, and more</p>
-            
-            <form id="upgrade-form" style="display: flex; flex-direction: column; gap: 12px;">
-                <input type="email" placeholder="Enter your email" required style="padding: 14px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-secondary); color: var(--text-primary); font-size: 1rem;">
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    Join Waitlist — Get 50% Off
-                </button>
-            </form>
-            
-            <button onclick="document.getElementById('upgrade-modal').style.display='none'" style="margin-top: 16px; background: none; border: none; color: var(--text-secondary); cursor: pointer;">
-                Maybe later
-            </button>
+            <!-- Stakes Table -->
+            <div class="stakes-section">
+                <div class="stakes-header">
+                    <h3>📊 Staked Positions</h3>
+                    <span id="stakes-count" style="color: var(--text-secondary); font-size: 0.9rem;">0 positions</span>
+                </div>
+                <div id="stakes-content">
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <p>No staked positions found</p>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
+
+        <!-- Loading State -->
+        <div id="loading-state" style="display: none;">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading wallet data...</p>
+            </div>
+        </div>
+
+        <!-- Initial State -->
+        <div id="initial-state">
+            <div class="empty-state">
+                <div class="icon">👆</div>
+                <p>Enter a wallet address above to view your portfolio</p>
+            </div>
+        </div>
+    </main>
 
     <script>
-        // Supabase
-        const SUPABASE_URL = 'https://srvfbbehmpnvocwodcpq.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_PWMkW8e2UJBdxcfX0DN_VQ_dvJCu_Vq';
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const TAOSTATS_API = 'https://api.taostats.io/api';
+        const API_KEY = 'tao-7525a19d-5392-42f5-b854-7aae224818a7:82ca85cf';
+        
+        let taoPrice = 285; // Will be fetched
+        let savedWallets = JSON.parse(localStorage.getItem('subnavis_wallets') || '[]');
 
-        // TAO price (mock for now)
-        const TAO_PRICE = 285;
-
-        // DOM elements
-        const walletForm = document.getElementById('wallet-form');
-        const walletInput = document.getElementById('wallet-input');
-        const trackBtn = document.getElementById('track-btn');
-        const loading = document.getElementById('loading');
-        const portfolio = document.getElementById('portfolio');
-        const emptyState = document.getElementById('empty-state');
-        const currentWallet = document.getElementById('current-wallet');
-
-        // Check for saved wallet
-        const savedWallet = localStorage.getItem('subnavis_wallet');
-        if (savedWallet) {
-            walletInput.value = savedWallet;
-            loadPortfolio(savedWallet);
-        }
-
-        // Form submit
-        walletForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const address = walletInput.value.trim();
-            if (address) {
-                localStorage.setItem('subnavis_wallet', address);
-                loadPortfolio(address);
-            }
-        });
-
-        async function loadPortfolio(address) {
-            // Show loading
-            loading.classList.add('active');
-            portfolio.classList.remove('active');
-            emptyState.style.display = 'none';
-            trackBtn.disabled = true;
-            trackBtn.textContent = 'Loading...';
-
-            // Show current wallet
-            currentWallet.textContent = '📍 ' + address;
-            currentWallet.style.display = 'block';
-
+        // Fetch TAO price
+        async function fetchTaoPrice() {
             try {
-                // Fetch from Netlify Function
-                const response = await fetch('/api/api-wallet?address=' + encodeURIComponent(address));
-                const data = await response.json();
-                
-                // Map API response to portfolio format
-                const portfolioData = {
-                    address: data.address,
-                    totalBalance: data.total_balance,
-                    totalStaked: data.total_staked,
-                    freeBalance: data.free_balance,
-                    positions: data.positions.map(p => ({
-                        netuid: p.netuid,
-                        name: getSubnetName(p.netuid),
-                        staked: p.staked,
-                        apr: getSubnetAPR(p.netuid)
-                    }))
-                };
-                
-                displayPortfolio(portfolioData);
-                
-            } catch (error) {
-                console.error('Error fetching wallet:', error);
-                // Fallback to mock data
-                const portfolioData = generateMockPortfolio(address);
-                displayPortfolio(portfolioData);
+                const res = await fetch('/api/api-price');
+                const data = await res.json();
+                taoPrice = data.price;
+            } catch (e) {
+                console.error('Price fetch failed:', e);
             }
+        }
 
-            // Hide loading
-            loading.classList.remove('active');
-            portfolio.classList.add('active');
-            trackBtn.disabled = false;
-            trackBtn.textContent = 'Track Wallet';
-        }
-        
-        // Subnet name lookup
-        function getSubnetName(netuid) {
-            const names = {
-                0: 'Root', 1: 'Apex', 7: 'Subvortex', 8: 'Taoshi',
-                13: 'Dataverse', 18: 'Cortex', 19: 'Inference',
-                21: 'Omega', 28: 'Foundry', 32: 'ITS', 37: 'Finetuning',
-                44: 'SocialTensor', 49: 'Autocast'
-            };
-            return names[netuid] || 'Subnet ' + netuid;
-        }
-        
-        // APR lookup (mock for now)
-        function getSubnetAPR(netuid) {
-            const aprs = {
-                0: 18.5, 1: 22.0, 7: 22.5, 8: 19.8, 13: 25.1,
-                18: 20.3, 19: 21.5, 21: 18.9, 28: 23.2, 32: 19.1,
-                37: 20.8, 44: 24.5, 49: 21.0
-            };
-            return aprs[netuid] || 20.0;
-        }
-        
-        // Trend indicator (Bull/Bear)
-        // Based on: stake flow, price trend, whale activity
-        function getSubnetTrend(netuid) {
-            // Mock trend data (in production: API call)
-            const trends = {
-                0: { score: 75, signal: 'bull', reason: 'Strong inflows' },
-                1: { score: 82, signal: 'bull', reason: 'Whale accumulation' },
-                7: { score: 68, signal: 'bull', reason: 'Steady growth' },
-                8: { score: 45, signal: 'neutral', reason: 'Consolidating' },
-                13: { score: 88, signal: 'bull', reason: 'Hot subnet!' },
-                18: { score: 35, signal: 'bear', reason: 'Outflows detected' },
-                19: { score: 72, signal: 'bull', reason: 'Rising interest' },
-                21: { score: 40, signal: 'neutral', reason: 'Sideways' },
-                28: { score: 25, signal: 'bear', reason: 'Whale exits' },
-                32: { score: 55, signal: 'neutral', reason: 'Mixed signals' },
-                37: { score: 78, signal: 'bull', reason: 'Dev activity' },
-                44: { score: 30, signal: 'bear', reason: 'Declining APR' },
-                49: { score: 65, signal: 'bull', reason: 'New validators' }
-            };
-            
-            const t = trends[netuid] || { score: 50, signal: 'neutral', reason: 'No data' };
-            
-            let html = '';
-            if (t.signal === 'bull') {
-                html = `<span style="color: var(--green); font-weight: 600;" title="${t.reason}">🐂 BULL</span>`;
-            } else if (t.signal === 'bear') {
-                html = `<span style="color: var(--red); font-weight: 600;" title="${t.reason}">🐻 BEAR</span>`;
-            } else {
-                html = `<span style="color: var(--text-secondary);" title="${t.reason}">➖ HOLD</span>`;
+        // Render saved wallets
+        function renderSavedWallets() {
+            const container = document.getElementById('saved-wallets');
+            if (savedWallets.length === 0) {
+                container.innerHTML = '<span style="font-size: 0.85rem; color: var(--text-secondary);">No saved wallets</span>';
+                return;
             }
-            
-            return { ...t, html };
+            container.innerHTML = savedWallets.map((w, i) => `
+                <div class="wallet-chip" onclick="loadSavedWallet('${w}')">
+                    ${w.slice(0, 6)}...${w.slice(-4)}
+                    <span class="remove" onclick="event.stopPropagation(); removeWallet(${i})">×</span>
+                </div>
+            `).join('');
         }
 
-        function generateMockPortfolio(address) {
-            // Generate realistic mock data
-            const isJulien = address.startsWith('5Gxc');
-            
-            const positions = [
-                { netuid: 7, name: 'Subvortex', staked: isJulien ? 1.16 : 45.5, apr: 22.5 },
-                { netuid: 1, name: 'Apex', staked: isJulien ? 0 : 120.3, apr: 18.2 },
-                { netuid: 13, name: 'Dataverse', staked: isJulien ? 0 : 35.8, apr: 25.1 },
-            ].filter(p => p.staked > 0);
-
-            const totalStaked = positions.reduce((sum, p) => sum + p.staked, 0);
-            const freeBalance = isJulien ? 0.10 : 15.5;
-            const totalBalance = totalStaked + freeBalance;
-
-            return {
-                address,
-                totalBalance,
-                totalStaked,
-                freeBalance,
-                positions
-            };
+        function loadSavedWallet(address) {
+            document.getElementById('wallet-input').value = address;
+            loadWallet();
         }
 
-        function displayPortfolio(data) {
-            // Stats
-            document.getElementById('total-balance').textContent = data.totalBalance.toFixed(2) + ' τ';
-            document.getElementById('balance-usd').textContent = '$' + (data.totalBalance * TAO_PRICE).toLocaleString(undefined, {maximumFractionDigits: 0});
-            document.getElementById('total-staked').textContent = data.totalStaked.toFixed(2) + ' τ';
-            document.getElementById('staked-percent').textContent = ((data.totalStaked / data.totalBalance) * 100).toFixed(0) + '% of balance';
-            document.getElementById('free-balance').textContent = data.freeBalance.toFixed(2) + ' τ';
-            document.getElementById('active-subnets').textContent = data.positions.length;
+        function removeWallet(index) {
+            savedWallets.splice(index, 1);
+            localStorage.setItem('subnavis_wallets', JSON.stringify(savedWallets));
+            renderSavedWallets();
+        }
 
-            // Positions table
-            const tbody = document.getElementById('positions-body');
-            tbody.innerHTML = '';
+        function saveWallet(address) {
+            if (!savedWallets.includes(address)) {
+                savedWallets.push(address);
+                localStorage.setItem('subnavis_wallets', JSON.stringify(savedWallets));
+                renderSavedWallets();
+            }
+        }
 
-            if (data.positions.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">No staked positions found</td></tr>';
+        // Load wallet data
+        async function loadWallet() {
+            const address = document.getElementById('wallet-input').value.trim();
+            
+            if (!address || !address.startsWith('5')) {
+                alert('Please enter a valid SS58 address (starts with 5)');
                 return;
             }
 
-            data.positions.forEach(pos => {
-                const value = pos.staked * TAO_PRICE;
-                const trend = getSubnetTrend(pos.netuid);
-                const tr = document.createElement('tr');
-                tr.style.cursor = 'pointer';
-                tr.onclick = () => window.location.href = '/subnet.html?id=' + pos.netuid;
-                tr.innerHTML = `
-                    <td>
-                        <div class="subnet-name">
-                            <div class="subnet-badge">${pos.netuid}</div>
-                            <div>
-                                <strong>${pos.name}</strong>
-                                <div style="font-size: 0.8rem; color: var(--text-secondary);">SN${pos.netuid} → Click for details</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td><strong>${pos.staked.toFixed(2)} τ</strong></td>
-                    <td>$${value.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-                    <td class="positive">${pos.apr.toFixed(1)}%</td>
-                    <td>${trend.html}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // Upgrade form
-        document.getElementById('upgrade-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = e.target.querySelector('input').value;
-            const btn = e.target.querySelector('button');
-            
-            btn.textContent = 'Joining...';
-            btn.disabled = true;
+            document.getElementById('initial-state').style.display = 'none';
+            document.getElementById('portfolio-content').style.display = 'none';
+            document.getElementById('loading-state').style.display = 'block';
+            document.getElementById('load-btn').disabled = true;
 
             try {
-                await fetch(`${SUPABASE_URL}/rest/v1/subnavis_waitlist`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, source: 'portfolio_upgrade' })
+                // Fetch balance
+                const balanceRes = await fetch(`${TAOSTATS_API}/account/balance/latest/v1?ss58=${address}`, {
+                    headers: { 'Authorization': API_KEY }
                 });
-            } catch (err) {}
+                const balanceData = await balanceRes.json();
 
-            btn.textContent = '✓ You\'re on the list!';
-            setTimeout(() => {
-                document.getElementById('upgrade-modal').style.display = 'none';
-                btn.textContent = 'Join Waitlist — Get 50% Off';
-                btn.disabled = false;
-            }, 2000);
+                // Fetch delegations/stakes
+                const stakeRes = await fetch(`${TAOSTATS_API}/delegation/latest/v1?ss58=${address}`, {
+                    headers: { 'Authorization': API_KEY }
+                });
+                const stakeData = await stakeRes.json();
+
+                // Process data
+                const balance = balanceData[0] || {};
+                const free = parseFloat(balance.free || 0) / 1e9;
+                const staked = parseFloat(balance.staked || 0) / 1e9;
+                const total = free + staked;
+
+                // Update summary
+                document.getElementById('total-balance').textContent = formatTao(total) + ' τ';
+                document.getElementById('total-usd').textContent = '$' + (total * taoPrice).toLocaleString(undefined, {maximumFractionDigits: 2});
+                document.getElementById('total-staked').textContent = formatTao(staked) + ' τ';
+                document.getElementById('staked-percent').textContent = total > 0 ? ((staked / total) * 100).toFixed(1) + '% of portfolio' : '0%';
+                document.getElementById('free-balance').textContent = formatTao(free) + ' τ';
+
+                // Update stakes table
+                const stakes = stakeData || [];
+                document.getElementById('stakes-count').textContent = stakes.length + ' position' + (stakes.length !== 1 ? 's' : '');
+
+                if (stakes.length > 0) {
+                    const tableHtml = `
+                        <table class="stakes-table">
+                            <thead>
+                                <tr>
+                                    <th>Subnet</th>
+                                    <th>Staked Amount</th>
+                                    <th>Validator</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${stakes.map(s => {
+                                    const amount = parseFloat(s.stake || 0) / 1e9;
+                                    return `
+                                        <tr>
+                                            <td>
+                                                <div class="subnet-cell">
+                                                    <div class="subnet-badge">${s.netuid || '?'}</div>
+                                                    <div>
+                                                        <div class="subnet-name">${s.subnet_name || 'Subnet ' + s.netuid}</div>
+                                                        <div class="subnet-id">SN${s.netuid}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="amount-tao">${formatTao(amount)} τ</div>
+                                                <div class="amount-usd">$${(amount * taoPrice).toLocaleString(undefined, {maximumFractionDigits: 2})}</div>
+                                            </td>
+                                            <td style="font-family: monospace; font-size: 0.85rem; color: var(--text-secondary);">
+                                                ${s.delegate_ss58 ? s.delegate_ss58.slice(0, 8) + '...' : '--'}
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                    document.getElementById('stakes-content').innerHTML = tableHtml;
+                } else {
+                    document.getElementById('stakes-content').innerHTML = `
+                        <div class="empty-state">
+                            <div class="icon">📭</div>
+                            <p>No staked positions found for this wallet</p>
+                        </div>
+                    `;
+                }
+
+                // Save wallet
+                saveWallet(address);
+
+                document.getElementById('loading-state').style.display = 'none';
+                document.getElementById('portfolio-content').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading wallet:', error);
+                alert('Failed to load wallet data. Please check the address and try again.');
+                document.getElementById('loading-state').style.display = 'none';
+                document.getElementById('initial-state').style.display = 'block';
+            }
+
+            document.getElementById('load-btn').disabled = false;
+        }
+
+        function formatTao(amount) {
+            if (amount >= 1000000) return (amount / 1000000).toFixed(2) + 'M';
+            if (amount >= 1000) return (amount / 1000).toFixed(2) + 'K';
+            return amount.toFixed(2);
+        }
+
+        // Init
+        fetchTaoPrice();
+        renderSavedWallets();
+
+        // Enter key to load
+        document.getElementById('wallet-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') loadWallet();
         });
     </script>
 </body>
