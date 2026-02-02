@@ -466,6 +466,7 @@
                     <li class="disabled">API access</li>
                 </ul>
                 <button class="btn btn-primary" onclick="subscribe('navigator')">Subscribe Now</button>
+                <button class="btn btn-secondary" style="margin-top:8px;font-size:0.8rem;" onclick="subscribeTest('navigator')">🧪 Test Mode</button>
             </div>
 
             <!-- Captain -->
@@ -570,6 +571,35 @@
             const taoCaptain = (pricing.yearly.captain * 0.8) / TAO_PRICE;
             document.getElementById('tao-navigator').textContent = '~' + taoNavigator.toFixed(1) + ' τ';
             document.getElementById('tao-captain').textContent = '~' + taoCaptain.toFixed(1) + ' τ';
+        }
+
+        async function subscribeTest(plan) {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = '🧪 Loading...';
+
+            try {
+                const planId = plan === 'navigator' ? 'navigator_monthly' : 'captain_monthly';
+                
+                const response = await fetch('/api/create-checkout-test', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ plan: planId })
+                });
+
+                const data = await response.json();
+                
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    throw new Error(data.error || 'Failed to create test checkout');
+                }
+            } catch (error) {
+                console.error('Test checkout error:', error);
+                alert('Error creating test checkout: ' + error.message);
+                btn.disabled = false;
+                btn.textContent = '🧪 Test Mode';
+            }
         }
 
         async function subscribe(plan) {
