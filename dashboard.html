@@ -588,15 +588,51 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_PWMkW8e2UJBdxcfX0DN_VQ_dvJCu_Vq';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Check auth status
+        // Check auth status and subscription
         async function checkAuth() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             const userStatus = document.getElementById('user-status');
             
             if (session) {
+                // Show loading state
                 userStatus.innerHTML = `
-                    <span style="color: var(--text-secondary); font-size: 0.85rem; margin-right: 8px;">${session.user.email}</span>
+                    <span style="color: var(--text-secondary); font-size: 0.85rem;">${session.user.email}</span>
+                    <span id="plan-badge" style="margin: 0 8px; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; background: var(--bg-secondary); color: var(--text-secondary);">...</span>
                     <button onclick="logout()" style="padding: 8px 16px; border-radius: 6px; background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); cursor: pointer; font-size: 0.85rem;">Log Out</button>
+                `;
+                
+                // Check subscription status
+                try {
+                    const response = await fetch('/api/check-subscription', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: session.user.email })
+                    });
+                    const data = await response.json();
+                    
+                    const planBadge = document.getElementById('plan-badge');
+                    if (planBadge) {
+                        const planColors = {
+                            'explorer': { bg: 'var(--bg-secondary)', color: 'var(--text-secondary)' },
+                            'navigator': { bg: 'rgba(0,212,170,0.2)', color: 'var(--accent)' },
+                            'captain': { bg: 'rgba(255,215,0,0.2)', color: '#FFD700' }
+                        };
+                        const colors = planColors[data.plan] || planColors.explorer;
+                        const statusIcon = data.status === 'trialing' ? '🎁 ' : '';
+                        planBadge.style.background = colors.bg;
+                        planBadge.style.color = colors.color;
+                        planBadge.textContent = statusIcon + data.planName;
+                    }
+                    
+                    // Store plan for feature gating
+                    window.userPlan = data.plan;
+                } catch (e) {
+                    console.error('Failed to check subscription:', e);
+                    document.getElementById('plan-badge').textContent = 'Explorer';
+                }
+            } else {
+                userStatus.innerHTML = `
+                    <a href="/app.html" class="btn-login" style="padding: 8px 16px; border-radius: 6px; background: var(--accent-dim); color: var(--accent); text-decoration: none; font-size: 0.85rem; font-weight: 500;">Log In</a>
                 `;
             }
         }
