@@ -919,27 +919,426 @@ function showStake() {
     return;
   }
   
-  const subnets = Object.entries(SUBNET_INFO).slice(1, 6);
+  const balance = state.balance || { free: 0, staked: 0 };
+  const userAPY = calculateUserAPY();
   
-  showModal('Staker τ', `
+  showModal('📊 Staking', `
+    <div class="stake-summary">
+      <div class="stake-stat">
+        <span class="stake-stat-value">${formatTAO(balance.staked)} τ</span>
+        <span class="stake-stat-label">Staké</span>
+      </div>
+      <div class="stake-stat">
+        <span class="stake-stat-value">${formatTAO(balance.free)} τ</span>
+        <span class="stake-stat-label">Disponible</span>
+      </div>
+      <div class="stake-stat">
+        <span class="stake-stat-value">${userAPY.toFixed(1)}%</span>
+        <span class="stake-stat-label">APY moyen</span>
+      </div>
+    </div>
+    
+    <div class="stake-actions">
+      <button class="stake-action-btn" onclick="showStakeNew()">
+        <span class="stake-action-icon">➕</span>
+        <span class="stake-action-label">Staker</span>
+      </button>
+      <button class="stake-action-btn" onclick="showUnstake()">
+        <span class="stake-action-icon">➖</span>
+        <span class="stake-action-label">Destaker</span>
+      </button>
+      <button class="stake-action-btn" onclick="showRestake()">
+        <span class="stake-action-icon">🔄</span>
+        <span class="stake-action-label">Re-staker</span>
+      </button>
+      <button class="stake-action-btn" onclick="showBestAPY()">
+        <span class="stake-action-icon">🏆</span>
+        <span class="stake-action-label">Best APY</span>
+      </button>
+    </div>
+    
+    ${state.positions.length > 0 ? `
+    <h3 style="margin: 20px 0 12px; font-size: 16px;">📋 Tes positions (${state.positions.length})</h3>
+    <div class="asset-list">
+      ${state.positions.map(pos => {
+        const subnet = SUBNET_INFO[pos.netuid] || { name: `SN${pos.netuid}`, emoji: '🔷', apy: 15 };
+        return `
+        <div class="asset-item" onclick="showPositionDetail(${pos.netuid})">
+          <div class="asset-icon subnet">${subnet.emoji}</div>
+          <div class="asset-info">
+            <div class="asset-name">SN${pos.netuid} - ${subnet.name}</div>
+            <div class="asset-subtitle">~${subnet.apy}% APY</div>
+          </div>
+          <div class="asset-values">
+            <div class="asset-amount">${formatTAO(pos.staked)}</div>
+            <div class="asset-usd">${formatUSD(pos.staked * state.taoPrice)}</div>
+          </div>
+        </div>
+      `}).join('')}
+    </div>
+    ` : `
+    <div style="text-align: center; padding: 30px; color: var(--text-tertiary);">
+      <p>Aucune position de staking</p>
+      <p style="font-size: 13px; margin-top: 8px;">Stake tes τ pour gagner des rewards !</p>
+    </div>
+    `}
+  `);
+}
+
+function showStakeNew() {
+  const subnets = Object.entries(SUBNET_INFO).slice(1, 7);
+  
+  showModal('➕ Staker', `
     <p style="color: var(--text-secondary); margin-bottom: 16px;">Choisis un subnet</p>
     <div class="asset-list">
       ${subnets.map(([id, info]) => `
-        <div class="asset-item" onclick="stakeOnSubnet(${id})">
+        <div class="asset-item" onclick="selectSubnetToStake(${id})">
           <div class="asset-icon subnet">${info.emoji}</div>
           <div class="asset-info">
             <div class="asset-name">SN${id} - ${info.name}</div>
             <div class="asset-subtitle">~${info.apy}% APY</div>
           </div>
-          <span>→</span>
+          <span style="color: var(--success);">→</span>
         </div>
       `).join('')}
     </div>
   `);
 }
 
-function stakeOnSubnet(netuid) {
-  showToast(`📊 Staking sur SN${netuid} bientôt!`);
+function selectSubnetToStake(netuid) {
+  const subnet = SUBNET_INFO[netuid] || { name: `Subnet ${netuid}`, apy: 15 };
+  const balance = state.balance?.free || 0;
+  
+  showModal(`➕ Staker sur SN${netuid}`, `
+    <div style="text-align: center; margin-bottom: 20px;">
+      <div style="font-size: 14px; color: var(--text-secondary);">${subnet.name}</div>
+      <div style="font-size: 24px; font-weight: 700; color: var(--success);">~${subnet.apy}% APY</div>
+    </div>
+    
+    <div class="input-group">
+      <label class="input-label">Montant (τ)</label>
+      <input type="number" class="input-field" id="stakeAmount" placeholder="0.00" step="0.01">
+      <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
+        <button class="btn btn-secondary" style="flex:1; padding: 10px; min-width: 60px;" onclick="setStakeAmount(1)">1 τ</button>
+        <button class="btn btn-secondary" style="flex:1; padding: 10px; min-width: 60px;" onclick="setStakeAmount(5)">5 τ</button>
+        <button class="btn btn-secondary" style="flex:1; padding: 10px; min-width: 60px;" onclick="setStakeAmount(10)">10 τ</button>
+        <button class="btn btn-secondary" style="flex:1; padding: 10px; min-width: 60px;" onclick="setStakeAmount(50)">50 τ</button>
+        <button class="btn btn-secondary" style="flex:1; padding: 10px; min-width: 60px;" onclick="setStakeAmount(100)">100 τ</button>
+        <button class="btn btn-secondary" style="flex:1; padding: 10px; min-width: 60px;" onclick="setStakeAmount(${balance - 0.01})">MAX</button>
+      </div>
+    </div>
+    
+    <p style="color: var(--text-tertiary); font-size: 12px; margin: 16px 0;">
+      Disponible: ${formatTAO(balance)} τ
+    </p>
+    
+    <button class="btn btn-primary" onclick="confirmStake(${netuid})">Staker</button>
+  `);
+}
+
+function setStakeAmount(amount) {
+  const input = $('stakeAmount');
+  if (input) input.value = Math.max(0, amount).toFixed(2);
+}
+
+function confirmStake(netuid) {
+  const amount = parseFloat($('stakeAmount')?.value);
+  if (isNaN(amount) || amount <= 0) {
+    showToast('❌ Montant invalide', 'error');
+    return;
+  }
+  
+  const subnet = SUBNET_INFO[netuid] || { name: `SN${netuid}`, apy: 15 };
+  
+  showModal('✅ Confirmer', `
+    <div style="text-align: center; margin-bottom: 24px;">
+      <div style="font-size: 36px; font-weight: 700;">${amount} τ</div>
+      <div style="color: var(--text-secondary);">→ SN${netuid} (${subnet.name})</div>
+      <div style="color: var(--success); margin-top: 8px;">~${subnet.apy}% APY</div>
+    </div>
+    
+    <div style="background: var(--bg-card); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+        <span style="color: var(--text-tertiary);">Rewards estimés/mois</span>
+        <span style="color: var(--success);">+${(amount * subnet.apy / 100 / 12).toFixed(4)} τ</span>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span style="color: var(--text-tertiary);">Rewards estimés/an</span>
+        <span style="color: var(--success);">+${(amount * subnet.apy / 100).toFixed(4)} τ</span>
+      </div>
+    </div>
+    
+    <button class="btn btn-primary" onclick="executeStake(${netuid}, ${amount})">Confirmer</button>
+    <button class="btn btn-ghost" style="margin-top: 8px;" onclick="showStakeNew()">Annuler</button>
+  `);
+}
+
+function executeStake(netuid, amount) {
+  haptic();
+  showToast('✅ Stake effectué ! (Demo)', 'success');
+  closeModal({target: document.querySelector('.modal-overlay'), currentTarget: document.querySelector('.modal-overlay')});
+}
+
+// ============ UNSTAKE ============
+
+function showUnstake() {
+  if (state.positions.length === 0) {
+    showModal('➖ Destaker', `
+      <p style="text-align: center; color: var(--text-secondary); padding: 30px;">
+        Aucune position à destaker
+      </p>
+      <button class="btn btn-secondary" onclick="showStakeNew()">Staker d'abord</button>
+    `);
+    return;
+  }
+  
+  showModal('➖ Destaker', `
+    <div style="background: var(--warning); color: #000; border-radius: 12px; padding: 12px; margin-bottom: 16px; text-align: center;">
+      ⚠️ Le destaking prend ~7 jours
+    </div>
+    
+    <p style="color: var(--text-secondary); margin-bottom: 16px;">Choisis une position</p>
+    <div class="asset-list">
+      ${state.positions.map(pos => {
+        const subnet = SUBNET_INFO[pos.netuid] || { name: `SN${pos.netuid}`, emoji: '🔷' };
+        return `
+        <div class="asset-item" onclick="selectPositionToUnstake(${pos.netuid}, ${pos.staked})">
+          <div class="asset-icon subnet">${subnet.emoji}</div>
+          <div class="asset-info">
+            <div class="asset-name">SN${pos.netuid} - ${subnet.name}</div>
+            <div class="asset-subtitle">${formatTAO(pos.staked)} τ stakés</div>
+          </div>
+          <span style="color: var(--error);">→</span>
+        </div>
+      `}).join('')}
+    </div>
+  `);
+}
+
+function selectPositionToUnstake(netuid, staked) {
+  const subnet = SUBNET_INFO[netuid] || { name: `SN${netuid}` };
+  
+  showModal(`➖ Destaker de SN${netuid}`, `
+    <div style="text-align: center; margin-bottom: 20px;">
+      <div style="font-size: 14px; color: var(--text-secondary);">${subnet.name}</div>
+      <div style="font-size: 24px; font-weight: 700;">${formatTAO(staked)} τ</div>
+    </div>
+    
+    <p style="color: var(--text-secondary); margin-bottom: 16px;">Combien destaker ?</p>
+    
+    <div class="unstake-options">
+      <button class="unstake-option" onclick="confirmUnstake(${netuid}, ${staked * 0.25})">
+        <span class="unstake-pct">25%</span>
+        <span class="unstake-amount">${formatTAO(staked * 0.25)} τ</span>
+      </button>
+      <button class="unstake-option" onclick="confirmUnstake(${netuid}, ${staked * 0.5})">
+        <span class="unstake-pct">50%</span>
+        <span class="unstake-amount">${formatTAO(staked * 0.5)} τ</span>
+      </button>
+      <button class="unstake-option" onclick="confirmUnstake(${netuid}, ${staked * 0.75})">
+        <span class="unstake-pct">75%</span>
+        <span class="unstake-amount">${formatTAO(staked * 0.75)} τ</span>
+      </button>
+      <button class="unstake-option full" onclick="confirmUnstake(${netuid}, ${staked})">
+        <span class="unstake-pct">100%</span>
+        <span class="unstake-amount">${formatTAO(staked)} τ</span>
+      </button>
+    </div>
+    
+    <button class="btn btn-ghost" style="margin-top: 16px;" onclick="showUnstake()">Annuler</button>
+  `);
+}
+
+function confirmUnstake(netuid, amount) {
+  showModal('⚠️ Confirmer Destaking', `
+    <div style="text-align: center; margin-bottom: 24px;">
+      <div style="font-size: 36px; font-weight: 700; color: var(--error);">${formatTAO(amount)} τ</div>
+      <div style="color: var(--text-secondary);">depuis SN${netuid}</div>
+    </div>
+    
+    <div style="background: var(--bg-card); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+      <p style="color: var(--warning); margin-bottom: 8px;">⏳ Délai de ~7 jours</p>
+      <p style="color: var(--text-tertiary); font-size: 13px;">
+        Tes τ seront disponibles après la période de cooldown du réseau.
+      </p>
+    </div>
+    
+    <button class="btn btn-primary" style="background: var(--error);" onclick="executeUnstake(${netuid}, ${amount})">Confirmer Destaking</button>
+    <button class="btn btn-ghost" style="margin-top: 8px;" onclick="showUnstake()">Annuler</button>
+  `);
+}
+
+function executeUnstake(netuid, amount) {
+  haptic();
+  showToast('⏳ Destaking initié ! (Demo)', 'success');
+  closeModal({target: document.querySelector('.modal-overlay'), currentTarget: document.querySelector('.modal-overlay')});
+}
+
+// ============ RESTAKE ============
+
+function showRestake() {
+  if (state.positions.length === 0) {
+    showModal('🔄 Re-staker', `
+      <p style="text-align: center; color: var(--text-secondary); padding: 30px;">
+        Aucune position à re-staker
+      </p>
+      <button class="btn btn-secondary" onclick="showStakeNew()">Staker d'abord</button>
+    `);
+    return;
+  }
+  
+  showModal('🔄 Re-staker', `
+    <p style="color: var(--text-secondary); margin-bottom: 8px;">
+      Déplace ton stake sans période de cooldown
+    </p>
+    <p style="color: var(--text-tertiary); font-size: 13px; margin-bottom: 16px;">
+      Choisis la position source
+    </p>
+    
+    <div class="asset-list">
+      ${state.positions.map(pos => {
+        const subnet = SUBNET_INFO[pos.netuid] || { name: `SN${pos.netuid}`, emoji: '🔷' };
+        return `
+        <div class="asset-item" onclick="selectRestakeSource(${pos.netuid}, ${pos.staked})">
+          <div class="asset-icon subnet">${subnet.emoji}</div>
+          <div class="asset-info">
+            <div class="asset-name">SN${pos.netuid} - ${subnet.name}</div>
+            <div class="asset-subtitle">${formatTAO(pos.staked)} τ</div>
+          </div>
+          <span>→</span>
+        </div>
+      `}).join('')}
+    </div>
+  `);
+}
+
+function selectRestakeSource(fromNetuid, amount) {
+  const subnets = Object.entries(SUBNET_INFO).filter(([id]) => parseInt(id) !== fromNetuid).slice(0, 5);
+  
+  showModal('🔄 Destination', `
+    <p style="color: var(--text-secondary); margin-bottom: 16px;">
+      Depuis SN${fromNetuid} → Vers ?
+    </p>
+    
+    <div class="asset-list">
+      ${subnets.map(([id, info]) => `
+        <div class="asset-item" onclick="confirmRestake(${fromNetuid}, ${id}, ${amount})">
+          <div class="asset-icon subnet">${info.emoji}</div>
+          <div class="asset-info">
+            <div class="asset-name">SN${id} - ${info.name}</div>
+            <div class="asset-subtitle">~${info.apy}% APY</div>
+          </div>
+          <span style="color: var(--success);">→</span>
+        </div>
+      `).join('')}
+    </div>
+    
+    <button class="btn btn-ghost" style="margin-top: 16px;" onclick="showRestake()">Retour</button>
+  `);
+}
+
+function confirmRestake(fromNetuid, toNetuid, amount) {
+  const fromSubnet = SUBNET_INFO[fromNetuid] || { name: `SN${fromNetuid}` };
+  const toSubnet = SUBNET_INFO[toNetuid] || { name: `SN${toNetuid}`, apy: 15 };
+  
+  showModal('🔄 Confirmer Re-stake', `
+    <div style="text-align: center; margin-bottom: 24px;">
+      <div style="font-size: 28px; font-weight: 700;">${formatTAO(amount)} τ</div>
+      <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 12px;">
+        <span style="color: var(--text-secondary);">SN${fromNetuid}</span>
+        <span style="color: var(--accent);">→</span>
+        <span style="color: var(--success);">SN${toNetuid}</span>
+      </div>
+    </div>
+    
+    <div style="background: var(--bg-card); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+        <span style="color: var(--text-tertiary);">Nouveau APY</span>
+        <span style="color: var(--success);">~${toSubnet.apy}%</span>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span style="color: var(--text-tertiary);">Frais</span>
+        <span>Aucun</span>
+      </div>
+    </div>
+    
+    <button class="btn btn-primary" onclick="executeRestake(${fromNetuid}, ${toNetuid}, ${amount})">Confirmer</button>
+    <button class="btn btn-ghost" style="margin-top: 8px;" onclick="showRestake()">Annuler</button>
+  `);
+}
+
+function executeRestake(fromNetuid, toNetuid, amount) {
+  haptic();
+  showToast('✅ Re-stake effectué ! (Demo)', 'success');
+  closeModal({target: document.querySelector('.modal-overlay'), currentTarget: document.querySelector('.modal-overlay')});
+}
+
+// ============ BEST APY ============
+
+function showBestAPY() {
+  const sortedSubnets = Object.entries(SUBNET_INFO)
+    .filter(([id]) => id !== '0')
+    .sort((a, b) => b[1].apy - a[1].apy);
+  
+  showModal('🏆 Meilleurs APY', `
+    <p style="color: var(--text-secondary); margin-bottom: 16px;">
+      Classement par rendement
+    </p>
+    
+    <div class="asset-list">
+      ${sortedSubnets.map(([id, info], index) => `
+        <div class="asset-item" onclick="selectSubnetToStake(${id})">
+          <div class="apy-rank ${index < 3 ? 'top' : ''}">${index + 1}</div>
+          <div class="asset-info">
+            <div class="asset-name">${info.emoji} SN${id} - ${info.name}</div>
+            <div class="asset-subtitle">Subnet ${id}</div>
+          </div>
+          <div class="apy-value">${info.apy}%</div>
+        </div>
+      `).join('')}
+    </div>
+    
+    <p style="color: var(--text-tertiary); font-size: 12px; text-align: center; margin-top: 16px;">
+      APY estimés basés sur les 30 derniers jours
+    </p>
+  `);
+}
+
+function showPositionDetail(netuid) {
+  const pos = state.positions.find(p => p.netuid === netuid);
+  if (!pos) return;
+  
+  const subnet = SUBNET_INFO[netuid] || { name: `SN${netuid}`, emoji: '🔷', apy: 15 };
+  const monthlyReward = pos.staked * (subnet.apy / 100 / 12);
+  const yearlyReward = pos.staked * (subnet.apy / 100);
+  
+  showModal(`${subnet.emoji} SN${netuid}`, `
+    <div style="text-align: center; margin-bottom: 24px;">
+      <div style="font-size: 14px; color: var(--text-secondary);">${subnet.name}</div>
+      <div style="font-size: 36px; font-weight: 700;">${formatTAO(pos.staked)} τ</div>
+      <div style="color: var(--text-secondary);">${formatUSD(pos.staked * state.taoPrice)}</div>
+    </div>
+    
+    <div style="background: var(--bg-card); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+        <span style="color: var(--text-tertiary);">APY estimé</span>
+        <span style="color: var(--success); font-weight: 600;">~${subnet.apy}%</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+        <span style="color: var(--text-tertiary);">Rewards/mois</span>
+        <span style="color: var(--success);">+${formatTAO(monthlyReward)} τ</span>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span style="color: var(--text-tertiary);">Rewards/an</span>
+        <span style="color: var(--success);">+${formatTAO(yearlyReward)} τ</span>
+      </div>
+    </div>
+    
+    <div style="display: flex; gap: 12px;">
+      <button class="btn btn-secondary" style="flex: 1;" onclick="selectPositionToUnstake(${netuid}, ${pos.staked})">➖ Destaker</button>
+      <button class="btn btn-primary" style="flex: 1;" onclick="selectRestakeSource(${netuid}, ${pos.staked})">🔄 Re-staker</button>
+    </div>
+  `);
 }
 
 function showSwap() {
