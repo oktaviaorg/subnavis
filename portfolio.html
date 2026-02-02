@@ -390,13 +390,13 @@
         <p class="subtitle">Track your TAO holdings across validators and subnets</p>
 
         <!-- Wallet Input -->
-        <div class="wallet-input-section" style="opacity: 0.6;">
-            <h3>🔗 Add Wallet Address <span style="font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; background: rgba(139,143,154,0.2); color: var(--text-secondary); margin-left: 8px;">COMING SOON</span></h3>
+        <div class="wallet-input-section">
+            <h3>🔗 Add Wallet Address</h3>
             <div class="input-row">
                 <input type="text" class="wallet-input" id="wallet-input" 
                        placeholder="Enter SS58 address (5...)" 
-                       spellcheck="false" disabled>
-                <button class="btn-primary" id="load-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
+                       spellcheck="false">
+                <button class="btn-primary" id="load-btn" onclick="loadWallet()">
                     Load Wallet
                 </button>
             </div>
@@ -452,16 +452,15 @@
         <!-- Initial State -->
         <div id="initial-state">
             <div class="empty-state">
-                <div class="icon">🚧</div>
-                <p><strong>Portfolio tracking coming soon!</strong></p>
-                <p style="margin-top: 8px; font-size: 0.85rem;">We're integrating a reliable data source for wallet balances.</p>
+                <div class="icon">👆</div>
+                <p>Enter a wallet address above to view your portfolio</p>
             </div>
         </div>
     </main>
 
     <script>
         const TAOSTATS_API = 'https://api.taostats.io/api';
-        const API_KEY = 'tao-7525a19d-5392-42f5-b854-7aae224818a7:82ca85cf';
+        const API_KEY = 'tao-6be990b7-d711-4a49-9dc0-f82f61ee23b1:000e00e2';
         
         let taoPrice = 285; // Will be fetched
         let savedWallets = JSON.parse(localStorage.getItem('subnavis_wallets') || '[]');
@@ -526,33 +525,28 @@
             document.getElementById('load-btn').disabled = true;
 
             try {
-                // Fetch balance
-                const balanceRes = await fetch(`${TAOSTATS_API}/account/balance/latest/v1?ss58=${address}`, {
-                    headers: { 'Authorization': API_KEY }
-                });
-                const balanceData = await balanceRes.json();
-
-                // Fetch delegations/stakes
-                const stakeRes = await fetch(`${TAOSTATS_API}/delegation/latest/v1?ss58=${address}`, {
+                // Fetch stake balances using dtao endpoint
+                const stakeRes = await fetch(`${TAOSTATS_API}/dtao/stake_balance/latest/v1?coldkey=${address}`, {
                     headers: { 'Authorization': API_KEY }
                 });
                 const stakeData = await stakeRes.json();
 
                 // Process data
-                const balance = balanceData[0] || {};
-                const free = parseFloat(balance.free || 0) / 1e9;
-                const staked = parseFloat(balance.staked || 0) / 1e9;
-                const total = free + staked;
+                const stakes = stakeData.data || [];
+                let totalStaked = 0;
+                
+                stakes.forEach(s => {
+                    totalStaked += parseFloat(s.balance_as_tao || 0) / 1e9;
+                });
 
                 // Update summary
-                document.getElementById('total-balance').textContent = formatTao(total) + ' τ';
-                document.getElementById('total-usd').textContent = '$' + (total * taoPrice).toLocaleString(undefined, {maximumFractionDigits: 2});
-                document.getElementById('total-staked').textContent = formatTao(staked) + ' τ';
-                document.getElementById('staked-percent').textContent = total > 0 ? ((staked / total) * 100).toFixed(1) + '% of portfolio' : '0%';
-                document.getElementById('free-balance').textContent = formatTao(free) + ' τ';
+                document.getElementById('total-balance').textContent = formatTao(totalStaked) + ' τ';
+                document.getElementById('total-usd').textContent = '$' + (totalStaked * taoPrice).toLocaleString(undefined, {maximumFractionDigits: 2});
+                document.getElementById('total-staked').textContent = formatTao(totalStaked) + ' τ';
+                document.getElementById('staked-percent').textContent = stakes.length + ' subnets';
+                document.getElementById('free-balance').textContent = '-- τ';
 
                 // Update stakes table
-                const stakes = stakeData || [];
                 document.getElementById('stakes-count').textContent = stakes.length + ' position' + (stakes.length !== 1 ? 's' : '');
 
                 if (stakes.length > 0) {
@@ -567,15 +561,15 @@
                             </thead>
                             <tbody>
                                 ${stakes.map(s => {
-                                    const amount = parseFloat(s.stake || 0) / 1e9;
+                                    const amount = parseFloat(s.balance_as_tao || 0) / 1e9;
                                     return `
                                         <tr>
                                             <td>
                                                 <div class="subnet-cell">
                                                     <div class="subnet-badge">${s.netuid || '?'}</div>
                                                     <div>
-                                                        <div class="subnet-name">${s.subnet_name || 'Subnet ' + s.netuid}</div>
-                                                        <div class="subnet-id">SN${s.netuid}</div>
+                                                        <div class="subnet-name">${s.hotkey_name || 'Subnet ' + s.netuid}</div>
+                                                        <div class="subnet-id">SN${s.netuid} • Rank #${s.subnet_rank || '?'}</div>
                                                     </div>
                                                 </div>
                                             </td>
@@ -584,7 +578,7 @@
                                                 <div class="amount-usd">$${(amount * taoPrice).toLocaleString(undefined, {maximumFractionDigits: 2})}</div>
                                             </td>
                                             <td style="font-family: monospace; font-size: 0.85rem; color: var(--text-secondary);">
-                                                ${s.delegate_ss58 ? s.delegate_ss58.slice(0, 8) + '...' : '--'}
+                                                ${s.hotkey?.ss58 ? s.hotkey.ss58.slice(0, 8) + '...' : '--'}
                                             </td>
                                         </tr>
                                     `;
