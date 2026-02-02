@@ -60,16 +60,21 @@ async function loadWallet() {
 // Fetch balance from Bittensor
 async function fetchBalance() {
   try {
-    const response = await fetch(`https://subnavis.io/.netlify/functions/wallet?address=${wallet.address}`);
+    const response = await fetch(`https://subnavis.io/.netlify/functions/api-wallet?address=${wallet.address}`);
     const data = await response.json();
     
-    if (data.balance) {
+    if (data.total_balance !== undefined) {
       balance = {
-        free: data.balance.free || 0,
-        staked: data.balance.staked || 0,
-        total: data.balance.total || 0
+        free: data.free_balance || 0,
+        staked: data.total_staked || 0,
+        total: data.total_balance || 0
       };
-      stakes = data.stakes || [];
+      // Convert positions to stakes format
+      stakes = (data.positions || []).map(p => ({
+        subnet: p.netuid,
+        amount: p.staked,
+        validator: `${p.validators} validator${p.validators > 1 ? 's' : ''}`
+      }));
     }
   } catch (err) {
     console.error('Failed to fetch balance:', err);
