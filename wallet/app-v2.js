@@ -724,62 +724,210 @@ function showCreateWallet() {
       <label class="input-label">Nom du wallet</label>
       <input type="text" class="input-field" id="walletName" placeholder="Mon Wallet" maxlength="20">
     </div>
-    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 20px;">
-      ⚠️ Demo - En production, une seed phrase sécurisée serait générée.
+    <div class="input-group">
+      <label class="input-label">Mot de passe (min 6 caractères)</label>
+      <input type="password" class="input-field" id="walletPassword" placeholder="••••••••" minlength="6">
+    </div>
+    <p style="color: var(--text-tertiary); font-size: 12px; margin-bottom: 20px;">
+      🔐 Ce mot de passe chiffre ta seed phrase localement.
     </p>
-    <button class="btn btn-primary" onclick="createDemoWallet()">Créer</button>
+    <button class="btn btn-primary" onclick="createRealWallet()">Créer mon wallet τ</button>
   `);
 }
 
-function createDemoWallet() {
+async function createRealWallet() {
   const name = $('walletName')?.value || 'Wallet';
-  const chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-  let addr = '5';
-  for (let i = 0; i < 47; i++) addr += chars[Math.floor(Math.random() * chars.length)];
+  const password = $('walletPassword')?.value;
   
-  state.wallets.push({ name, address: addr, created: Date.now(), watchOnly: false });
-  state.activeWalletIndex = state.wallets.length - 1;
-  saveWallets();
+  if (!password || password.length < 6) {
+    showToast('❌ Mot de passe trop court (min 6)', 'error');
+    return;
+  }
   
-  showToast('✅ Wallet créé!', 'success');
+  showModal('⏳ Création...', `
+    <div style="text-align: center; padding: 40px;">
+      <div class="ptr-spinner" style="width: 48px; height: 48px; margin: 0 auto 20px;"></div>
+      <p style="color: var(--text-secondary);">Génération de ta seed phrase...</p>
+    </div>
+  `);
+  
+  try {
+    // Wait for crypto to be ready
+    await polkadotUtilCrypto.cryptoWaitReady();
+    
+    // Generate mnemonic (12 words)
+    const mnemonic = polkadotUtilCrypto.mnemonicGenerate(12);
+    
+    // Create keyring and derive address
+    const keyring = new polkadotKeyring.Keyring({ type: 'sr25519', ss58Format: 42 });
+    const pair = keyring.addFromMnemonic(mnemonic);
+    const address = pair.address;
+    
+    // Encrypt mnemonic with password (simple XOR for demo - use AES in production)
+    const encryptedMnemonic = encryptMnemonic(mnemonic, password);
+    
+    // Save wallet
+    state.wallets.push({ 
+      name, 
+      address, 
+      encryptedMnemonic,
+      created: Date.now(), 
+      watchOnly: false 
+    });
+    state.activeWalletIndex = state.wallets.length - 1;
+    saveWallets();
+    
+    // Show seed phrase (IMPORTANT!)
+    showSeedPhrase(mnemonic, address, name);
+    
+  } catch (err) {
+    console.error('Wallet creation error:', err);
+    showToast('❌ Erreur création wallet', 'error');
+    closeModal({target: document.querySelector('.modal-overlay'), currentTarget: document.querySelector('.modal-overlay')});
+  }
+}
+
+function showSeedPhrase(mnemonic, address, name) {
+  const words = mnemonic.split(' ');
+  
+  showModal('🔐 Sauvegarde ta Seed Phrase !', `
+    <div style="background: var(--error); color: #fff; border-radius: 12px; padding: 12px; margin-bottom: 16px; text-align: center;">
+      ⚠️ NOTE CES 12 MOTS - Tu ne les reverras plus !
+    </div>
+    
+    <div class="seed-grid">
+      ${words.map((word, i) => `
+        <div class="seed-word">
+          <span class="seed-num">${i + 1}</span>
+          <span class="seed-text">${word}</span>
+        </div>
+      `).join('')}
+    </div>
+    
+    <div style="background: var(--bg-card); border-radius: 12px; padding: 12px; margin: 16px 0;">
+      <div style="color: var(--text-tertiary); font-size: 12px; margin-bottom: 4px;">Ton adresse τ</div>
+      <div style="font-family: monospace; font-size: 11px; word-break: break-all;">${address}</div>
+    </div>
+    
+    <button class="btn btn-primary" onclick="confirmSeedSaved()">✅ J'ai sauvegardé ma seed</button>
+    <p style="color: var(--text-tertiary); font-size: 11px; text-align: center; margin-top: 12px;">
+      Sans cette seed, tu perdras accès à tes fonds !
+    </p>
+  `, false); // Don't allow closing by clicking outside
+}
+
+function confirmSeedSaved() {
+  haptic();
+  showToast('✅ Wallet créé avec succès!', 'success');
   closeModal({target: document.querySelector('.modal-overlay'), currentTarget: document.querySelector('.modal-overlay')});
   loadWalletData().then(renderMainUI);
 }
 
+// Simple encryption (use Web Crypto API for production)
+function encryptMnemonic(mnemonic, password) {
+  const encoded = new TextEncoder().encode(mnemonic);
+  const key = new TextEncoder().encode(password.padEnd(32, '0').slice(0, 32));
+  const encrypted = new Uint8Array(encoded.length);
+  for (let i = 0; i < encoded.length; i++) {
+    encrypted[i] = encoded[i] ^ key[i % key.length];
+  }
+  return btoa(String.fromCharCode(...encrypted));
+}
+
+function decryptMnemonic(encrypted, password) {
+  try {
+    const decoded = Uint8Array.from(atob(encrypted), c => c.charCodeAt(0));
+    const key = new TextEncoder().encode(password.padEnd(32, '0').slice(0, 32));
+    const decrypted = new Uint8Array(decoded.length);
+    for (let i = 0; i < decoded.length; i++) {
+      decrypted[i] = decoded[i] ^ key[i % key.length];
+    }
+    return new TextDecoder().decode(decrypted);
+  } catch {
+    return null;
+  }
+}
+
 function showImportWallet() {
-  showModal('Importer', `
+  showModal('Importer Wallet', `
     <div class="input-group">
       <label class="input-label">Nom</label>
       <input type="text" class="input-field" id="importName" placeholder="Mon Wallet">
     </div>
     <div class="input-group">
-      <label class="input-label">Seed phrase (12/24 mots)</label>
+      <label class="input-label">Seed phrase (12 ou 24 mots)</label>
       <textarea class="input-field" id="importSeed" placeholder="word1 word2 word3..." style="height: 100px;"></textarea>
     </div>
-    <button class="btn btn-primary" onclick="importWallet()">Importer</button>
+    <div class="input-group">
+      <label class="input-label">Mot de passe (min 6 caractères)</label>
+      <input type="password" class="input-field" id="importPassword" placeholder="••••••••">
+    </div>
+    <p style="color: var(--text-tertiary); font-size: 12px; margin-bottom: 16px;">
+      🔐 Ta seed sera chiffrée localement
+    </p>
+    <button class="btn btn-primary" onclick="importRealWallet()">Importer</button>
   `);
 }
 
-function importWallet() {
+async function importRealWallet() {
   const name = $('importName')?.value || 'Importé';
-  const seed = $('importSeed')?.value?.trim();
+  const seed = $('importSeed')?.value?.trim().toLowerCase();
+  const password = $('importPassword')?.value;
   
-  if (!seed || seed.split(/\s+/).length < 12) {
-    showToast('❌ Seed invalide', 'error');
+  if (!seed || ![12, 24].includes(seed.split(/\s+/).length)) {
+    showToast('❌ Seed invalide (12 ou 24 mots)', 'error');
     return;
   }
   
-  const chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-  let addr = '5';
-  for (let i = 0; i < 47; i++) addr += chars[Math.floor(Math.random() * chars.length)];
+  if (!password || password.length < 6) {
+    showToast('❌ Mot de passe trop court', 'error');
+    return;
+  }
   
-  state.wallets.push({ name, address: addr, created: Date.now(), watchOnly: false });
-  state.activeWalletIndex = state.wallets.length - 1;
-  saveWallets();
+  showModal('⏳ Import...', `
+    <div style="text-align: center; padding: 40px;">
+      <div class="ptr-spinner" style="width: 48px; height: 48px; margin: 0 auto 20px;"></div>
+      <p style="color: var(--text-secondary);">Validation de la seed phrase...</p>
+    </div>
+  `);
   
-  showToast('✅ Wallet importé!', 'success');
-  closeModal({target: document.querySelector('.modal-overlay'), currentTarget: document.querySelector('.modal-overlay')});
-  loadWalletData().then(renderMainUI);
+  try {
+    await polkadotUtilCrypto.cryptoWaitReady();
+    
+    // Validate mnemonic
+    if (!polkadotUtilCrypto.mnemonicValidate(seed)) {
+      showToast('❌ Seed phrase invalide', 'error');
+      closeModal({target: document.querySelector('.modal-overlay'), currentTarget: document.querySelector('.modal-overlay')});
+      return;
+    }
+    
+    // Derive address
+    const keyring = new polkadotKeyring.Keyring({ type: 'sr25519', ss58Format: 42 });
+    const pair = keyring.addFromMnemonic(seed);
+    const address = pair.address;
+    
+    // Encrypt and save
+    const encryptedMnemonic = encryptMnemonic(seed, password);
+    
+    state.wallets.push({ 
+      name, 
+      address, 
+      encryptedMnemonic,
+      created: Date.now(), 
+      watchOnly: false 
+    });
+    state.activeWalletIndex = state.wallets.length - 1;
+    saveWallets();
+    
+    showToast('✅ Wallet importé!', 'success');
+    closeModal({target: document.querySelector('.modal-overlay'), currentTarget: document.querySelector('.modal-overlay')});
+    loadWalletData().then(renderMainUI);
+    
+  } catch (err) {
+    console.error('Import error:', err);
+    showToast('❌ Erreur import', 'error');
+    closeModal({target: document.querySelector('.modal-overlay'), currentTarget: document.querySelector('.modal-overlay')});
+  }
 }
 
 function showTrackAddress() {

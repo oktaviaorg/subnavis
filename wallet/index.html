@@ -1292,6 +1292,37 @@
       font-weight: 700;
       color: var(--success);
     }
+    
+    /* Seed Phrase Grid */
+    .seed-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 16px;
+    }
+    
+    .seed-word {
+      display: flex;
+      align-items: center;
+      background: var(--bg-elevated);
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+    
+    .seed-num {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      width: 20px;
+      flex-shrink: 0;
+    }
+    
+    .seed-text {
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'SF Mono', monospace;
+    }
   </style>
 </head>
 <body>
@@ -1309,6 +1340,10 @@
   <!-- Modals will be injected here -->
   <div id="modals"></div>
   
+  <!-- Crypto libs for real wallet creation -->
+  <script src="https://cdn.jsdelivr.net/npm/@polkadot/util@12.6.2/bundle-polkadot-util.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@polkadot/util-crypto@12.6.2/bundle-polkadot-util-crypto.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@polkadot/keyring@12.6.2/bundle-polkadot-keyring.min.js"></script>
   <script src="app-v2.js"></script>
 </body>
 </html>
