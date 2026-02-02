@@ -520,20 +520,60 @@
             currentWallet.textContent = '📍 ' + address;
             currentWallet.style.display = 'block';
 
-            // Simulate API call (replace with real Taostats API)
-            await new Promise(resolve => setTimeout(resolve, 1500));
-
-            // Mock data based on address (in production, call Taostats API)
-            const portfolioData = generateMockPortfolio(address);
-
-            // Update UI
-            displayPortfolio(portfolioData);
+            try {
+                // Fetch from Netlify Function
+                const response = await fetch('/api/api-wallet?address=' + encodeURIComponent(address));
+                const data = await response.json();
+                
+                // Map API response to portfolio format
+                const portfolioData = {
+                    address: data.address,
+                    totalBalance: data.total_balance,
+                    totalStaked: data.total_staked,
+                    freeBalance: data.free_balance,
+                    positions: data.positions.map(p => ({
+                        netuid: p.netuid,
+                        name: getSubnetName(p.netuid),
+                        staked: p.staked,
+                        apr: getSubnetAPR(p.netuid)
+                    }))
+                };
+                
+                displayPortfolio(portfolioData);
+                
+            } catch (error) {
+                console.error('Error fetching wallet:', error);
+                // Fallback to mock data
+                const portfolioData = generateMockPortfolio(address);
+                displayPortfolio(portfolioData);
+            }
 
             // Hide loading
             loading.classList.remove('active');
             portfolio.classList.add('active');
             trackBtn.disabled = false;
             trackBtn.textContent = 'Track Wallet';
+        }
+        
+        // Subnet name lookup
+        function getSubnetName(netuid) {
+            const names = {
+                0: 'Root', 1: 'Apex', 7: 'Subvortex', 8: 'Taoshi',
+                13: 'Dataverse', 18: 'Cortex', 19: 'Inference',
+                21: 'Omega', 28: 'Foundry', 32: 'ITS', 37: 'Finetuning',
+                44: 'SocialTensor', 49: 'Autocast'
+            };
+            return names[netuid] || 'Subnet ' + netuid;
+        }
+        
+        // APR lookup (mock for now)
+        function getSubnetAPR(netuid) {
+            const aprs = {
+                0: 18.5, 1: 22.0, 7: 22.5, 8: 19.8, 13: 25.1,
+                18: 20.3, 19: 21.5, 21: 18.9, 28: 23.2, 32: 19.1,
+                37: 20.8, 44: 24.5, 49: 21.0
+            };
+            return aprs[netuid] || 20.0;
         }
 
         function generateMockPortfolio(address) {

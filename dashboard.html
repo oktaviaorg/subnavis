@@ -765,20 +765,75 @@
         // Mock 24h volume
         document.getElementById('volume-24h').textContent = '$' + formatNumber(45000000 + Math.random() * 10000000);
 
-        // Initialize - Use fallback directly for now (API has CORS issues)
-        // fetchTaoPrice();
-        // fetchSubnets();
-        
-        // Direct fallback load (instant)
-        const price = 285 + (Math.random() * 10 - 5);
-        const change = -8.5 + (Math.random() * 2 - 1);
-        document.getElementById('tao-price').textContent = formatPrice(price);
-        const changeEl = document.getElementById('tao-change');
-        changeEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '% (24h)';
-        changeEl.className = 'stat-change ' + (change >= 0 ? 'positive' : 'negative');
-        
-        loadFallbackSubnets();
-        loadWhaleActivity();
+        // Initialize - Use Netlify Functions for live data
+        async function init() {
+            await fetchLivePrice();
+            await fetchLiveSubnets();
+            loadWhaleActivity();
+        }
+
+        async function fetchLivePrice() {
+            try {
+                const response = await fetch('/api/api-price');
+                const data = await response.json();
+                
+                document.getElementById('tao-price').textContent = formatPrice(data.price);
+                const changeEl = document.getElementById('tao-change');
+                changeEl.textContent = (data.change_24h >= 0 ? '+' : '') + data.change_24h.toFixed(2) + '% (24h)';
+                changeEl.className = 'stat-change ' + (data.change_24h >= 0 ? 'positive' : 'negative');
+            } catch (error) {
+                console.error('Error fetching price:', error);
+                document.getElementById('tao-price').textContent = '$285';
+            }
+        }
+
+        async function fetchLiveSubnets() {
+            try {
+                const response = await fetch('/api/api-subnets');
+                const data = await response.json();
+                
+                document.getElementById('subnet-count').textContent = data.total_count;
+                
+                const totalStaked = data.subnets.reduce((sum, s) => sum + (s.total_stake || 0), 0);
+                document.getElementById('total-staked').textContent = formatNumber(totalStaked) + ' τ';
+                
+                const tbody = document.getElementById('subnets-body');
+                tbody.innerHTML = '';
+                
+                data.subnets.slice(0, 12).forEach(subnet => {
+                    const change = (Math.random() * 20 - 10).toFixed(1); // Mock change for now
+                    const tr = document.createElement('tr');
+                    tr.style.cursor = 'pointer';
+                    tr.onclick = () => window.location.href = '/subnet.html?id=' + subnet.netuid;
+                    tr.innerHTML = \`
+                        <td>
+                            <div class="subnet-name">
+                                <div class="subnet-badge">\${subnet.netuid}</div>
+                                <div class="subnet-info">
+                                    <h4>\${subnet.name}</h4>
+                                    <span>SN\${subnet.netuid}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>\${subnet.price > 0 ? formatPrice(subnet.price) : '--'}</td>
+                        <td>\${subnet.emission.toFixed(1)}%</td>
+                        <td class="\${change >= 0 ? 'change-positive' : 'change-negative'}">
+                            \${change >= 0 ? '+' : ''}\${change}%
+                        </td>
+                    \`;
+                    tbody.appendChild(tr);
+                });
+                
+                document.getElementById('subnets-loading').style.display = 'none';
+                document.getElementById('subnets-table').style.display = 'table';
+                
+            } catch (error) {
+                console.error('Error fetching subnets:', error);
+                loadFallbackSubnets();
+            }
+        }
+
+        init();
 
         // Refresh every 60 seconds
         setInterval(() => {
