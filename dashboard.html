@@ -540,21 +540,40 @@
         </div>
     </main>
 
-    <!-- Signup Modal -->
+    <!-- Upgrade Modal -->
     <div id="signup-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; max-width: 420px; width: 90%; text-align: center;">
-            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 8px;">🚀 Get Premium Access</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 24px;">Join the waitlist to get early access to whale alerts and portfolio tracking</p>
+        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; max-width: 480px; width: 90%; text-align: center;">
+            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 8px;">🚀 Upgrade to Pro</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">Get alerts, unlimited wallets, and more</p>
             
-            <form id="modal-form" style="display: flex; flex-direction: column; gap: 12px;">
-                <input type="email" placeholder="Enter your email" required style="padding: 14px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-secondary); color: var(--text-primary); font-size: 1rem;">
-                <button type="submit" class="btn-premium" style="width: 100%; justify-content: center;">
-                    Join Waitlist — Get 50% Off Launch Price
-                </button>
-            </form>
+            <p id="modal-user-email" style="color: var(--accent); margin-bottom: 20px; font-size: 0.9rem;"></p>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- Navigator Plan -->
+                <div onclick="subscribePlan('navigator')" style="cursor: pointer; padding: 20px; border-radius: 12px; border: 2px solid var(--accent); background: linear-gradient(135deg, rgba(0,212,170,0.1), rgba(0,163,255,0.1)); transition: transform 0.2s;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="text-align: left;">
+                            <div style="font-weight: 600; font-size: 1.1rem;">🧭 Navigator</div>
+                            <div style="color: var(--text-secondary); font-size: 0.85rem;">Unlimited wallets, alerts, 90 days history</div>
+                        </div>
+                        <div style="font-size: 1.3rem; font-weight: bold; color: var(--accent);">€15<span style="font-size: 0.8rem; font-weight: normal;">/mo</span></div>
+                    </div>
+                </div>
+                
+                <!-- Captain Plan -->
+                <div onclick="subscribePlan('captain')" style="cursor: pointer; padding: 20px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-secondary); transition: transform 0.2s;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="text-align: left;">
+                            <div style="font-weight: 600; font-size: 1.1rem;">👨‍✈️ Captain</div>
+                            <div style="color: var(--text-secondary); font-size: 0.85rem;">Full API, webhooks, 1 year history</div>
+                        </div>
+                        <div style="font-size: 1.3rem; font-weight: bold;">€39<span style="font-size: 0.8rem; font-weight: normal;">/mo</span></div>
+                    </div>
+                </div>
+            </div>
             
             <p style="margin-top: 16px; font-size: 0.8rem; color: var(--text-secondary);">
-                🎉 First 100 users get lifetime 50% discount
+                💳 Secure payment via Stripe • Cancel anytime
             </p>
             
             <button id="close-modal" style="margin-top: 16px; background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 0.9rem;">
@@ -871,49 +890,46 @@
             }
         });
 
-        // Modal form submission
-        document.getElementById('modal-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = e.target.querySelector('input').value;
-            const btn = e.target.querySelector('button');
+        // Subscribe to a plan via Stripe
+        async function subscribePlan(plan) {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            const email = session?.user?.email;
             
-            btn.textContent = 'Joining...';
-            btn.disabled = true;
-
             try {
-                await fetch('https://srvfbbehmpnvocwodcpq.supabase.co/rest/v1/subnavis_waitlist', {
+                const response = await fetch('/api/create-checkout', {
                     method: 'POST',
-                    headers: {
-                        'apikey': 'sb_publishable_PWMkW8e2UJBdxcfX0DN_VQ_dvJCu_Vq',
-                        'Authorization': 'Bearer sb_publishable_PWMkW8e2UJBdxcfX0DN_VQ_dvJCu_Vq',
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        source: 'premium_upgrade'
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        plan: plan + '_monthly',
+                        email: email 
                     })
                 });
                 
-                btn.innerHTML = '✓ You\'re on the list!';
-                btn.style.background = 'var(--green)';
+                const data = await response.json();
                 
-                setTimeout(() => {
-                    modal.style.display = 'none';
-                    btn.textContent = 'Join Waitlist — Get 50% Off Launch Price';
-                    btn.style.background = '';
-                    btn.disabled = false;
-                    e.target.querySelector('input').value = '';
-                }, 2000);
-                
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    alert('Error creating checkout session. Please try again.');
+                }
             } catch (error) {
-                btn.innerHTML = '✓ You\'re on the list!';
-                btn.style.background = 'var(--green)';
-                setTimeout(() => {
-                    modal.style.display = 'none';
-                }, 2000);
+                console.error('Checkout error:', error);
+                alert('Error connecting to payment system. Please try again.');
             }
-        });
+        }
+
+        // Update modal with user email when opened
+        const originalShowModal = modal.style.display;
+        const upgradeBtn = document.querySelector('.btn-premium');
+        if (upgradeBtn) {
+            upgradeBtn.addEventListener('click', async () => {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                const emailEl = document.getElementById('modal-user-email');
+                if (session?.user?.email && emailEl) {
+                    emailEl.textContent = session.user.email;
+                }
+            });
+        }
     </script>
 </body>
 </html>
