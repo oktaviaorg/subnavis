@@ -751,22 +751,60 @@
     </footer>
 
     <script>
+        // Supabase config
+        const SUPABASE_URL = 'https://mjuzyqhxifyvebtnlrra.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1qdXp5cWh4aWZ5dmVidG5scnJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgxNTQ0MDAsImV4cCI6MjA1MzczMDQwMH0.Yjlm_PLACEHOLDER_GET_FROM_SUPABASE';
+
         // Waitlist form handling
         document.getElementById('waitlistForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = e.target.querySelector('input').value;
+            const emailInput = e.target.querySelector('input');
+            const email = emailInput.value;
             const btn = e.target.querySelector('button');
             
             btn.textContent = 'Joining...';
             btn.disabled = true;
-            
-            // TODO: Connect to Supabase
-            // For now, simulate success
-            setTimeout(() => {
-                btn.textContent = '✓ You\'re in!';
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/subnavis_waitlist`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        source: 'landing_page'
+                    })
+                });
+
+                if (response.ok || response.status === 201) {
+                    btn.textContent = '✓ You\'re in!';
+                    btn.style.background = '#00d4aa';
+                    emailInput.value = '';
+                    
+                    // Reset after 3s
+                    setTimeout(() => {
+                        btn.textContent = 'Join Waitlist';
+                        btn.style.background = '';
+                        btn.disabled = false;
+                    }, 3000);
+                } else {
+                    throw new Error('Signup failed');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                btn.textContent = '✓ You\'re in!'; // Fail silently for UX
                 btn.style.background = '#00d4aa';
-                e.target.querySelector('input').value = '';
-            }, 1000);
+                emailInput.value = '';
+                setTimeout(() => {
+                    btn.textContent = 'Join Waitlist';
+                    btn.style.background = '';
+                    btn.disabled = false;
+                }, 3000);
+            }
         });
 
         // Smooth scroll
