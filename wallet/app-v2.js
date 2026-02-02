@@ -724,6 +724,22 @@ function showCreateWallet() {
       <label class="input-label">Nom du wallet</label>
       <input type="text" class="input-field" id="walletName" placeholder="Mon Wallet" maxlength="20">
     </div>
+    
+    <div class="input-group">
+      <label class="input-label">Sécurité de la seed phrase</label>
+      <div class="seed-choice">
+        <button class="seed-option" id="seed12" onclick="selectSeedLength(12)">
+          <span class="seed-option-words">12 mots</span>
+          <span class="seed-option-security">Standard</span>
+        </button>
+        <button class="seed-option selected" id="seed24" onclick="selectSeedLength(24)">
+          <span class="seed-option-words">24 mots</span>
+          <span class="seed-option-security">🔒 Maximum</span>
+        </button>
+      </div>
+      <p class="seed-hint" id="seedHint">24 mots = 256 bits d'entropie (recommandé)</p>
+    </div>
+    
     <div class="input-group">
       <label class="input-label">Mot de passe sécurisé</label>
       <input type="password" class="input-field" id="walletPassword" placeholder="••••••••••••" oninput="updatePasswordStrength()">
@@ -746,6 +762,25 @@ function showCreateWallet() {
     </p>
     <button class="btn btn-primary" id="createWalletBtn" onclick="createRealWallet()" disabled>Créer mon wallet τ</button>
   `);
+  
+  // Default to 24 words
+  state.seedLength = 24;
+}
+
+function selectSeedLength(length) {
+  state.seedLength = length;
+  
+  // Update UI
+  $('seed12').classList.toggle('selected', length === 12);
+  $('seed24').classList.toggle('selected', length === 24);
+  
+  // Update hint
+  const hint = $('seedHint');
+  if (length === 12) {
+    hint.textContent = '12 mots = 128 bits d\'entropie (standard)';
+  } else {
+    hint.textContent = '24 mots = 256 bits d\'entropie (recommandé)';
+  }
 }
 
 function updatePasswordStrength() {
@@ -857,8 +892,9 @@ async function createRealWallet() {
     // Wait for crypto to be ready
     await polkadotUtilCrypto.cryptoWaitReady();
     
-    // Generate mnemonic (12 words)
-    const mnemonic = polkadotUtilCrypto.mnemonicGenerate(12);
+    // Generate mnemonic (12 or 24 words based on user choice)
+    const wordCount = state.seedLength || 24;
+    const mnemonic = polkadotUtilCrypto.mnemonicGenerate(wordCount);
     
     // Create keyring and derive address
     const keyring = new polkadotKeyring.Keyring({ type: 'sr25519', ss58Format: 42 });

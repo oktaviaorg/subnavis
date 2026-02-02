@@ -1365,6 +1365,56 @@
       padding: 4px 0;
       transition: color 0.2s;
     }
+    
+    /* Seed Length Choice */
+    .seed-choice {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .seed-option {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .seed-option:active {
+      transform: scale(0.98);
+    }
+    
+    .seed-option.selected {
+      border-color: var(--accent);
+      background: linear-gradient(135deg, rgba(171, 159, 242, 0.1), rgba(139, 92, 246, 0.1));
+    }
+    
+    .seed-option-words {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    
+    .seed-option-security {
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+    
+    .seed-option.selected .seed-option-security {
+      color: var(--success);
+    }
+    
+    .seed-hint {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 8px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
