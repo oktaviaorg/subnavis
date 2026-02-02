@@ -2467,10 +2467,9 @@ async function decryptAndShowSeed() {
   const canShare = navigator.share !== undefined;
   
   showModal('🔑 Seed Phrase', `
-    <div class="seed-warnings">
-      <div class="seed-warning">⚠️ Risque si stockage cloud (iCloud, Google, Samsung)</div>
-      <div class="seed-warning">✅ OK : Note locale NON synchronisée</div>
-      <div class="seed-warning">✅ Mieux : Papier dans un coffre</div>
+    <div style="background: var(--bg-elevated); border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 12px; color: var(--text-secondary);">
+      <strong style="color: var(--warning);">💡 Conseil sécurité</strong><br>
+      Évitez le stockage cloud (iCloud, Google Drive). Une note locale ou papier est plus sûr.
     </div>
     <div class="seed-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 0;">
       ${words.map((word, i) => `
@@ -2565,11 +2564,11 @@ async function shareSeedToNotes() {
   try {
     // Format with numbers and title
     const formatted = `🔐 TAO Wallet Seed Phrase\n` +
-      `⚠️ NE PAS SYNCHRONISER AVEC LE CLOUD!\n\n` +
+      `💡 Conseil : désactivez la sync cloud pour cette note\n\n` +
       tempMnemonic.split(' ')
         .map((word, i) => `${i + 1}. ${word}`)
         .join('\n') +
-      `\n\n📅 Sauvegardé le ${new Date().toLocaleDateString('fr-FR')}`;
+      `\n\n📅 ${new Date().toLocaleDateString('fr-FR')}`;
     
     await navigator.share({
       title: 'TAO Wallet Seed',
