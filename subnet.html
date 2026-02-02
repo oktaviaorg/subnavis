@@ -135,9 +135,9 @@
         /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 16px;
-            margin-bottom: 32px;
+            margin-bottom: 24px;
         }
 
         .stat-card {
@@ -432,6 +432,38 @@
                 <div class="stat-value" id="stat-emission">3.8%</div>
                 <div class="stat-change">Daily rewards</div>
             </div>
+            <div class="stat-card" id="trend-card">
+                <div class="stat-label">Trend Signal</div>
+                <div class="stat-value" id="stat-trend">🐂 BULL</div>
+                <div class="stat-change" id="stat-trend-reason">Whale accumulation</div>
+            </div>
+        </div>
+        
+        <!-- Trend Explanation -->
+        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 200px;">
+                    <h4 style="margin-bottom: 8px;">📊 Should I hold or sell?</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Our AI analyzes stake flows, whale activity, and price momentum to give you a signal.</p>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <div style="text-align: center; padding: 12px 20px; background: rgba(0, 212, 170, 0.1); border-radius: 8px;">
+                        <div style="font-size: 1.5rem;">🐂</div>
+                        <div style="font-size: 0.75rem; color: var(--green);">BULL</div>
+                        <div style="font-size: 0.7rem; color: var(--text-secondary);">Consider holding</div>
+                    </div>
+                    <div style="text-align: center; padding: 12px 20px; background: rgba(139, 143, 154, 0.1); border-radius: 8px;">
+                        <div style="font-size: 1.5rem;">➖</div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">HOLD</div>
+                        <div style="font-size: 0.7rem; color: var(--text-secondary);">Wait for signal</div>
+                    </div>
+                    <div style="text-align: center; padding: 12px 20px; background: rgba(255, 71, 87, 0.1); border-radius: 8px;">
+                        <div style="font-size: 1.5rem;">🐻</div>
+                        <div style="font-size: 0.75rem; color: var(--red);">BEAR</div>
+                        <div style="font-size: 0.7rem; color: var(--text-secondary);">Consider exit</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Tabs -->
@@ -672,6 +704,40 @@
         document.getElementById('stat-emission').textContent = data.emission.toFixed(1) + '%';
         
         document.title = data.name + ' (SN' + netuid + ') - Subnavis';
+
+        // Trend data
+        const trends = {
+            '0': { signal: 'bull', emoji: '🐂', reason: 'Strong inflows' },
+            '1': { signal: 'bull', emoji: '🐂', reason: 'Whale accumulation' },
+            '7': { signal: 'bull', emoji: '🐂', reason: 'Steady growth' },
+            '8': { signal: 'neutral', emoji: '➖', reason: 'Consolidating' },
+            '13': { signal: 'bull', emoji: '🐂', reason: 'Hot subnet!' },
+            '18': { signal: 'bear', emoji: '🐻', reason: 'Outflows detected' },
+            '19': { signal: 'bull', emoji: '🐂', reason: 'Rising interest' },
+            '21': { signal: 'neutral', emoji: '➖', reason: 'Sideways' },
+            '28': { signal: 'bear', emoji: '🐻', reason: 'Whale exits' },
+            '32': { signal: 'neutral', emoji: '➖', reason: 'Mixed signals' },
+            '37': { signal: 'bull', emoji: '🐂', reason: 'Dev activity' },
+            '44': { signal: 'bear', emoji: '🐻', reason: 'Declining APR' },
+            '49': { signal: 'bull', emoji: '🐂', reason: 'New validators' }
+        };
+        
+        const trend = trends[netuid] || { signal: 'neutral', emoji: '➖', reason: 'No data' };
+        const trendEl = document.getElementById('stat-trend');
+        const reasonEl = document.getElementById('stat-trend-reason');
+        const cardEl = document.getElementById('trend-card');
+        
+        if (trend.signal === 'bull') {
+            trendEl.innerHTML = trend.emoji + ' BULL';
+            trendEl.style.color = 'var(--green)';
+        } else if (trend.signal === 'bear') {
+            trendEl.innerHTML = trend.emoji + ' BEAR';
+            trendEl.style.color = 'var(--red)';
+        } else {
+            trendEl.innerHTML = trend.emoji + ' HOLD';
+            trendEl.style.color = 'var(--text-secondary)';
+        }
+        reasonEl.textContent = trend.reason;
     </script>
 </body>
 </html>

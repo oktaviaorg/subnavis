@@ -429,6 +429,7 @@
                                 <th>Staked</th>
                                 <th>Value (USD)</th>
                                 <th>APR</th>
+                                <th>Trend</th>
                             </tr>
                         </thead>
                         <tbody id="positions-body">
@@ -575,6 +576,40 @@
             };
             return aprs[netuid] || 20.0;
         }
+        
+        // Trend indicator (Bull/Bear)
+        // Based on: stake flow, price trend, whale activity
+        function getSubnetTrend(netuid) {
+            // Mock trend data (in production: API call)
+            const trends = {
+                0: { score: 75, signal: 'bull', reason: 'Strong inflows' },
+                1: { score: 82, signal: 'bull', reason: 'Whale accumulation' },
+                7: { score: 68, signal: 'bull', reason: 'Steady growth' },
+                8: { score: 45, signal: 'neutral', reason: 'Consolidating' },
+                13: { score: 88, signal: 'bull', reason: 'Hot subnet!' },
+                18: { score: 35, signal: 'bear', reason: 'Outflows detected' },
+                19: { score: 72, signal: 'bull', reason: 'Rising interest' },
+                21: { score: 40, signal: 'neutral', reason: 'Sideways' },
+                28: { score: 25, signal: 'bear', reason: 'Whale exits' },
+                32: { score: 55, signal: 'neutral', reason: 'Mixed signals' },
+                37: { score: 78, signal: 'bull', reason: 'Dev activity' },
+                44: { score: 30, signal: 'bear', reason: 'Declining APR' },
+                49: { score: 65, signal: 'bull', reason: 'New validators' }
+            };
+            
+            const t = trends[netuid] || { score: 50, signal: 'neutral', reason: 'No data' };
+            
+            let html = '';
+            if (t.signal === 'bull') {
+                html = `<span style="color: var(--green); font-weight: 600;" title="${t.reason}">🐂 BULL</span>`;
+            } else if (t.signal === 'bear') {
+                html = `<span style="color: var(--red); font-weight: 600;" title="${t.reason}">🐻 BEAR</span>`;
+            } else {
+                html = `<span style="color: var(--text-secondary);" title="${t.reason}">➖ HOLD</span>`;
+            }
+            
+            return { ...t, html };
+        }
 
         function generateMockPortfolio(address) {
             // Generate realistic mock data
@@ -619,20 +654,24 @@
 
             data.positions.forEach(pos => {
                 const value = pos.staked * TAO_PRICE;
+                const trend = getSubnetTrend(pos.netuid);
                 const tr = document.createElement('tr');
+                tr.style.cursor = 'pointer';
+                tr.onclick = () => window.location.href = '/subnet.html?id=' + pos.netuid;
                 tr.innerHTML = `
                     <td>
                         <div class="subnet-name">
                             <div class="subnet-badge">${pos.netuid}</div>
                             <div>
                                 <strong>${pos.name}</strong>
-                                <div style="font-size: 0.8rem; color: var(--text-secondary);">SN${pos.netuid}</div>
+                                <div style="font-size: 0.8rem; color: var(--text-secondary);">SN${pos.netuid} → Click for details</div>
                             </div>
                         </div>
                     </td>
                     <td><strong>${pos.staked.toFixed(2)} τ</strong></td>
                     <td>$${value.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
                     <td class="positive">${pos.apr.toFixed(1)}%</td>
+                    <td>${trend.html}</td>
                 `;
                 tbody.appendChild(tr);
             });
