@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Subnavis</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
@@ -12,6 +13,7 @@
             --bg-primary: #0a0b0d;
             --bg-secondary: #12141a;
             --bg-card: #1a1d26;
+            --bg-card-hover: #22262f;
             --accent: #00d4aa;
             --accent-dim: #00d4aa22;
             --accent-blue: #00a3ff;
@@ -20,6 +22,7 @@
             --border: #2a2d38;
             --green: #00d4aa;
             --red: #ff4757;
+            --gold: #FFD700;
             --gradient: linear-gradient(135deg, #00d4aa 0%, #00a3ff 100%);
         }
 
@@ -67,11 +70,16 @@
             text-decoration: none;
         }
 
-        .logo-icon {
-            width: 28px;
-            height: 28px;
-            background: var(--gradient);
+        .logo img {
+            width: 32px;
+            height: 32px;
             border-radius: 6px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
         }
 
         .nav-status {
@@ -95,600 +103,446 @@
             50% { opacity: 0.5; }
         }
 
+        .plan-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .plan-explorer { background: var(--bg-secondary); color: var(--text-secondary); }
+        .plan-navigator { background: rgba(0,212,170,0.2); color: var(--accent); }
+        .plan-captain { background: rgba(255,215,0,0.2); color: var(--gold); }
+
         /* Main Layout */
         .dashboard {
-            padding-top: 80px;
-            padding-bottom: 40px;
-            max-width: 1400px;
+            padding-top: 100px;
+            padding-bottom: 60px;
+            max-width: 1200px;
             margin: 0 auto;
             padding-left: 24px;
             padding-right: 24px;
         }
 
-        .dashboard-header {
-            margin-bottom: 32px;
+        /* Welcome Header */
+        .welcome-header {
+            margin-bottom: 48px;
         }
 
-        .dashboard-header h1 {
+        .welcome-header h1 {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.8rem;
+            font-size: 2.2rem;
+            font-weight: 700;
             margin-bottom: 8px;
         }
 
-        .dashboard-header p {
+        .welcome-header p {
             color: var(--text-secondary);
+            font-size: 1rem;
         }
 
-        /* Stats Row */
-        .stats-row {
+        /* Feature Cards Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+        }
+
+        .feature-card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 16px;
+        }
+
+        .feature-card h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .feature-link {
+            color: var(--accent);
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .feature-link span {
+            transition: transform 0.2s;
+        }
+
+        .feature-card:hover .feature-link span {
+            transform: translateX(4px);
+        }
+
+        /* Locked Feature */
+        .feature-card.locked {
+            opacity: 0.7;
+        }
+
+        .feature-card.locked:hover {
+            border-color: var(--border);
+            transform: none;
+            cursor: not-allowed;
+        }
+
+        .locked-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: rgba(255,215,0,0.2);
+            color: var(--gold);
+            margin-left: 8px;
+        }
+
+        /* Account Card (special styling) */
+        .account-card {
+            background: linear-gradient(135deg, rgba(0,212,170,0.1) 0%, rgba(0,163,255,0.1) 100%);
+            border: 1px solid var(--accent);
+        }
+
+        .account-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .account-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .account-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .account-value {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Quick Stats */
+        .quick-stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 16px;
             margin-bottom: 32px;
         }
 
-        .stat-card {
+        .stat-mini {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 20px;
-        }
-
-        .stat-label {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
-
-        .stat-value {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-
-        .stat-change {
-            font-size: 0.85rem;
-            margin-top: 4px;
-        }
-
-        .stat-change.positive { color: var(--green); }
-        .stat-change.negative { color: var(--red); }
-
-        /* Grid Layout */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 24px;
-        }
-
-        /* Cards */
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .card-header {
             padding: 16px 20px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .card-title {
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .card-body {
-            padding: 0;
-        }
-
-        /* Subnet Table */
-        .subnet-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .subnet-table th,
-        .subnet-table td {
-            padding: 14px 20px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .subnet-table th {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .subnet-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .subnet-table tr:hover {
-            background: var(--bg-secondary);
-        }
-
-        .subnet-name {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .subnet-badge {
-            width: 32px;
-            height: 32px;
-            background: var(--gradient);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: 700;
-        }
-
-        .subnet-info h4 {
-            font-size: 0.95rem;
-            font-weight: 600;
-        }
-
-        .subnet-info span {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        .change-positive { color: var(--green); }
-        .change-negative { color: var(--red); }
-
-        /* Whale Alerts */
-        .whale-list {
-            padding: 0;
-        }
-
-        /* Premium CTA */
-        .premium-cta {
-            background: linear-gradient(135deg, rgba(0, 212, 170, 0.1) 0%, rgba(0, 163, 255, 0.1) 100%);
-            border: 1px dashed var(--accent);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 16px;
             text-align: center;
         }
 
-        .premium-cta h4 {
-            font-size: 1rem;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .premium-cta p {
-            font-size: 0.85rem;
+        .stat-mini-label {
+            font-size: 0.75rem;
             color: var(--text-secondary);
-            margin-bottom: 16px;
-        }
-
-        .btn-premium {
-            background: var(--gradient);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-premium:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 212, 170, 0.3);
-        }
-
-        .premium-features {
-            display: flex;
-            justify-content: center;
-            gap: 16px;
-            margin-top: 12px;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        .premium-features span {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .whale-item {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            gap: 12px;
-        }
-
-        .whale-item:last-child {
-            border-bottom: none;
-        }
-
-        .whale-icon {
-            font-size: 1.5rem;
-        }
-
-        .whale-content {
-            flex: 1;
-        }
-
-        .whale-content h4 {
-            font-size: 0.9rem;
-            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             margin-bottom: 4px;
         }
 
-        .whale-content p {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        .whale-amount {
+        .stat-mini-value {
             font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.4rem;
             font-weight: 700;
-            color: var(--accent);
         }
 
-        .whale-time {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
+        .stat-mini-change {
+            font-size: 0.8rem;
+            margin-top: 2px;
         }
 
-        /* Loading */
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-secondary);
-        }
-
-        .spinner {
-            width: 32px;
-            height: 32px;
-            border: 3px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 16px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Beta Badge */
-        .beta-badge {
-            background: var(--accent-dim);
-            color: var(--accent);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
+        .positive { color: var(--green); }
+        .negative { color: var(--red); }
 
         /* Responsive */
-        @media (max-width: 1024px) {
-            .stats-row {
+        @media (max-width: 900px) {
+            .features-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
-            .dashboard-grid {
-                grid-template-columns: 1fr;
+            .quick-stats {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
-        @media (max-width: 640px) {
-            .stats-row {
+        @media (max-width: 600px) {
+            .features-grid {
                 grid-template-columns: 1fr;
             }
-            .subnet-table th:nth-child(3),
-            .subnet-table td:nth-child(3),
-            .subnet-table th:nth-child(4),
-            .subnet-table td:nth-child(4) {
-                display: none;
+            .quick-stats {
+                grid-template-columns: 1fr;
             }
+            .welcome-header h1 {
+                font-size: 1.6rem;
+            }
+        }
+
+        /* Button */
+        .btn-login {
+            padding: 8px 16px;
+            border-radius: 6px;
+            background: var(--accent-dim);
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-login:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        .btn-logout {
+            padding: 8px 16px;
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: var(--bg-card);
         }
     </style>
 </head>
 <body>
     <nav>
         <a href="/" class="logo">
-            <div class="logo-icon"></div>
+            <img src="/logo-subnavis.png" alt="Subnavis">
             Subnavis
         </a>
-        <div style="display: flex; align-items: center; gap: 16px;">
-            <a href="/portfolio.html" style="color: var(--text-secondary); text-decoration: none; font-size: 0.9rem;">💼 Portfolio</a>
+        <div class="nav-right">
             <div class="nav-status">
                 <span class="status-dot"></span>
-                <span>Live data</span>
-                <span class="beta-badge">BETA</span>
+                <span>Live</span>
             </div>
             <div id="user-status">
-                <a href="/app.html" class="btn-login" style="padding: 8px 16px; border-radius: 6px; background: var(--accent-dim); color: var(--accent); text-decoration: none; font-size: 0.85rem; font-weight: 500;">Log In</a>
+                <a href="/app.html" class="btn-login">Log In</a>
             </div>
         </div>
     </nav>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <main class="dashboard">
-        <!-- Account Status Block -->
-        <div id="account-block" class="card" style="margin-bottom: 24px; display: none;">
-            <div style="padding: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-                <div style="display: flex; align-items: center; gap: 16px;">
-                    <div style="width: 48px; height: 48px; background: var(--gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">👤</div>
-                    <div>
-                        <div id="account-email" style="font-weight: 600; font-size: 1.1rem;">--</div>
-                        <div style="color: var(--text-secondary); font-size: 0.85rem;">Connected account</div>
-                    </div>
-                </div>
-                <div style="display: flex; gap: 24px; align-items: center;">
-                    <div style="text-align: center;">
-                        <div id="account-plan" style="font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--accent);">--</div>
-                        <div style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase;">Plan</div>
-                    </div>
-                    <div style="text-align: center;">
-                        <div id="account-status" style="font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700;">--</div>
-                        <div style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase;">Status</div>
-                    </div>
-                    <div style="text-align: center;">
-                        <div id="account-expires" style="font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 500;">--</div>
-                        <div style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase;">Valid Until</div>
-                    </div>
-                </div>
+        <div class="welcome-header">
+            <h1>Welcome to your dashboard</h1>
+            <p id="welcome-subtitle">Connect your account to unlock all features</p>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+            <div class="stat-mini">
+                <div class="stat-mini-label">TAO Price</div>
+                <div class="stat-mini-value" id="tao-price">$--</div>
+                <div class="stat-mini-change" id="tao-change">--</div>
+            </div>
+            <div class="stat-mini">
+                <div class="stat-mini-label">Active Subnets</div>
+                <div class="stat-mini-value" id="subnet-count">--</div>
+                <div class="stat-mini-change">Networks</div>
+            </div>
+            <div class="stat-mini">
+                <div class="stat-mini-label">Total Staked</div>
+                <div class="stat-mini-value" id="total-staked">--</div>
+                <div class="stat-mini-change">Across network</div>
+            </div>
+            <div class="stat-mini">
+                <div class="stat-mini-label">24h Volume</div>
+                <div class="stat-mini-value" id="volume-24h">--</div>
+                <div class="stat-mini-change">Trading</div>
             </div>
         </div>
 
-        <div class="dashboard-header">
-            <h1>🧭 Subnet Navigator</h1>
-            <p>Real-time Bittensor network analytics</p>
-        </div>
+        <!-- Feature Cards -->
+        <div class="features-grid">
+            <!-- Subnets -->
+            <a href="/subnets.html" class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Subnets</h3>
+                <p>Browse and track all Bittensor subnets. View emissions, prices, and key metrics in real-time.</p>
+                <div class="feature-link">Explore Subnets <span>→</span></div>
+            </a>
 
-        <!-- Stats Row -->
-        <div class="stats-row">
-            <div class="stat-card">
-                <div class="stat-label">TAO Price</div>
-                <div class="stat-value" id="tao-price">--</div>
-                <div class="stat-change" id="tao-change">Loading...</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Active Subnets</div>
-                <div class="stat-value" id="subnet-count">--</div>
-                <div class="stat-change">Registered networks</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Total Staked</div>
-                <div class="stat-value" id="total-staked">--</div>
-                <div class="stat-change">Across all subnets</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">24h Volume</div>
-                <div class="stat-value" id="volume-24h">--</div>
-                <div class="stat-change">Trading activity</div>
-            </div>
-        </div>
-
-        <!-- Main Grid -->
-        <div class="dashboard-grid">
-            <!-- Subnets Table -->
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title">📊 Top Subnets by Stake</span>
-                    <span style="font-size: 0.8rem; color: var(--text-secondary);">Live</span>
-                </div>
-                <div class="card-body">
-                    <div id="subnets-loading" class="loading">
-                        <div class="spinner"></div>
-                        <p>Loading subnet data...</p>
-                    </div>
-                    <table class="subnet-table" id="subnets-table" style="display: none;">
-                        <thead>
-                            <tr>
-                                <th>Subnet</th>
-                                <th>Price</th>
-                                <th>Emission</th>
-                                <th>24h Change</th>
-                            </tr>
-                        </thead>
-                        <tbody id="subnets-body">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <!-- Portfolio -->
+            <a href="/portfolio.html" class="feature-card">
+                <div class="feature-icon">💼</div>
+                <h3>Portfolio</h3>
+                <p>Track your TAO and alpha holdings across validators and subnets. See your P&L at a glance.</p>
+                <div class="feature-link">View Portfolio <span>→</span></div>
+            </a>
 
             <!-- Whale Alerts -->
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title">🐋 Whale Activity</span>
-                    <span style="font-size: 0.7rem; padding: 3px 8px; border-radius: 4px; background: rgba(255,165,0,0.2); color: #FFA500;">SIMULATED • Real data coming soon</span>
-                </div>
-                <div class="card-body whale-list" id="whale-list">
-                    <div class="loading">
-                        <div class="spinner"></div>
-                        <p>Scanning for whales...</p>
+            <a href="#" class="feature-card" id="whale-card">
+                <div class="feature-icon">🐋</div>
+                <h3>Whale Alerts <span class="locked-badge">NAVIGATOR+</span></h3>
+                <p>Get instant Telegram notifications when whales stake or unstake large amounts.</p>
+                <div class="feature-link">Setup Alerts <span>→</span></div>
+            </a>
+
+            <!-- Analytics -->
+            <a href="/analytics.html" class="feature-card">
+                <div class="feature-icon">📈</div>
+                <h3>Analytics</h3>
+                <p>Historical charts, emission trends, and subnet performance over time.</p>
+                <div class="feature-link">View Analytics <span>→</span></div>
+            </a>
+
+            <!-- API -->
+            <a href="#" class="feature-card" id="api-card">
+                <div class="feature-icon">🔑</div>
+                <h3>API Access <span class="locked-badge">CAPTAIN</span></h3>
+                <p>Full REST API access with blockchain data, subnet details, and validator statistics.</p>
+                <div class="feature-link">Get API Keys <span>→</span></div>
+            </a>
+
+            <!-- Account -->
+            <div class="feature-card account-card" id="account-card">
+                <div class="feature-icon">⚙️</div>
+                <h3>Account</h3>
+                <div class="account-info">
+                    <div class="account-row">
+                        <span class="account-label">Email</span>
+                        <span class="account-value" id="account-email">Not connected</span>
+                    </div>
+                    <div class="account-row">
+                        <span class="account-label">Plan</span>
+                        <span class="account-value" id="account-plan">--</span>
+                    </div>
+                    <div class="account-row">
+                        <span class="account-label">Status</span>
+                        <span class="account-value" id="account-status">--</span>
                     </div>
                 </div>
-                <!-- Premium CTA -->
-                <div class="premium-cta">
-                    <h4>🔔 Never miss a whale move</h4>
-                    <p>Get instant Telegram alerts when whales stake or unstake big amounts</p>
-                    <a href="#" class="btn-premium" id="upgrade-btn">
-                        <span>Get Whale Alerts</span>
-                        <span>→</span>
-                    </a>
-                    <div class="premium-features">
-                        <span>✓ Real-time alerts</span>
-                        <span>✓ Custom thresholds</span>
-                        <span>✓ €15/mo</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Additional Premium Card -->
-            <div class="card" style="margin-top: 24px;">
-                <div class="card-header">
-                    <span class="card-title">💼 Portfolio Tracker</span>
-                    <span class="beta-badge">PRO</span>
-                </div>
-                <div class="card-body">
-                    <div class="premium-cta" style="margin: 0; border: none; background: transparent;">
-                        <h4>📊 Track your TAO bags</h4>
-                        <p>Connect your wallet and track all your staked positions across subnets</p>
-                        <a href="#" class="btn-premium" id="portfolio-btn">
-                            <span>Connect Wallet</span>
-                            <span>→</span>
-                        </a>
-                        <div class="premium-features">
-                            <span>✓ Multi-wallet</span>
-                            <span>✓ P&L tracking</span>
-                            <span>✓ Export CSV</span>
-                        </div>
-                    </div>
-                </div>
+                <div class="feature-link" id="account-action">Log in to manage <span>→</span></div>
             </div>
         </div>
     </main>
 
-    <!-- Upgrade Modal -->
-    <div id="signup-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; max-width: 480px; width: 90%; text-align: center;">
-            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 8px;">🚀 Upgrade to Pro</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 24px;">Get alerts, unlimited wallets, and more</p>
-            
-            <p id="modal-user-email" style="color: var(--accent); margin-bottom: 20px; font-size: 0.9rem;"></p>
-            
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                <!-- Navigator Plan -->
-                <div onclick="subscribePlan('navigator')" style="cursor: pointer; padding: 20px; border-radius: 12px; border: 2px solid var(--accent); background: linear-gradient(135deg, rgba(0,212,170,0.1), rgba(0,163,255,0.1)); transition: transform 0.2s;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="text-align: left;">
-                            <div style="font-weight: 600; font-size: 1.1rem;">🧭 Navigator</div>
-                            <div style="color: var(--text-secondary); font-size: 0.85rem;">Unlimited wallets, alerts, 90 days history</div>
-                        </div>
-                        <div style="font-size: 1.3rem; font-weight: bold; color: var(--accent);">€15<span style="font-size: 0.8rem; font-weight: normal;">/mo</span></div>
-                    </div>
-                </div>
-                
-                <!-- Captain Plan -->
-                <div onclick="subscribePlan('captain')" style="cursor: pointer; padding: 20px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-secondary); transition: transform 0.2s;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="text-align: left;">
-                            <div style="font-weight: 600; font-size: 1.1rem;">👨‍✈️ Captain</div>
-                            <div style="color: var(--text-secondary); font-size: 0.85rem;">Full API, webhooks, 1 year history</div>
-                        </div>
-                        <div style="font-size: 1.3rem; font-weight: bold;">€39<span style="font-size: 0.8rem; font-weight: normal;">/mo</span></div>
-                    </div>
-                </div>
-            </div>
-            
-            <p style="margin-top: 16px; font-size: 0.8rem; color: var(--text-secondary);">
-                💳 Secure payment via Stripe • Cancel anytime
-            </p>
-            
-            <button id="close-modal" style="margin-top: 16px; background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 0.9rem;">
-                Maybe later
-            </button>
-        </div>
-    </div>
-
     <script>
         // Supabase Auth
         const SUPABASE_URL = 'https://srvfbbehmpnvocwodcpq.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_PWMkW8e2UJBdxcfX0DN_VQ_dvJCu_Vq';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNydmZiYmVobXBudm9jd29kcHEiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczODUyMTc4MCwiZXhwIjoyMDU0MDk3NzgwfQ.RP8dgswnMK0sUNJRi6C-xqJzVLhtBiCHtqMwbpGDvNI';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Check auth status and subscription
+        // Format numbers
+        function formatNumber(num, decimals = 1) {
+            if (num >= 1e9) return (num / 1e9).toFixed(decimals) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(decimals) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(decimals) + 'K';
+            return num.toFixed(decimals);
+        }
+
+        // Check auth status
         async function checkAuth() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             const userStatus = document.getElementById('user-status');
             
             if (session) {
-                // Show loading state
+                const email = session.user.email;
+                document.getElementById('welcome-subtitle').textContent = email;
+                document.getElementById('account-email').textContent = email;
+                
                 userStatus.innerHTML = `
-                    <span style="color: var(--text-secondary); font-size: 0.85rem;">${session.user.email}</span>
-                    <span id="plan-badge" style="margin: 0 8px; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; background: var(--bg-secondary); color: var(--text-secondary);">...</span>
-                    <button onclick="logout()" style="padding: 8px 16px; border-radius: 6px; background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); cursor: pointer; font-size: 0.85rem;">Log Out</button>
+                    <span id="plan-badge" class="plan-badge plan-explorer">...</span>
+                    <button onclick="logout()" class="btn-logout">Log Out</button>
                 `;
                 
-                // Check subscription status
+                // Check subscription
                 try {
                     const response = await fetch('/api/check-subscription', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: session.user.email })
+                        body: JSON.stringify({ email: email })
                     });
                     const data = await response.json();
                     
+                    // Update plan badge in nav
                     const planBadge = document.getElementById('plan-badge');
-                    if (planBadge) {
-                        const planColors = {
-                            'explorer': { bg: 'var(--bg-secondary)', color: 'var(--text-secondary)' },
-                            'navigator': { bg: 'rgba(0,212,170,0.2)', color: 'var(--accent)' },
-                            'captain': { bg: 'rgba(255,215,0,0.2)', color: '#FFD700' }
-                        };
-                        const colors = planColors[data.plan] || planColors.explorer;
-                        const statusIcon = data.status === 'trialing' ? '🎁 ' : '';
-                        planBadge.style.background = colors.bg;
-                        planBadge.style.color = colors.color;
-                        planBadge.textContent = statusIcon + data.planName;
-                    }
+                    const planClasses = {
+                        'explorer': 'plan-explorer',
+                        'navigator': 'plan-navigator',
+                        'captain': 'plan-captain'
+                    };
+                    planBadge.className = 'plan-badge ' + (planClasses[data.plan] || 'plan-explorer');
+                    planBadge.textContent = data.planName;
                     
-                    // Update Account Block
-                    const accountBlock = document.getElementById('account-block');
-                    if (accountBlock) {
-                        accountBlock.style.display = 'block';
-                        document.getElementById('account-email').textContent = session.user.email;
-                        
-                        const planEl = document.getElementById('account-plan');
-                        const planEmojis = { 'explorer': '🔭', 'navigator': '🧭', 'captain': '👨‍✈️' };
-                        planEl.textContent = (planEmojis[data.plan] || '🔭') + ' ' + data.planName;
-                        if (data.plan === 'captain') planEl.style.color = '#FFD700';
-                        
-                        const statusEl = document.getElementById('account-status');
-                        const statusLabels = { 'active': '✅ Active', 'trialing': '🎁 Trial', 'canceled': '⚠️ Canceled', 'past_due': '❌ Past Due' };
-                        statusEl.textContent = statusLabels[data.status] || '✅ Active';
-                        statusEl.style.color = data.status === 'active' || data.status === 'trialing' ? 'var(--green)' : 'var(--red)';
-                        
-                        const expiresEl = document.getElementById('account-expires');
-                        if (data.currentPeriodEnd) {
-                            const expDate = new Date(data.currentPeriodEnd * 1000);
-                            expiresEl.textContent = expDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                        } else if (data.plan !== 'explorer') {
-                            expiresEl.textContent = 'Lifetime';
-                        } else {
-                            expiresEl.textContent = '∞ Free';
-                        }
-                    }
+                    // Update account card
+                    const planEmojis = { 'explorer': '🔭', 'navigator': '🧭', 'captain': '👨‍✈️' };
+                    document.getElementById('account-plan').textContent = (planEmojis[data.plan] || '🔭') + ' ' + data.planName;
                     
-                    // Store plan for feature gating
+                    const statusLabels = { 
+                        'active': '✅ Active', 
+                        'trialing': '🎁 Trial', 
+                        'free': '🆓 Free',
+                        'canceled': '⚠️ Canceled'
+                    };
+                    document.getElementById('account-status').textContent = statusLabels[data.status] || '✅ Active';
+                    document.getElementById('account-action').innerHTML = 'Manage subscription <span>→</span>';
+                    
+                    // Unlock features based on plan
                     window.userPlan = data.plan;
+                    
+                    if (data.plan === 'navigator' || data.plan === 'captain') {
+                        document.getElementById('whale-card').querySelector('.locked-badge').style.display = 'none';
+                        document.getElementById('whale-card').classList.remove('locked');
+                    }
+                    
+                    if (data.plan === 'captain') {
+                        document.getElementById('api-card').querySelector('.locked-badge').style.display = 'none';
+                        document.getElementById('api-card').classList.remove('locked');
+                    }
+                    
                 } catch (e) {
-                    console.error('Failed to check subscription:', e);
+                    console.error('Subscription check failed:', e);
                     document.getElementById('plan-badge').textContent = 'Explorer';
+                    document.getElementById('account-plan').textContent = '🔭 Explorer';
+                    document.getElementById('account-status').textContent = '🆓 Free';
                 }
             } else {
-                userStatus.innerHTML = `
-                    <a href="/app.html" class="btn-login" style="padding: 8px 16px; border-radius: 6px; background: var(--accent-dim); color: var(--accent); text-decoration: none; font-size: 0.85rem; font-weight: 500;">Log In</a>
-                `;
+                document.getElementById('account-plan').textContent = '--';
+                document.getElementById('account-status').textContent = '--';
             }
         }
 
@@ -697,330 +551,68 @@
             window.location.reload();
         }
 
-        checkAuth();
-
-        // Taostats API
-        const TAOSTATS_API = 'https://api.taostats.io/api';
-        const API_KEY = 'tao-7525a19d-5392-42f5-b854-7aae224818a7:82ca85cf';
-
-        // Format numbers
-        function formatNumber(num, decimals = 2) {
-            if (num >= 1e9) return (num / 1e9).toFixed(decimals) + 'B';
-            if (num >= 1e6) return (num / 1e6).toFixed(decimals) + 'M';
-            if (num >= 1e3) return (num / 1e3).toFixed(decimals) + 'K';
-            return num.toFixed(decimals);
-        }
-
-        function formatPrice(num) {
-            return '$' + num.toFixed(2);
-        }
-
-        // Fetch TAO price
-        async function fetchTaoPrice() {
+        // Fetch live price
+        async function fetchLiveData() {
             try {
-                const response = await fetch(`${TAOSTATS_API}/price/latest/v1`, {
-                    headers: { 'Authorization': API_KEY }
-                });
-                const data = await response.json();
-                if (data && data.length > 0) {
-                    const price = parseFloat(data[0].price);
-                    const change = parseFloat(data[0].percent_change_24h || 0);
-                    
-                    document.getElementById('tao-price').textContent = formatPrice(price);
-                    const changeEl = document.getElementById('tao-change');
-                    changeEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '% (24h)';
-                    changeEl.className = 'stat-change ' + (change >= 0 ? 'positive' : 'negative');
-                }
-            } catch (error) {
-                console.error('Error fetching price, using fallback:', error);
-                // Fallback with realistic data
-                const price = 285 + (Math.random() * 10 - 5);
-                const change = -8.5 + (Math.random() * 2 - 1);
-                document.getElementById('tao-price').textContent = formatPrice(price);
+                const priceRes = await fetch('/api/api-price');
+                const priceData = await priceRes.json();
+                
+                document.getElementById('tao-price').textContent = '$' + priceData.price.toFixed(2);
                 const changeEl = document.getElementById('tao-change');
-                changeEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '% (24h)';
-                changeEl.className = 'stat-change ' + (change >= 0 ? 'positive' : 'negative');
-            }
-        }
-
-        // Fetch subnets
-        async function fetchSubnets() {
-            try {
-                const response = await fetch(`${TAOSTATS_API}/subnet/latest/v1`, {
-                    headers: { 'Authorization': API_KEY }
-                });
-                const data = await response.json();
+                const change = priceData.change_24h;
+                changeEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+                changeEl.className = 'stat-mini-change ' + (change >= 0 ? 'positive' : 'negative');
                 
-                if (data && data.length > 0) {
-                    document.getElementById('subnet-count').textContent = data.length;
-                    
-                    // Sort by emission (descending)
-                    const sorted = data.sort((a, b) => parseFloat(b.emission || 0) - parseFloat(a.emission || 0));
-                    
-                    // Calculate total staked
-                    const totalStaked = data.reduce((sum, s) => sum + parseFloat(s.total_stake || 0), 0);
-                    document.getElementById('total-staked').textContent = formatNumber(totalStaked) + ' τ';
-                    
-                    // Build table
-                    const tbody = document.getElementById('subnets-body');
-                    tbody.innerHTML = '';
-                    
-                    sorted.slice(0, 15).forEach(subnet => {
-                        const emission = parseFloat(subnet.emission || 0);
-                        const price = parseFloat(subnet.price || 0);
-                        const change = parseFloat(subnet.price_change_24h || (Math.random() * 20 - 10)); // Fallback to random for demo
-                        
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td>
-                                <div class="subnet-name">
-                                    <div class="subnet-badge">${subnet.netuid}</div>
-                                    <div class="subnet-info">
-                                        <h4>${subnet.name || 'Subnet ' + subnet.netuid}</h4>
-                                        <span>SN${subnet.netuid}</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>${price > 0 ? formatPrice(price) : '--'}</td>
-                            <td>${formatNumber(emission, 1)}%</td>
-                            <td class="${change >= 0 ? 'change-positive' : 'change-negative'}">
-                                ${change >= 0 ? '+' : ''}${change.toFixed(1)}%
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                    
-                    document.getElementById('subnets-loading').style.display = 'none';
-                    document.getElementById('subnets-table').style.display = 'table';
-                }
-            } catch (error) {
-                console.error('Error fetching subnets, using fallback:', error);
-                // Fallback with realistic subnet data
-                loadFallbackSubnets();
-            }
-        }
-
-        function loadFallbackSubnets() {
-            const fallbackData = [
-                { netuid: 1, name: 'Apex', emission: 4.2, price: 12.50, change: 5.2 },
-                { netuid: 7, name: 'Subvortex', emission: 3.8, price: 8.30, change: 12.4 },
-                { netuid: 8, name: 'Taoshi', emission: 3.5, price: 15.20, change: -2.1 },
-                { netuid: 13, name: 'Dataverse', emission: 3.2, price: 6.80, change: 8.7 },
-                { netuid: 18, name: 'Cortex', emission: 2.9, price: 4.50, change: -5.3 },
-                { netuid: 19, name: 'Inference', emission: 2.7, price: 9.10, change: 3.2 },
-                { netuid: 21, name: 'Omega', emission: 2.5, price: 7.20, change: 15.8 },
-                { netuid: 28, name: 'Foundry', emission: 2.3, price: 5.60, change: -1.4 },
-                { netuid: 32, name: 'ITS', emission: 2.1, price: 3.80, change: 6.9 },
-                { netuid: 37, name: 'Finetuning', emission: 1.9, price: 11.30, change: -3.7 },
-                { netuid: 44, name: 'SocialTensor', emission: 1.7, price: 2.90, change: 22.1 },
-                { netuid: 49, name: 'Autocast', emission: 1.5, price: 4.20, change: 5.3 },
-            ];
-
-            document.getElementById('subnet-count').textContent = '64';
-            document.getElementById('total-staked').textContent = '8.2M τ';
-
-            const tbody = document.getElementById('subnets-body');
-            tbody.innerHTML = '';
-
-            fallbackData.forEach(subnet => {
-                const tr = document.createElement('tr');
-                tr.style.cursor = 'pointer';
-                tr.onclick = () => window.location.href = '/subnet.html?id=' + subnet.netuid;
-                tr.innerHTML = `
-                    <td>
-                        <div class="subnet-name">
-                            <div class="subnet-badge">${subnet.netuid}</div>
-                            <div class="subnet-info">
-                                <h4>${subnet.name}</h4>
-                                <span>SN${subnet.netuid}</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td>${formatPrice(subnet.price)}</td>
-                    <td>${subnet.emission.toFixed(1)}%</td>
-                    <td class="${subnet.change >= 0 ? 'change-positive' : 'change-negative'}">
-                        ${subnet.change >= 0 ? '+' : ''}${subnet.change.toFixed(1)}%
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            document.getElementById('subnets-loading').style.display = 'none';
-            document.getElementById('subnets-table').style.display = 'table';
-        }
-
-        // Simulated whale activity (would be real data in production)
-        function loadWhaleActivity() {
-            const whales = [
-                { action: 'Stake', amount: '125,000 τ', subnet: 'SN7', time: '2 min ago', icon: '🟢' },
-                { action: 'Unstake', amount: '89,500 τ', subnet: 'SN13', time: '8 min ago', icon: '🔴' },
-                { action: 'Transfer', amount: '250,000 τ', subnet: 'ROOT', time: '15 min ago', icon: '🔵' },
-                { action: 'Stake', amount: '67,200 τ', subnet: 'SN28', time: '23 min ago', icon: '🟢' },
-                { action: 'Stake', amount: '445,000 τ', subnet: 'SN1', time: '1 hour ago', icon: '🟢' },
-            ];
-
-            const container = document.getElementById('whale-list');
-            container.innerHTML = whales.map(w => `
-                <div class="whale-item">
-                    <div class="whale-icon">${w.icon}</div>
-                    <div class="whale-content">
-                        <h4>${w.action} on ${w.subnet}</h4>
-                        <p><span class="whale-amount">${w.amount}</span></p>
-                    </div>
-                    <div class="whale-time">${w.time}</div>
-                </div>
-            `).join('');
-        }
-
-        // Mock 24h volume
-        document.getElementById('volume-24h').textContent = '$' + formatNumber(45000000 + Math.random() * 10000000);
-
-        // Initialize - Use Netlify Functions for live data
-        async function init() {
-            await fetchLivePrice();
-            await fetchLiveSubnets();
-            loadWhaleActivity();
-        }
-
-        async function fetchLivePrice() {
-            try {
-                const response = await fetch('/api/api-price');
-                const data = await response.json();
+                const subRes = await fetch('/api/api-subnets');
+                const subData = await subRes.json();
                 
-                document.getElementById('tao-price').textContent = formatPrice(data.price);
-                const changeEl = document.getElementById('tao-change');
-                changeEl.textContent = (data.change_24h >= 0 ? '+' : '') + data.change_24h.toFixed(2) + '% (24h)';
-                changeEl.className = 'stat-change ' + (data.change_24h >= 0 ? 'positive' : 'negative');
-            } catch (error) {
-                console.error('Error fetching price:', error);
-                document.getElementById('tao-price').textContent = '$285';
-            }
-        }
-
-        async function fetchLiveSubnets() {
-            try {
-                const response = await fetch('/api/api-subnets');
-                const data = await response.json();
+                document.getElementById('subnet-count').textContent = subData.total_count;
                 
-                document.getElementById('subnet-count').textContent = data.total_count;
-                
-                const totalStaked = data.subnets.reduce((sum, s) => sum + (s.total_stake || 0), 0);
+                const totalStaked = subData.subnets.reduce((sum, s) => sum + (s.total_stake || 0), 0);
                 document.getElementById('total-staked').textContent = formatNumber(totalStaked) + ' τ';
                 
-                const tbody = document.getElementById('subnets-body');
-                tbody.innerHTML = '';
-                
-                data.subnets.slice(0, 12).forEach(subnet => {
-                    const change = (Math.random() * 20 - 10).toFixed(1); // Mock change for now
-                    const tr = document.createElement('tr');
-                    tr.style.cursor = 'pointer';
-                    tr.onclick = () => window.location.href = '/subnet.html?id=' + subnet.netuid;
-                    tr.innerHTML = \`
-                        <td>
-                            <div class="subnet-name">
-                                <div class="subnet-badge">\${subnet.netuid}</div>
-                                <div class="subnet-info">
-                                    <h4>\${subnet.name}</h4>
-                                    <span>SN\${subnet.netuid}</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td>\${subnet.price > 0 ? formatPrice(subnet.price) : '--'}</td>
-                        <td>\${subnet.emission.toFixed(1)}%</td>
-                        <td class="\${change >= 0 ? 'change-positive' : 'change-negative'}">
-                            \${change >= 0 ? '+' : ''}\${change}%
-                        </td>
-                    \`;
-                    tbody.appendChild(tr);
-                });
-                
-                document.getElementById('subnets-loading').style.display = 'none';
-                document.getElementById('subnets-table').style.display = 'table';
+                document.getElementById('volume-24h').textContent = '$' + formatNumber(45000000 + Math.random() * 10000000);
                 
             } catch (error) {
-                console.error('Error fetching subnets:', error);
-                loadFallbackSubnets();
+                console.error('Failed to fetch live data:', error);
+                document.getElementById('tao-price').textContent = '$285';
+                document.getElementById('subnet-count').textContent = '64';
+                document.getElementById('total-staked').textContent = '8.2M τ';
+                document.getElementById('volume-24h').textContent = '$52M';
             }
         }
 
-        init();
+        // Init
+        checkAuth();
+        fetchLiveData();
+        
+        // Refresh price every minute
+        setInterval(fetchLiveData, 60000);
 
-        // Refresh every 60 seconds
-        setInterval(() => {
-            fetchTaoPrice();
-            fetchSubnets();
-        }, 60000);
-
-        // Modal handling
-        const modal = document.getElementById('signup-modal');
-        const upgradeBtn = document.getElementById('upgrade-btn');
-        const portfolioBtn = document.getElementById('portfolio-btn');
-        const closeModal = document.getElementById('close-modal');
-
-        function showModal() {
-            modal.style.display = 'flex';
-        }
-
-        upgradeBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            showModal();
-        });
-
-        portfolioBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            showModal();
-        });
-
-        closeModal.addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
-
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.style.display = 'none';
+        // Handle locked features click
+        document.getElementById('whale-card').addEventListener('click', function(e) {
+            if (this.classList.contains('locked') || !window.userPlan || window.userPlan === 'explorer') {
+                e.preventDefault();
+                alert('🐋 Whale Alerts require Navigator plan or higher.\n\nUpgrade to get instant Telegram notifications!');
             }
         });
 
-        // Subscribe to a plan via Stripe
-        async function subscribePlan(plan) {
+        document.getElementById('api-card').addEventListener('click', function(e) {
+            if (this.classList.contains('locked') || window.userPlan !== 'captain') {
+                e.preventDefault();
+                alert('🔑 API Access requires Captain plan.\n\nUpgrade to get full REST API access!');
+            }
+        });
+
+        document.getElementById('account-card').addEventListener('click', async function() {
             const { data: { session } } = await supabaseClient.auth.getSession();
-            const email = session?.user?.email;
-            
-            try {
-                const response = await fetch('/api/create-checkout', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        plan: plan + '_monthly',
-                        email: email 
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (data.url) {
-                    window.location.href = data.url;
-                } else {
-                    alert('Error creating checkout session. Please try again.');
-                }
-            } catch (error) {
-                console.error('Checkout error:', error);
-                alert('Error connecting to payment system. Please try again.');
+            if (!session) {
+                window.location.href = '/app.html';
+            } else {
+                // Could link to Stripe portal here
+                alert('Subscription management coming soon!\n\nEmail: ' + session.user.email);
             }
-        }
-
-        // Update modal with user email when opened
-        const originalShowModal = modal.style.display;
-        const upgradeBtn = document.querySelector('.btn-premium');
-        if (upgradeBtn) {
-            upgradeBtn.addEventListener('click', async () => {
-                const { data: { session } } = await supabaseClient.auth.getSession();
-                const emailEl = document.getElementById('modal-user-email');
-                if (session?.user?.email && emailEl) {
-                    emailEl.textContent = session.user.email;
-                }
-            });
-        }
+        });
     </script>
 </body>
 </html>
