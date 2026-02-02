@@ -714,6 +714,8 @@
 
             fallbackData.forEach(subnet => {
                 const tr = document.createElement('tr');
+                tr.style.cursor = 'pointer';
+                tr.onclick = () => window.location.href = '/subnet.html?id=' + subnet.netuid;
                 tr.innerHTML = `
                     <td>
                         <div class="subnet-name">
