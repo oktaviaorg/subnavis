@@ -253,6 +253,67 @@
             padding: 0;
         }
 
+        /* Premium CTA */
+        .premium-cta {
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.1) 0%, rgba(0, 163, 255, 0.1) 100%);
+            border: 1px dashed var(--accent);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px;
+            text-align: center;
+        }
+
+        .premium-cta h4 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .premium-cta p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .btn-premium {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 170, 0.3);
+        }
+
+        .premium-features {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 12px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .premium-features span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
         .whale-item {
             padding: 16px 20px;
             border-bottom: 1px solid var(--border);
@@ -430,9 +491,69 @@
                         <p>Scanning for whales...</p>
                     </div>
                 </div>
+                <!-- Premium CTA -->
+                <div class="premium-cta">
+                    <h4>🔔 Never miss a whale move</h4>
+                    <p>Get instant Telegram alerts when whales stake or unstake big amounts</p>
+                    <a href="#" class="btn-premium" id="upgrade-btn">
+                        <span>Get Whale Alerts</span>
+                        <span>→</span>
+                    </a>
+                    <div class="premium-features">
+                        <span>✓ Real-time alerts</span>
+                        <span>✓ Custom thresholds</span>
+                        <span>✓ €15/mo</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Premium Card -->
+            <div class="card" style="margin-top: 24px;">
+                <div class="card-header">
+                    <span class="card-title">💼 Portfolio Tracker</span>
+                    <span class="beta-badge">PRO</span>
+                </div>
+                <div class="card-body">
+                    <div class="premium-cta" style="margin: 0; border: none; background: transparent;">
+                        <h4>📊 Track your TAO bags</h4>
+                        <p>Connect your wallet and track all your staked positions across subnets</p>
+                        <a href="#" class="btn-premium" id="portfolio-btn">
+                            <span>Connect Wallet</span>
+                            <span>→</span>
+                        </a>
+                        <div class="premium-features">
+                            <span>✓ Multi-wallet</span>
+                            <span>✓ P&L tracking</span>
+                            <span>✓ Export CSV</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
+
+    <!-- Signup Modal -->
+    <div id="signup-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; max-width: 420px; width: 90%; text-align: center;">
+            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 8px;">🚀 Get Premium Access</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">Join the waitlist to get early access to whale alerts and portfolio tracking</p>
+            
+            <form id="modal-form" style="display: flex; flex-direction: column; gap: 12px;">
+                <input type="email" placeholder="Enter your email" required style="padding: 14px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-secondary); color: var(--text-primary); font-size: 1rem;">
+                <button type="submit" class="btn-premium" style="width: 100%; justify-content: center;">
+                    Join Waitlist — Get 50% Off Launch Price
+                </button>
+            </form>
+            
+            <p style="margin-top: 16px; font-size: 0.8rem; color: var(--text-secondary);">
+                🎉 First 100 users get lifetime 50% discount
+            </p>
+            
+            <button id="close-modal" style="margin-top: 16px; background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 0.9rem;">
+                Maybe later
+            </button>
+        </div>
+    </div>
 
     <script>
         // Taostats API
@@ -629,6 +750,80 @@
             fetchTaoPrice();
             fetchSubnets();
         }, 60000);
+
+        // Modal handling
+        const modal = document.getElementById('signup-modal');
+        const upgradeBtn = document.getElementById('upgrade-btn');
+        const portfolioBtn = document.getElementById('portfolio-btn');
+        const closeModal = document.getElementById('close-modal');
+
+        function showModal() {
+            modal.style.display = 'flex';
+        }
+
+        upgradeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showModal();
+        });
+
+        portfolioBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showModal();
+        });
+
+        closeModal.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Modal form submission
+        document.getElementById('modal-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = e.target.querySelector('input').value;
+            const btn = e.target.querySelector('button');
+            
+            btn.textContent = 'Joining...';
+            btn.disabled = true;
+
+            try {
+                await fetch('https://srvfbbehmpnvocwodcpq.supabase.co/rest/v1/subnavis_waitlist', {
+                    method: 'POST',
+                    headers: {
+                        'apikey': 'sb_publishable_PWMkW8e2UJBdxcfX0DN_VQ_dvJCu_Vq',
+                        'Authorization': 'Bearer sb_publishable_PWMkW8e2UJBdxcfX0DN_VQ_dvJCu_Vq',
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        source: 'premium_upgrade'
+                    })
+                });
+                
+                btn.innerHTML = '✓ You\'re on the list!';
+                btn.style.background = 'var(--green)';
+                
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    btn.textContent = 'Join Waitlist — Get 50% Off Launch Price';
+                    btn.style.background = '';
+                    btn.disabled = false;
+                    e.target.querySelector('input').value = '';
+                }, 2000);
+                
+            } catch (error) {
+                btn.innerHTML = '✓ You\'re on the list!';
+                btn.style.background = 'var(--green)';
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 2000);
+            }
+        });
     </script>
 </body>
 </html>
