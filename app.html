@@ -453,24 +453,48 @@
             }
         });
 
+        // Check if already logged in
+        async function checkSession() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                console.log('Already logged in, redirecting...');
+                showSuccess('Already logged in! Redirecting...');
+                setTimeout(() => {
+                    window.location.href = '/dashboard.html';
+                }, 1000);
+                return true;
+            }
+            return false;
+        }
+        
+        // Check on page load
+        checkSession();
+
         // Google Sign In
         document.getElementById('google-btn').addEventListener('click', async function(e) {
             e.preventDefault();
             console.log('Google button clicked');
+            this.disabled = true;
+            this.textContent = 'Connecting to Google...';
             try {
                 const { data, error } = await supabaseClient.auth.signInWithOAuth({
                     provider: 'google',
                     options: {
-                        redirectTo: window.location.origin + '/dashboard.html'
+                        redirectTo: window.location.origin + '/app.html?callback=true'
                     }
                 });
                 console.log('Google OAuth response:', data, error);
                 if (error) {
                     showError(error.message);
+                    this.disabled = false;
+                    this.textContent = 'Continue with Google';
                 }
+                // OAuth will redirect, so button stays disabled
             } catch (err) {
                 console.error('Google OAuth error:', err);
                 showError('Error connecting to Google');
+                this.disabled = false;
+                this.textContent = 'Continue with Google';
             }
         });
 
@@ -478,22 +502,40 @@
         document.getElementById('github-btn').addEventListener('click', async function(e) {
             e.preventDefault();
             console.log('GitHub button clicked');
+            this.disabled = true;
+            this.textContent = 'Connecting to GitHub...';
             try {
                 const { data, error } = await supabaseClient.auth.signInWithOAuth({
                     provider: 'github',
                     options: {
-                        redirectTo: window.location.origin + '/dashboard.html'
+                        redirectTo: window.location.origin + '/app.html?callback=true'
                     }
                 });
                 console.log('GitHub OAuth response:', data, error);
                 if (error) {
                     showError(error.message);
+                    this.disabled = false;
+                    this.textContent = 'Continue with GitHub';
                 }
             } catch (err) {
                 console.error('GitHub OAuth error:', err);
                 showError('Error connecting to GitHub');
+                this.disabled = false;
+                this.textContent = 'Continue with GitHub';
             }
         });
+        
+        // Handle OAuth callback
+        if (window.location.search.includes('callback=true')) {
+            showSuccess('Authenticating...');
+            // Supabase will handle the session automatically
+            setTimeout(async () => {
+                const loggedIn = await checkSession();
+                if (!loggedIn) {
+                    showError('Authentication failed. Please try again.');
+                }
+            }, 1500);
+        }
 
         // Magic Link
         document.getElementById('magic-link-btn').addEventListener('click', async () => {
