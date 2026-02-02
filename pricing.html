@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - Subnavis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0b0d;
+            --bg-secondary: #12141a;
+            --bg-card: #1a1d26;
+            --accent: #00d4aa;
+            --accent-dim: #00d4aa22;
+            --accent-blue: #00a3ff;
+            --text-primary: #ffffff;
+            --text-secondary: #8b8f9a;
+            --border: #2a2d38;
+            --green: #00d4aa;
+            --red: #ff4757;
+            --orange: #ff9f43;
+            --gradient: linear-gradient(135deg, #00d4aa 0%, #00a3ff 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 16px 24px;
+            background: rgba(10, 11, 13, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-left: 24px;
+        }
+
+        .nav-links a:hover { color: var(--text-primary); }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 120px 24px 60px;
+        }
+
+        /* Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .page-header h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Crypto Punk Badge */
+        .punk-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(255, 159, 67, 0.2) 0%, rgba(255, 71, 87, 0.2) 100%);
+            border: 1px solid var(--orange);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--orange);
+            margin-bottom: 24px;
+        }
+
+        /* Toggle */
+        .billing-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .toggle-label {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .toggle-label.active {
+            color: var(--text-primary);
+        }
+
+        .toggle-switch {
+            width: 56px;
+            height: 28px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--accent-dim);
+            border-color: var(--accent);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: var(--accent);
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            left: 30px;
+        }
+
+        .save-badge {
+            background: var(--green);
+            color: var(--bg-primary);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        /* Pricing Grid */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .pricing-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .pricing-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+        }
+
+        .pricing-card.popular {
+            border-color: var(--accent);
+            background: linear-gradient(180deg, rgba(0, 212, 170, 0.05) 0%, var(--bg-card) 100%);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gradient);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .plan-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .plan-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+        }
+
+        .plan-price {
+            margin-bottom: 24px;
+        }
+
+        .price-amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+        }
+
+        .price-period {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+
+        .plan-features li {
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .plan-features li::before {
+            content: '✓';
+            color: var(--green);
+            font-weight: bold;
+        }
+
+        .plan-features li.disabled {
+            opacity: 0.5;
+        }
+
+        .plan-features li.disabled::before {
+            content: '✗';
+            color: var(--text-secondary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 170, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+        }
+
+        /* TAO Payment Option */
+        .tao-payment {
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.1) 0%, rgba(0, 163, 255, 0.1) 100%);
+            border: 1px dashed var(--accent);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .tao-payment h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .tao-payment p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .tao-prices {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 20px;
+        }
+
+        .tao-price-item {
+            text-align: center;
+        }
+
+        .tao-price-item .plan {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .tao-price-item .amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .discount-note {
+            font-size: 0.9rem;
+            color: var(--green);
+        }
+
+        /* FAQ */
+        .faq-section {
+            margin-top: 64px;
+        }
+
+        .faq-section h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .faq-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .faq-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .faq-item h4 {
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .faq-item p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .pricing-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .faq-grid {
+                grid-template-columns: 1fr;
+            }
+            .tao-prices {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="logo">🧭 Subnavis</a>
+        <div class="nav-links">
+            <a href="/dashboard.html">Dashboard</a>
+            <a href="/portfolio.html">Portfolio</a>
+            <a href="/app.html">Account</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <div class="punk-badge">🏴‍☠️ Crypto Punk Pricing — Fair, Transparent, No BS</div>
+            <h1>Simple pricing for serious traders</h1>
+            <p>Free tools for everyone. Premium for power users. Pay in TAO for extra discount.</p>
+        </div>
+
+        <!-- Billing Toggle -->
+        <div class="billing-toggle">
+            <span class="toggle-label active" id="monthly-label">Monthly</span>
+            <div class="toggle-switch" id="billing-toggle"></div>
+            <span class="toggle-label" id="yearly-label">Yearly</span>
+            <span class="save-badge">Save 20%</span>
+        </div>
+
+        <!-- Pricing Grid -->
+        <div class="pricing-grid">
+            <!-- Free -->
+            <div class="pricing-card">
+                <div class="plan-name">Explorer</div>
+                <div class="plan-desc">For curious minds</div>
+                <div class="plan-price">
+                    <span class="price-amount">Free</span>
+                    <span class="price-period">forever</span>
+                </div>
+                <ul class="plan-features">
+                    <li>Real-time dashboard</li>
+                    <li>Basic subnet data</li>
+                    <li>1 wallet tracking</li>
+                    <li>Public whale feed</li>
+                    <li class="disabled">Custom alerts</li>
+                    <li class="disabled">API access</li>
+                    <li class="disabled">Historical data</li>
+                </ul>
+                <a href="/dashboard.html" class="btn btn-secondary">Get Started</a>
+            </div>
+
+            <!-- Navigator (Popular) -->
+            <div class="pricing-card popular">
+                <div class="popular-badge">MOST POPULAR</div>
+                <div class="plan-name">Navigator</div>
+                <div class="plan-desc">For active investors</div>
+                <div class="plan-price">
+                    <span class="price-amount" id="navigator-price">€15</span>
+                    <span class="price-period" id="navigator-period">/month</span>
+                </div>
+                <ul class="plan-features">
+                    <li>Everything in Free</li>
+                    <li>Unlimited wallets</li>
+                    <li>Custom whale alerts</li>
+                    <li>Telegram notifications</li>
+                    <li>90 days history</li>
+                    <li>Priority support</li>
+                    <li class="disabled">API access</li>
+                </ul>
+                <button class="btn btn-primary" onclick="subscribe('navigator')">Subscribe Now</button>
+            </div>
+
+            <!-- Captain -->
+            <div class="pricing-card">
+                <div class="plan-name">Captain</div>
+                <div class="plan-desc">For builders & whales</div>
+                <div class="plan-price">
+                    <span class="price-amount" id="captain-price">€39</span>
+                    <span class="price-period" id="captain-period">/month</span>
+                </div>
+                <ul class="plan-features">
+                    <li>Everything in Navigator</li>
+                    <li>Full API access</li>
+                    <li>1 year history</li>
+                    <li>Export CSV/JSON</li>
+                    <li>Webhook integrations</li>
+                    <li>Custom dashboards</li>
+                    <li>Direct support</li>
+                </ul>
+                <button class="btn btn-secondary" onclick="subscribe('captain')">Subscribe Now</button>
+            </div>
+        </div>
+
+        <!-- TAO Payment -->
+        <div class="tao-payment">
+            <h3>🐉 Pay in TAO — Get 20% Extra Off</h3>
+            <p>Support the ecosystem. Pay with TAO and save even more.</p>
+            <div class="tao-prices">
+                <div class="tao-price-item">
+                    <div class="plan">Navigator (yearly)</div>
+                    <div class="amount" id="tao-navigator">~0.4 τ</div>
+                </div>
+                <div class="tao-price-item">
+                    <div class="plan">Captain (yearly)</div>
+                    <div class="amount" id="tao-captain">~1.0 τ</div>
+                </div>
+            </div>
+            <p class="discount-note">💰 That's 36% total savings vs monthly EUR!</p>
+            <button class="btn btn-primary" style="max-width: 300px; margin: 0 auto;" onclick="payWithTao()">
+                Pay with TAO
+            </button>
+        </div>
+
+        <!-- FAQ -->
+        <div class="faq-section">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <h4>Can I cancel anytime?</h4>
+                    <p>Yes! No contracts, no questions asked. Cancel with one click from your account settings.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>How do TAO payments work?</h4>
+                    <p>Send TAO to our wallet, we verify on-chain, and activate your subscription. Simple as that.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Is my data safe?</h4>
+                    <p>We only store your email and preferences. We never have access to your wallet or funds.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Can I switch plans?</h4>
+                    <p>Upgrade or downgrade anytime. We'll prorate your billing automatically.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Pricing data
+        const pricing = {
+            monthly: { navigator: 15, captain: 39 },
+            yearly: { navigator: 144, captain: 374 } // 20% off
+        };
+        const TAO_PRICE = 285;
+
+        let isYearly = false;
+
+        // Toggle billing
+        document.getElementById('billing-toggle').addEventListener('click', function() {
+            isYearly = !isYearly;
+            this.classList.toggle('active');
+            document.getElementById('monthly-label').classList.toggle('active');
+            document.getElementById('yearly-label').classList.toggle('active');
+            updatePrices();
+        });
+
+        function updatePrices() {
+            if (isYearly) {
+                document.getElementById('navigator-price').textContent = '€' + pricing.yearly.navigator;
+                document.getElementById('navigator-period').textContent = '/year';
+                document.getElementById('captain-price').textContent = '€' + pricing.yearly.captain;
+                document.getElementById('captain-period').textContent = '/year';
+            } else {
+                document.getElementById('navigator-price').textContent = '€' + pricing.monthly.navigator;
+                document.getElementById('navigator-period').textContent = '/month';
+                document.getElementById('captain-price').textContent = '€' + pricing.monthly.captain;
+                document.getElementById('captain-period').textContent = '/month';
+            }
+
+            // Update TAO prices (yearly with extra 20% off)
+            const taoNavigator = (pricing.yearly.navigator * 0.8) / TAO_PRICE;
+            const taoCaptain = (pricing.yearly.captain * 0.8) / TAO_PRICE;
+            document.getElementById('tao-navigator').textContent = '~' + taoNavigator.toFixed(1) + ' τ';
+            document.getElementById('tao-captain').textContent = '~' + taoCaptain.toFixed(1) + ' τ';
+        }
+
+        function subscribe(plan) {
+            // For now, show waitlist modal
+            alert('🚀 Coming soon!\n\nJoin the waitlist to get notified when payments go live.\n\nEarly supporters get 50% off for life!');
+        }
+
+        function payWithTao() {
+            alert('🐉 TAO Payments Coming Soon!\n\nWe\'re setting up on-chain payments.\n\nJoin the waitlist to be first to pay in TAO!');
+        }
+    </script>
+</body>
+</html>
