@@ -390,13 +390,13 @@
         <p class="subtitle">Track your TAO holdings across validators and subnets</p>
 
         <!-- Wallet Input -->
-        <div class="wallet-input-section">
-            <h3>🔗 Add Wallet Address</h3>
+        <div class="wallet-input-section" style="opacity: 0.6;">
+            <h3>🔗 Add Wallet Address <span style="font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; background: rgba(139,143,154,0.2); color: var(--text-secondary); margin-left: 8px;">COMING SOON</span></h3>
             <div class="input-row">
                 <input type="text" class="wallet-input" id="wallet-input" 
                        placeholder="Enter SS58 address (5...)" 
-                       spellcheck="false">
-                <button class="btn-primary" id="load-btn" onclick="loadWallet()">
+                       spellcheck="false" disabled>
+                <button class="btn-primary" id="load-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
                     Load Wallet
                 </button>
             </div>
@@ -452,8 +452,9 @@
         <!-- Initial State -->
         <div id="initial-state">
             <div class="empty-state">
-                <div class="icon">👆</div>
-                <p>Enter a wallet address above to view your portfolio</p>
+                <div class="icon">🚧</div>
+                <p><strong>Portfolio tracking coming soon!</strong></p>
+                <p style="margin-top: 8px; font-size: 0.85rem;">We're integrating a reliable data source for wallet balances.</p>
             </div>
         </div>
     </main>
