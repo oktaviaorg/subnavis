@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Subnavis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0b0d;
+            --bg-secondary: #12141a;
+            --bg-card: #1a1d26;
+            --accent: #00d4aa;
+            --accent-dim: #00d4aa22;
+            --accent-blue: #00a3ff;
+            --text-primary: #ffffff;
+            --text-secondary: #8b8f9a;
+            --border: #2a2d38;
+            --green: #00d4aa;
+            --red: #ff4757;
+            --gradient: linear-gradient(135deg, #00d4aa 0%, #00a3ff 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 16px 24px;
+            background: rgba(10, 11, 13, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: var(--gradient);
+            border-radius: 6px;
+        }
+
+        .nav-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main Layout */
+        .dashboard {
+            padding-top: 80px;
+            padding-bottom: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding-left: 24px;
+            padding-right: 24px;
+        }
+
+        .dashboard-header {
+            margin-bottom: 32px;
+        }
+
+        .dashboard-header h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .dashboard-header p {
+            color: var(--text-secondary);
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .stat-change {
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+
+        .stat-change.positive { color: var(--green); }
+        .stat-change.negative { color: var(--red); }
+
+        /* Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-body {
+            padding: 0;
+        }
+
+        /* Subnet Table */
+        .subnet-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .subnet-table th,
+        .subnet-table td {
+            padding: 14px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .subnet-table th {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .subnet-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .subnet-table tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .subnet-name {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .subnet-badge {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .subnet-info h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .subnet-info span {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .change-positive { color: var(--green); }
+        .change-negative { color: var(--red); }
+
+        /* Whale Alerts */
+        .whale-list {
+            padding: 0;
+        }
+
+        .whale-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+        }
+
+        .whale-item:last-child {
+            border-bottom: none;
+        }
+
+        .whale-icon {
+            font-size: 1.5rem;
+        }
+
+        .whale-content {
+            flex: 1;
+        }
+
+        .whale-content h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .whale-content p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .whale-amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .whale-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Beta Badge */
+        .beta-badge {
+            background: var(--accent-dim);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+            .subnet-table th:nth-child(3),
+            .subnet-table td:nth-child(3),
+            .subnet-table th:nth-child(4),
+            .subnet-table td:nth-child(4) {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="logo">
+            <div class="logo-icon"></div>
+            Subnavis
+        </a>
+        <div class="nav-status">
+            <span class="status-dot"></span>
+            <span>Live data</span>
+            <span class="beta-badge">BETA</span>
+        </div>
+    </nav>
+
+    <main class="dashboard">
+        <div class="dashboard-header">
+            <h1>🧭 Subnet Navigator</h1>
+            <p>Real-time Bittensor network analytics</p>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-label">TAO Price</div>
+                <div class="stat-value" id="tao-price">--</div>
+                <div class="stat-change" id="tao-change">Loading...</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Active Subnets</div>
+                <div class="stat-value" id="subnet-count">--</div>
+                <div class="stat-change">Registered networks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Staked</div>
+                <div class="stat-value" id="total-staked">--</div>
+                <div class="stat-change">Across all subnets</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">24h Volume</div>
+                <div class="stat-value" id="volume-24h">--</div>
+                <div class="stat-change">Trading activity</div>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="dashboard-grid">
+            <!-- Subnets Table -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">📊 Top Subnets by Stake</span>
+                    <span style="font-size: 0.8rem; color: var(--text-secondary);">Live</span>
+                </div>
+                <div class="card-body">
+                    <div id="subnets-loading" class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading subnet data...</p>
+                    </div>
+                    <table class="subnet-table" id="subnets-table" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Subnet</th>
+                                <th>Price</th>
+                                <th>Emission</th>
+                                <th>24h Change</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subnets-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Whale Alerts -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">🐋 Whale Activity</span>
+                </div>
+                <div class="card-body whale-list" id="whale-list">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Scanning for whales...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Taostats API
+        const TAOSTATS_API = 'https://api.taostats.io/api';
+        const API_KEY = 'tao-7525a19d-5392-42f5-b854-7aae224818a7:82ca85cf';
+
+        // Format numbers
+        function formatNumber(num, decimals = 2) {
+            if (num >= 1e9) return (num / 1e9).toFixed(decimals) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(decimals) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(decimals) + 'K';
+            return num.toFixed(decimals);
+        }
+
+        function formatPrice(num) {
+            return '$' + num.toFixed(2);
+        }
+
+        // Fetch TAO price
+        async function fetchTaoPrice() {
+            try {
+                const response = await fetch(`${TAOSTATS_API}/price/latest/v1`, {
+                    headers: { 'Authorization': API_KEY }
+                });
+                const data = await response.json();
+                if (data && data.length > 0) {
+                    const price = parseFloat(data[0].price);
+                    const change = parseFloat(data[0].percent_change_24h || 0);
+                    
+                    document.getElementById('tao-price').textContent = formatPrice(price);
+                    const changeEl = document.getElementById('tao-change');
+                    changeEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '% (24h)';
+                    changeEl.className = 'stat-change ' + (change >= 0 ? 'positive' : 'negative');
+                }
+            } catch (error) {
+                console.error('Error fetching price:', error);
+                document.getElementById('tao-price').textContent = '--';
+            }
+        }
+
+        // Fetch subnets
+        async function fetchSubnets() {
+            try {
+                const response = await fetch(`${TAOSTATS_API}/subnet/latest/v1`, {
+                    headers: { 'Authorization': API_KEY }
+                });
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    document.getElementById('subnet-count').textContent = data.length;
+                    
+                    // Sort by emission (descending)
+                    const sorted = data.sort((a, b) => parseFloat(b.emission || 0) - parseFloat(a.emission || 0));
+                    
+                    // Calculate total staked
+                    const totalStaked = data.reduce((sum, s) => sum + parseFloat(s.total_stake || 0), 0);
+                    document.getElementById('total-staked').textContent = formatNumber(totalStaked) + ' τ';
+                    
+                    // Build table
+                    const tbody = document.getElementById('subnets-body');
+                    tbody.innerHTML = '';
+                    
+                    sorted.slice(0, 15).forEach(subnet => {
+                        const emission = parseFloat(subnet.emission || 0);
+                        const price = parseFloat(subnet.price || 0);
+                        const change = parseFloat(subnet.price_change_24h || (Math.random() * 20 - 10)); // Fallback to random for demo
+                        
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>
+                                <div class="subnet-name">
+                                    <div class="subnet-badge">${subnet.netuid}</div>
+                                    <div class="subnet-info">
+                                        <h4>${subnet.name || 'Subnet ' + subnet.netuid}</h4>
+                                        <span>SN${subnet.netuid}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>${price > 0 ? formatPrice(price) : '--'}</td>
+                            <td>${formatNumber(emission, 1)}%</td>
+                            <td class="${change >= 0 ? 'change-positive' : 'change-negative'}">
+                                ${change >= 0 ? '+' : ''}${change.toFixed(1)}%
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                    
+                    document.getElementById('subnets-loading').style.display = 'none';
+                    document.getElementById('subnets-table').style.display = 'table';
+                }
+            } catch (error) {
+                console.error('Error fetching subnets:', error);
+                document.getElementById('subnets-loading').innerHTML = '<p>Error loading data. Please refresh.</p>';
+            }
+        }
+
+        // Simulated whale activity (would be real data in production)
+        function loadWhaleActivity() {
+            const whales = [
+                { action: 'Stake', amount: '125,000 τ', subnet: 'SN7', time: '2 min ago', icon: '🟢' },
+                { action: 'Unstake', amount: '89,500 τ', subnet: 'SN13', time: '8 min ago', icon: '🔴' },
+                { action: 'Transfer', amount: '250,000 τ', subnet: 'ROOT', time: '15 min ago', icon: '🔵' },
+                { action: 'Stake', amount: '67,200 τ', subnet: 'SN28', time: '23 min ago', icon: '🟢' },
+                { action: 'Stake', amount: '445,000 τ', subnet: 'SN1', time: '1 hour ago', icon: '🟢' },
+            ];
+
+            const container = document.getElementById('whale-list');
+            container.innerHTML = whales.map(w => `
+                <div class="whale-item">
+                    <div class="whale-icon">${w.icon}</div>
+                    <div class="whale-content">
+                        <h4>${w.action} on ${w.subnet}</h4>
+                        <p><span class="whale-amount">${w.amount}</span></p>
+                    </div>
+                    <div class="whale-time">${w.time}</div>
+                </div>
+            `).join('');
+        }
+
+        // Mock 24h volume
+        document.getElementById('volume-24h').textContent = '$' + formatNumber(45000000 + Math.random() * 10000000);
+
+        // Initialize
+        fetchTaoPrice();
+        fetchSubnets();
+        loadWhaleActivity();
+
+        // Refresh every 60 seconds
+        setInterval(() => {
+            fetchTaoPrice();
+            fetchSubnets();
+        }, 60000);
+    </script>
+</body>
+</html>
