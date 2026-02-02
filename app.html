@@ -340,10 +340,10 @@
         const SUPABASE_URL = 'https://srvfbbehmpnvocwodcpq.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_PWMkW8e2UJBdxcfX0DN_VQ_dvJCu_Vq';
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Check if already logged in
-        supabase.auth.getSession().then(({ data: { session } }) => {
+        supabaseClient.auth.getSession().then(({ data: { session } }) => {
             if (session) {
                 window.location.href = '/dashboard.html';
             }
@@ -403,7 +403,7 @@
             btn.textContent = 'Logging in...';
             hideMessages();
 
-            const { data, error } = await supabase.auth.signInWithPassword({
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
                 email,
                 password
             });
@@ -436,7 +436,7 @@
             btn.textContent = 'Creating account...';
             hideMessages();
 
-            const { data, error } = await supabase.auth.signUp({
+            const { data, error } = await supabaseClient.auth.signUp({
                 email,
                 password
             });
@@ -458,7 +458,7 @@
             e.preventDefault();
             console.log('Google button clicked');
             try {
-                const { data, error } = await supabase.auth.signInWithOAuth({
+                const { data, error } = await supabaseClient.auth.signInWithOAuth({
                     provider: 'google',
                     options: {
                         redirectTo: window.location.origin + '/dashboard.html'
@@ -479,7 +479,7 @@
             e.preventDefault();
             console.log('GitHub button clicked');
             try {
-                const { data, error } = await supabase.auth.signInWithOAuth({
+                const { data, error } = await supabaseClient.auth.signInWithOAuth({
                     provider: 'github',
                     options: {
                         redirectTo: window.location.origin + '/dashboard.html'
@@ -504,7 +504,7 @@
             btn.disabled = true;
             btn.textContent = 'Sending...';
 
-            const { error } = await supabase.auth.signInWithOtp({
+            const { error } = await supabaseClient.auth.signInWithOtp({
                 email,
                 options: {
                     emailRedirectTo: window.location.origin + '/dashboard.html'
