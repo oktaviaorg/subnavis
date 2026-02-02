@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TAO Wallet">
+  <meta name="theme-color" content="#00d4aa">
+  <title>TAO Wallet</title>
+  <link rel="manifest" href="/wallet/manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+      color: #fff;
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    
+    .container {
+      padding: 20px;
+      max-width: 420px;
+      margin: 0 auto;
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      overflow-y: auto;
+    }
+    
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding-top: 10px;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #00d4aa, #00a8cc);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 22px;
+      color: #000;
+    }
+    
+    .logo-text {
+      font-size: 20px;
+      font-weight: 600;
+    }
+    
+    .settings-btn {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 10px;
+      padding: 10px;
+      cursor: pointer;
+      color: #fff;
+      font-size: 18px;
+    }
+    
+    /* Account Card */
+    .account-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(10px);
+    }
+    
+    .account-name {
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 4px;
+    }
+    
+    .account-address {
+      font-family: 'SF Mono', Menlo, monospace;
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 20px;
+      word-break: break-all;
+      line-height: 1.4;
+    }
+    
+    .balance-section {
+      text-align: center;
+      padding: 20px 0;
+    }
+    
+    .balance-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    
+    .balance-tao {
+      font-size: 42px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #00d4aa, #00a8cc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+    
+    .balance-usd {
+      font-size: 18px;
+      color: rgba(255,255,255,0.6);
+    }
+    
+    /* Action Buttons */
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    
+    .action-btn {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 18px 8px;
+      cursor: pointer;
+      color: #fff;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    
+    .action-btn:active {
+      transform: scale(0.95);
+      background: rgba(0, 212, 170, 0.15);
+      border-color: #00d4aa;
+    }
+    
+    .action-icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    
+    .action-label {
+      font-size: 13px;
+      color: rgba(255,255,255,0.8);
+      font-weight: 500;
+    }
+    
+    /* Staking Section */
+    .section-title {
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .stake-item {
+      background: rgba(255,255,255,0.03);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .stake-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .subnet-badge {
+      background: linear-gradient(135deg, #00d4aa, #00a8cc);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #000;
+    }
+    
+    .stake-name {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .stake-amount {
+      text-align: right;
+    }
+    
+    .stake-tao {
+      font-size: 15px;
+      font-weight: 600;
+    }
+    
+    .stake-usd {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+    }
+    
+    /* No Wallet State */
+    .no-wallet {
+      text-align: center;
+      padding: 50px 20px;
+    }
+    
+    .no-wallet-icon {
+      font-size: 80px;
+      margin-bottom: 24px;
+    }
+    
+    .no-wallet h2 {
+      font-size: 24px;
+      margin-bottom: 12px;
+    }
+    
+    .no-wallet p {
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #00d4aa, #00a8cc);
+      border: none;
+      border-radius: 14px;
+      padding: 16px 24px;
+      font-size: 17px;
+      font-weight: 600;
+      color: #000;
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 12px;
+      transition: transform 0.2s;
+    }
+    
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+    
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 14px;
+      padding: 16px 24px;
+      font-size: 17px;
+      color: #fff;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.2s;
+    }
+    
+    .btn-secondary:active {
+      transform: scale(0.98);
+    }
+    
+    /* Input styles */
+    input, textarea {
+      width: 100%;
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      margin-bottom: 16px;
+      font-size: 16px;
+      font-family: inherit;
+    }
+    
+    textarea {
+      height: 100px;
+      resize: none;
+    }
+    
+    input::placeholder, textarea::placeholder {
+      color: rgba(255,255,255,0.4);
+    }
+    
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: #00d4aa;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.9);
+      border: 1px solid #00d4aa;
+      border-radius: 12px;
+      padding: 14px 24px;
+      font-size: 14px;
+      z-index: 1000;
+      animation: fadeInUp 0.3s ease;
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+    
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 1000;
+      padding: env(safe-area-inset-bottom);
+    }
+    
+    .modal-content {
+      background: linear-gradient(135deg, #1a1a2e 0%, #0a0a0f 100%);
+      border-radius: 24px 24px 0 0;
+      padding: 24px;
+      width: 100%;
+      max-width: 420px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .modal-close {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      font-size: 18px;
+      color: #fff;
+      cursor: pointer;
+    }
+    
+    /* QR Code placeholder */
+    .qr-placeholder {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      margin: 20px auto;
+      width: fit-content;
+    }
+    
+    .qr-placeholder canvas {
+      display: block;
+    }
+    
+    /* Install prompt */
+    .install-prompt {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #0a0a0f 100%);
+      border: 1px solid #00d4aa;
+      border-radius: 16px;
+      padding: 16px;
+      display: none;
+      z-index: 999;
+    }
+    
+    .install-prompt.show {
+      display: block;
+      animation: fadeInUp 0.3s ease;
+    }
+    
+    .install-prompt h4 {
+      margin-bottom: 8px;
+    }
+    
+    .install-prompt p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 12px;
+    }
+    
+    .install-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .install-buttons button {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    
+    .btn-install {
+      background: linear-gradient(135deg, #00d4aa, #00a8cc);
+      border: none;
+      color: #000;
+      font-weight: 600;
+    }
+    
+    .btn-later {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">τ</div>
+        <span class="logo-text">TAO Wallet</span>
+      </div>
+      <button class="settings-btn" onclick="showSettings()">⚙️</button>
+    </div>
+    
+    <!-- Main Content -->
+    <div id="app">
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Connecting to Bittensor...</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Install Prompt -->
+  <div class="install-prompt" id="installPrompt">
+    <h4>📲 Install TAO Wallet</h4>
+    <p>Add to your home screen for the full app experience!</p>
+    <div class="install-buttons">
+      <button class="btn-later" onclick="dismissInstall()">Later</button>
+      <button class="btn-install" onclick="installApp()">Install</button>
+    </div>
+  </div>
+  
+  <script src="app.js"></script>
+</body>
+</html>
