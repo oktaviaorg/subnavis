@@ -650,10 +650,92 @@
         </div>
     </div>
 
+    <script src="https://js.stripe.com/v3/"></script>
     <script>
-        function subscribe(plan) {
-            // TODO: Integrate with Stripe checkout
-            alert('Subscription coming soon! For now, contact us on Telegram: @SubNavisAlerts');
+        // Stripe Checkout Integration
+        async function subscribe(plan) {
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'Loading...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/create-api-checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        plan: plan,
+                        billing: 'monthly'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    // If Stripe not configured, show contact info
+                    if (data.error.includes('not configured')) {
+                        showContactModal(plan);
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                    return;
+                }
+
+                // Redirect to Stripe Checkout
+                if (data.url) {
+                    window.location.href = data.url;
+                }
+
+            } catch (error) {
+                console.error('Checkout error:', error);
+                showContactModal(plan);
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function showContactModal(plan) {
+            const prices = {
+                builder: '€5/month (~0.02 τ)',
+                degen: '€15/month (~0.06 τ)',
+                whale: '€49/month (~0.2 τ)'
+            };
+            
+            const modal = document.createElement('div');
+            modal.innerHTML = `
+                <div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:1000;">
+                    <div style="background:#1a1d26;padding:32px;border-radius:16px;max-width:400px;text-align:center;border:1px solid #2a2d38;">
+                        <h3 style="margin-bottom:16px;">Subscribe to ${plan.charAt(0).toUpperCase() + plan.slice(1)}</h3>
+                        <p style="color:#8b8f9a;margin-bottom:24px;">Price: ${prices[plan]}</p>
+                        
+                        <div style="margin-bottom:24px;">
+                            <p style="color:#8b8f9a;font-size:14px;margin-bottom:12px;">💳 Pay with card or 🐉 TAO (-20%)</p>
+                            <p style="color:#8b8f9a;font-size:14px;">Contact us to set up your subscription:</p>
+                        </div>
+                        
+                        <a href="https://t.me/SubNavisAlerts" target="_blank" style="display:inline-block;background:linear-gradient(135deg,#00d4aa,#00a3ff);color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin-bottom:12px;">
+                            Contact on Telegram →
+                        </a>
+                        
+                        <p style="color:#8b8f9a;font-size:12px;margin-top:16px;">
+                            Or email: contact@subnavis.io
+                        </p>
+                        
+                        <button onclick="this.parentElement.parentElement.remove()" style="margin-top:16px;background:transparent;border:1px solid #2a2d38;color:#8b8f9a;padding:8px 16px;border-radius:6px;cursor:pointer;">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // Handle cancelled checkout
+        if (window.location.search.includes('cancelled=true')) {
+            // Could show a message here
+            console.log('Checkout was cancelled');
         }
     </script>
 </body>

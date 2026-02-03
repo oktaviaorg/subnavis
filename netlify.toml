@@ -5,6 +5,12 @@
 [functions]
   node_bundler = "esbuild"
 
+# Stripe checkout for API plans
+[[redirects]]
+  from = "/api/create-api-checkout"
+  to = "/.netlify/functions/create-api-checkout"
+  status = 200
+
 # API v1 endpoints
 [[redirects]]
   from = "/api/v1/price"
