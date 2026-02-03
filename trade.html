@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade - Subnavis</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.min.js"></script>
+    <style>
+        :root {
+            --bg: #0d0d0f;
+            --bg-secondary: #141418;
+            --bg-card: #1a1a1f;
+            --bg-hover: #222228;
+            --accent: #00d4aa;
+            --accent-dim: rgba(0, 212, 170, 0.1);
+            --green: #22c55e;
+            --red: #ef4444;
+            --text: #fafafa;
+            --text-dim: #71717a;
+            --border: rgba(255,255,255,0.06);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+        a { color: inherit; text-decoration: none; }
+
+        /* Layout */
+        .app { display: flex; height: 100vh; }
+        
+        /* Sidebar - Token List */
+        .sidebar {
+            width: 240px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 18px; }
+        .logo img { width: 28px; height: 28px; border-radius: 8px; }
+        
+        .sidebar-tabs {
+            display: flex;
+            padding: 8px;
+            gap: 4px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .sidebar-tab {
+            flex: 1;
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-dim);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .sidebar-tab:hover { color: var(--text); }
+        .sidebar-tab.active { background: var(--bg-card); color: var(--text); }
+        
+        .token-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+        
+        .token-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+            margin-bottom: 2px;
+        }
+        
+        .token-item:hover { background: var(--bg-hover); }
+        .token-item.active { background: var(--accent-dim); }
+        
+        .token-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #9945FF 0%, var(--accent) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            margin-right: 10px;
+        }
+        
+        .token-info { flex: 1; min-width: 0; }
+        .token-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .token-price { font-size: 11px; color: var(--text-dim); }
+        .token-change { font-size: 12px; font-weight: 600; text-align: right; }
+        .token-change.up { color: var(--green); }
+        .token-change.down { color: var(--red); }
+
+        /* Main Content */
+        .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* Top Bar */
+        .topbar {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
+            gap: 16px;
+        }
+        
+        .selected-token {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .selected-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #9945FF 0%, var(--accent) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .selected-name { font-size: 18px; font-weight: 700; }
+        .selected-symbol { font-size: 13px; color: var(--text-dim); }
+        
+        .token-stats {
+            display: flex;
+            gap: 24px;
+            margin-left: auto;
+        }
+        
+        .stat { text-align: center; }
+        .stat-label { font-size: 11px; color: var(--text-dim); margin-bottom: 2px; }
+        .stat-value { font-size: 14px; font-weight: 600; }
+        
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            margin-left: 24px;
+        }
+        
+        .nav-link {
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-dim);
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .nav-link:hover { color: var(--text); background: var(--bg-card); }
+
+        /* Chart Area */
+        .chart-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        .chart-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+        }
+        
+        .chart-toolbar {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .time-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-dim);
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .time-btn:hover { color: var(--text); background: var(--bg-card); }
+        .time-btn.active { color: var(--text); background: var(--accent-dim); }
+        
+        #chart { flex: 1; }
+
+        /* Right Panel */
+        .right-panel {
+            width: 300px;
+            background: var(--bg-secondary);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .panel-section {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .panel-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .action-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+        
+        .action-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--bg-card);
+            color: var(--text-dim);
+        }
+        
+        .action-tab.active.buy { background: var(--green); color: white; }
+        .action-tab.active.sell { background: var(--red); color: white; }
+        
+        .input-group { margin-bottom: 12px; }
+        .input-label { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; }
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 14px;
+        }
+        .input-field:focus { outline: none; border-color: var(--accent); }
+        
+        .quick-amounts {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .quick-btn {
+            flex: 1;
+            padding: 8px;
+            font-size: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .quick-btn:hover { border-color: var(--accent); color: var(--text); }
+        
+        .stake-btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .stake-btn:hover { opacity: 0.9; }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 13px;
+        }
+        
+        .info-label { color: var(--text-dim); }
+        .info-value { font-weight: 500; }
+
+        /* Bottom Panel */
+        .bottom-panel {
+            height: 200px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .bottom-tabs {
+            display: flex;
+            padding: 0 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .bottom-tab {
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-dim);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .bottom-tab:hover { color: var(--text); }
+        .bottom-tab.active { color: var(--text); border-color: var(--accent); }
+        
+        .activity-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 16px;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+        
+        .activity-time { width: 60px; color: var(--text-dim); }
+        .activity-type { width: 60px; font-weight: 600; }
+        .activity-type.buy { color: var(--green); }
+        .activity-type.sell { color: var(--red); }
+        .activity-amount { flex: 1; }
+        .activity-value { color: var(--text-dim); }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar { width: 200px; }
+            .right-panel { width: 260px; }
+            .token-stats { display: none; }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .right-panel { display: none; }
+            .bottom-panel { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <a href="/" class="logo">
+                    <img src="/logo-64.png" alt="Subnavis">
+                    <span>Subnavis</span>
+                </a>
+            </div>
+            <div class="sidebar-tabs">
+                <div class="sidebar-tab active">Subnets</div>
+                <div class="sidebar-tab">Tokens</div>
+                <div class="sidebar-tab">Track</div>
+            </div>
+            <div class="token-list" id="tokenList">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+
+        <!-- Main -->
+        <div class="main">
+            <!-- Top Bar -->
+            <div class="topbar">
+                <div class="selected-token">
+                    <div class="selected-icon">🐉</div>
+                    <div>
+                        <div class="selected-name" id="selectedName">Bittensor</div>
+                        <div class="selected-symbol" id="selectedSymbol">TAO</div>
+                    </div>
+                </div>
+                <div class="token-stats">
+                    <div class="stat">
+                        <div class="stat-label">Price</div>
+                        <div class="stat-value" id="statPrice">$450.00</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">24h Change</div>
+                        <div class="stat-value" id="statChange" style="color: var(--green)">+2.5%</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Market Cap</div>
+                        <div class="stat-value">$3.2B</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Volume 24h</div>
+                        <div class="stat-value">$45M</div>
+                    </div>
+                </div>
+                <div class="nav-links">
+                    <a href="/" class="nav-link">Home</a>
+                    <a href="/explorer" class="nav-link">Explorer</a>
+                    <a href="https://t.me/Bittensorwalletbot" class="nav-link" target="_blank">Wallet</a>
+                </div>
+            </div>
+
+            <!-- Chart Area -->
+            <div class="chart-container">
+                <div class="chart-area">
+                    <div class="chart-toolbar">
+                        <button class="time-btn" data-range="1h">1H</button>
+                        <button class="time-btn" data-range="4h">4H</button>
+                        <button class="time-btn active" data-range="1d">1D</button>
+                        <button class="time-btn" data-range="1w">1W</button>
+                        <button class="time-btn" data-range="1m">1M</button>
+                        <button class="time-btn" data-range="1y">1Y</button>
+                    </div>
+                    <div id="chart"></div>
+                </div>
+
+                <!-- Right Panel -->
+                <div class="right-panel">
+                    <div class="panel-section">
+                        <div class="action-tabs">
+                            <div class="action-tab active buy">Stake</div>
+                            <div class="action-tab sell">Unstake</div>
+                        </div>
+                        <div class="input-group">
+                            <div class="input-label">Amount (TAO)</div>
+                            <input type="number" class="input-field" placeholder="0.00" id="stakeAmount">
+                        </div>
+                        <div class="quick-amounts">
+                            <button class="quick-btn">0.1</button>
+                            <button class="quick-btn">1</button>
+                            <button class="quick-btn">5</button>
+                            <button class="quick-btn">Max</button>
+                        </div>
+                        <button class="stake-btn" onclick="openWallet()">⚡ Stake TAO</button>
+                    </div>
+                    
+                    <div class="panel-section">
+                        <div class="panel-title">Your Position</div>
+                        <div class="info-row">
+                            <span class="info-label">Staked</span>
+                            <span class="info-value">0 TAO</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Rewards</span>
+                            <span class="info-value">0 TAO</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">APY</span>
+                            <span class="info-value" style="color: var(--green)">~18%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="panel-section">
+                        <div class="panel-title">Subnet Info</div>
+                        <div class="info-row">
+                            <span class="info-label">Validators</span>
+                            <span class="info-value">64</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Miners</span>
+                            <span class="info-value">1,024</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Emission</span>
+                            <span class="info-value">2.08%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Panel -->
+            <div class="bottom-panel">
+                <div class="bottom-tabs">
+                    <div class="bottom-tab active">Recent Activity</div>
+                    <div class="bottom-tab">Top Stakers</div>
+                    <div class="bottom-tab">Validators</div>
+                </div>
+                <div class="activity-list" id="activityList">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Subnets data
+        const subnets = [
+            { id: 0, name: 'Root', symbol: 'SN0', price: 450, change: 2.5, icon: '🐉' },
+            { id: 1, name: 'Prompting', symbol: 'SN1', price: 12.4, change: 5.2, icon: '💬' },
+            { id: 8, name: 'Taoshi', symbol: 'SN8', price: 8.7, change: 2.1, icon: '📊' },
+            { id: 9, name: 'Pretraining', symbol: 'SN9', price: 45.2, change: 3.8, icon: '🧠' },
+            { id: 13, name: 'Dataverse', symbol: 'SN13', price: 5.3, change: -2.1, icon: '💾' },
+            { id: 18, name: 'Cortex.t', symbol: 'SN18', price: 22.1, change: 4.5, icon: '⚡' },
+            { id: 19, name: 'Vision', symbol: 'SN19', price: 18.9, change: -1.2, icon: '👁️' },
+            { id: 21, name: 'FileTAO', symbol: 'SN21', price: 6.8, change: 8.3, icon: '📁' },
+            { id: 28, name: 'Foundry', symbol: 'SN28', price: 15.4, change: 8.7, icon: '🏭' },
+            { id: 32, name: 'It\'s AI', symbol: 'SN32', price: 9.2, change: 12.4, icon: '🤖' },
+        ];
+
+        // Render token list
+        function renderTokenList() {
+            const list = document.getElementById('tokenList');
+            list.innerHTML = subnets.map((s, i) => `
+                <div class="token-item ${i === 0 ? 'active' : ''}" onclick="selectToken(${i})">
+                    <div class="token-icon">${s.icon}</div>
+                    <div class="token-info">
+                        <div class="token-name">${s.name}</div>
+                        <div class="token-price">$${s.price.toFixed(2)}</div>
+                    </div>
+                    <div class="token-change ${s.change >= 0 ? 'up' : 'down'}">
+                        ${s.change >= 0 ? '+' : ''}${s.change.toFixed(2)}%
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Select token
+        function selectToken(index) {
+            const s = subnets[index];
+            document.querySelectorAll('.token-item').forEach((el, i) => {
+                el.classList.toggle('active', i === index);
+            });
+            document.getElementById('selectedName').textContent = s.name;
+            document.getElementById('selectedSymbol').textContent = s.symbol;
+            document.getElementById('statPrice').textContent = `$${s.price.toFixed(2)}`;
+            document.getElementById('statChange').textContent = `${s.change >= 0 ? '+' : ''}${s.change.toFixed(2)}%`;
+            document.getElementById('statChange').style.color = s.change >= 0 ? 'var(--green)' : 'var(--red)';
+            updateChart();
+        }
+
+        // Render activity
+        function renderActivity() {
+            const activities = [
+                { time: '2m ago', type: 'Stake', amount: '125.5 TAO', value: '$56,475' },
+                { time: '5m ago', type: 'Stake', amount: '50.0 TAO', value: '$22,500' },
+                { time: '8m ago', type: 'Unstake', amount: '30.2 TAO', value: '$13,590' },
+                { time: '12m ago', type: 'Stake', amount: '200.0 TAO', value: '$90,000' },
+                { time: '15m ago', type: 'Stake', amount: '75.8 TAO', value: '$34,110' },
+            ];
+            
+            document.getElementById('activityList').innerHTML = activities.map(a => `
+                <div class="activity-item">
+                    <div class="activity-time">${a.time}</div>
+                    <div class="activity-type ${a.type.toLowerCase()}">${a.type}</div>
+                    <div class="activity-amount">${a.amount}</div>
+                    <div class="activity-value">${a.value}</div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize chart
+        let chart, candleSeries;
+        
+        function initChart() {
+            const container = document.getElementById('chart');
+            chart = LightweightCharts.createChart(container, {
+                layout: {
+                    background: { type: 'solid', color: '#0d0d0f' },
+                    textColor: '#71717a',
+                },
+                grid: {
+                    vertLines: { color: 'rgba(255,255,255,0.03)' },
+                    horzLines: { color: 'rgba(255,255,255,0.03)' },
+                },
+                crosshair: {
+                    mode: LightweightCharts.CrosshairMode.Normal,
+                },
+                rightPriceScale: {
+                    borderColor: 'rgba(255,255,255,0.06)',
+                },
+                timeScale: {
+                    borderColor: 'rgba(255,255,255,0.06)',
+                    timeVisible: true,
+                },
+            });
+
+            candleSeries = chart.addCandlestickSeries({
+                upColor: '#22c55e',
+                downColor: '#ef4444',
+                borderDownColor: '#ef4444',
+                borderUpColor: '#22c55e',
+                wickDownColor: '#ef4444',
+                wickUpColor: '#22c55e',
+            });
+
+            updateChart();
+
+            // Resize
+            new ResizeObserver(() => {
+                chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+            }).observe(container);
+        }
+
+        function updateChart() {
+            // Generate fake candlestick data
+            const data = [];
+            let time = Math.floor(Date.now() / 1000) - 86400 * 30;
+            let price = 420;
+            
+            for (let i = 0; i < 200; i++) {
+                const volatility = Math.random() * 10 - 5;
+                const open = price;
+                const close = price + volatility + (Math.random() - 0.5) * 5;
+                const high = Math.max(open, close) + Math.random() * 3;
+                const low = Math.min(open, close) - Math.random() * 3;
+                
+                data.push({
+                    time: time,
+                    open: open,
+                    high: high,
+                    low: low,
+                    close: close,
+                });
+                
+                price = close;
+                time += 3600 * 4;
+            }
+            
+            candleSeries.setData(data);
+            chart.timeScale().fitContent();
+        }
+
+        // Time range buttons
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                updateChart();
+            });
+        });
+
+        // Open wallet
+        function openWallet() {
+            window.open('https://t.me/Bittensorwalletbot?start=stake', '_blank');
+        }
+
+        // Init
+        renderTokenList();
+        renderActivity();
+        initChart();
+
+        // Fetch real TAO price
+        async function fetchPrice() {
+            try {
+                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bittensor&vs_currencies=usd&include_24hr_change=true');
+                const data = await res.json();
+                if (data.bittensor) {
+                    subnets[0].price = data.bittensor.usd;
+                    subnets[0].change = data.bittensor.usd_24h_change;
+                    renderTokenList();
+                    if (document.querySelector('.token-item.active') === document.querySelector('.token-item:first-child')) {
+                        selectToken(0);
+                    }
+                }
+            } catch(e) {}
+        }
+        
+        fetchPrice();
+        setInterval(fetchPrice, 60000);
+    </script>
+</body>
+</html>
