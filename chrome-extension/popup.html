@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 320px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0b0d;
+      color: #fff;
+      padding: 16px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #2a2d38;
+    }
+    .header img { width: 40px; height: 40px; border-radius: 50%; }
+    .header h1 { font-size: 16px; font-weight: 600; }
+    .price-box {
+      background: linear-gradient(135deg, #9945FF 0%, #14F195 100%);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .price { font-size: 28px; font-weight: 700; }
+    .price-change { font-size: 14px; opacity: 0.9; margin-top: 4px; }
+    .price-change.up { color: #14F195; }
+    .price-change.down { color: #ff6b6b; }
+    .section-title {
+      font-size: 12px;
+      color: #8b8f9a;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .wallets { margin-bottom: 16px; }
+    .wallet {
+      background: #1a1d26;
+      border: 1px solid #2a2d38;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 8px;
+    }
+    .wallet-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+    .wallet-balance { color: #00d4aa; font-size: 18px; font-weight: 700; }
+    .wallet-usd { color: #8b8f9a; font-size: 12px; }
+    .wallet-addr { 
+      color: #8b8f9a; 
+      font-size: 10px; 
+      font-family: monospace;
+      word-break: break-all;
+      margin-top: 4px;
+    }
+    .add-wallet {
+      width: 100%;
+      background: #1a1d26;
+      border: 1px dashed #2a2d38;
+      border-radius: 8px;
+      padding: 12px;
+      color: #8b8f9a;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .add-wallet:hover { border-color: #00d4aa; color: #00d4aa; }
+    .input-group {
+      display: none;
+      margin-bottom: 12px;
+    }
+    .input-group.show { display: block; }
+    .input-group input {
+      width: 100%;
+      background: #1a1d26;
+      border: 1px solid #2a2d38;
+      border-radius: 6px;
+      padding: 10px;
+      color: #fff;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .input-group input:focus { outline: none; border-color: #00d4aa; }
+    .input-group button {
+      width: 100%;
+      background: linear-gradient(135deg, #00d4aa 0%, #00a3ff 100%);
+      border: none;
+      border-radius: 6px;
+      padding: 10px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .total {
+      background: #1a1d26;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .total-label { color: #8b8f9a; font-size: 12px; }
+    .total-value { font-size: 24px; font-weight: 700; color: #00d4aa; }
+    .total-usd { color: #8b8f9a; font-size: 14px; }
+    .links {
+      display: flex;
+      gap: 8px;
+    }
+    .links a {
+      flex: 1;
+      background: #1a1d26;
+      border: 1px solid #2a2d38;
+      border-radius: 8px;
+      padding: 10px;
+      color: #fff;
+      text-decoration: none;
+      text-align: center;
+      font-size: 12px;
+    }
+    .links a:hover { border-color: #00d4aa; }
+    .remove-btn {
+      float: right;
+      background: none;
+      border: none;
+      color: #ff6b6b;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0;
+      line-height: 1;
+    }
+    .loading { text-align: center; padding: 20px; color: #8b8f9a; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="icon.png" alt="TAO">
+    <h1>TAO Wallet Tracker</h1>
+  </div>
+
+  <div class="price-box">
+    <div class="price" id="taoPrice">--</div>
+    <div class="price-change" id="priceChange">Loading...</div>
+  </div>
+
+  <div class="total" id="totalBox" style="display:none;">
+    <div class="total-label">Total Balance</div>
+    <div class="total-value" id="totalTao">0 τ</div>
+    <div class="total-usd" id="totalUsd">$0</div>
+  </div>
+
+  <div class="section-title">My Wallets</div>
+  <div class="wallets" id="walletList">
+    <div class="loading">Loading wallets...</div>
+  </div>
+
+  <div class="input-group" id="addForm">
+    <input type="text" id="walletName" placeholder="Wallet name (e.g. Main)">
+    <input type="text" id="walletAddr" placeholder="TAO address (5...)">
+    <button onclick="addWallet()">Add Wallet</button>
+  </div>
+
+  <button class="add-wallet" id="addBtn" onclick="showAddForm()">+ Add Wallet</button>
+
+  <div style="margin-top: 16px;"></div>
+  <div class="links">
+    <a href="https://t.me/Bittensorwalletbot" target="_blank">📱 Telegram</a>
+    <a href="https://taostats.io" target="_blank">📊 Taostats</a>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
