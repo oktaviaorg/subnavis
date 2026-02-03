@@ -34,7 +34,7 @@ exports.handler = async (event) => {
 
     // Fetch from TaoStats for additional data
     const tsResponse = await fetch(
-      'https://api.taostats.io/api/price/latest/v1',
+      'https://api.taostats.io/api/price/latest/v1?asset=tao',
       {
         headers: {
           'Authorization': TAOSTATS_API_KEY
