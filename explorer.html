@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorer - Subnavis</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #09090b;
+            --bg-secondary: #18181b;
+            --bg-card: #1f1f23;
+            --accent: #ab9ff2;
+            --green: #22c55e;
+            --red: #ef4444;
+            --text: #fafafa;
+            --text-dim: #a1a1aa;
+            --border: rgba(255,255,255,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+        a { color: inherit; text-decoration: none; }
+
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 16px 24px; background: rgba(9,9,11,0.9); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 20px; }
+        .logo img { width: 36px; height: 36px; border-radius: 10px; }
+        .nav-links { display: flex; gap: 8px; }
+        .nav-link { padding: 10px 16px; border-radius: 12px; font-size: 15px; font-weight: 500; color: var(--text-dim); transition: all 0.2s; }
+        .nav-link:hover, .nav-link.active { color: var(--text); background: var(--bg-card); }
+        .nav-cta { padding: 10px 20px; background: var(--accent); color: var(--bg); border-radius: 12px; font-weight: 600; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 100px 24px 48px; }
+
+        .hero { text-align: center; padding: 48px 0; }
+        .hero h1 { font-size: 48px; font-weight: 800; margin-bottom: 16px; }
+        .hero p { color: var(--text-dim); font-size: 18px; margin-bottom: 32px; }
+        
+        .search-box {
+            max-width: 500px; margin: 0 auto;
+            display: flex; align-items: center; gap: 12px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 16px 20px;
+        }
+        .search-box input {
+            flex: 1; background: none; border: none; color: var(--text);
+            font-size: 16px; outline: none;
+        }
+        .search-box input::placeholder { color: var(--text-dim); }
+
+        .section { margin-bottom: 48px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .section-header h2 { font-size: 24px; font-weight: 700; }
+        .section-link { color: var(--accent); font-weight: 500; }
+
+        .trending-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+        .trending-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 20px; cursor: pointer; transition: all 0.2s;
+        }
+        .trending-card:hover { border-color: var(--accent); }
+        .trending-top { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .trending-icon {
+            width: 48px; height: 48px; border-radius: 50%;
+            background: linear-gradient(135deg, #9945FF 0%, #14F195 100%);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: 700;
+        }
+        .trending-name { font-weight: 700; font-size: 18px; }
+        .trending-desc { font-size: 13px; color: var(--text-dim); }
+        .trending-stats { display: flex; justify-content: space-between; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+        .stat-item { text-align: center; }
+        .stat-value { font-weight: 700; font-size: 16px; }
+        .stat-label { font-size: 12px; color: var(--text-dim); }
+        .up { color: var(--green); }
+        .down { color: var(--red); }
+
+        .market-table { width: 100%; border-collapse: collapse; background: var(--bg-card); border-radius: 16px; overflow: hidden; }
+        .market-table th { text-align: left; padding: 16px; font-size: 13px; color: var(--text-dim); font-weight: 500; background: var(--bg-secondary); }
+        .market-table td { padding: 16px; border-bottom: 1px solid var(--border); }
+        .market-table tr:hover { background: var(--bg-secondary); }
+        .token-info { display: flex; align-items: center; gap: 12px; }
+        .token-icon { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #9945FF 0%, #00d4aa 100%); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .token-name { font-weight: 600; }
+        .token-symbol { font-size: 13px; color: var(--text-dim); }
+
+        footer { padding: 48px 24px; border-top: 1px solid var(--border); text-align: center; color: var(--text-dim); font-size: 14px; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero h1 { font-size: 32px; }
+            .market-table th:nth-child(4), .market-table td:nth-child(4),
+            .market-table th:nth-child(5), .market-table td:nth-child(5) { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo"><img src="/logo-64.png" alt="Subnavis"><span>Subnavis</span></a>
+            <div class="nav-links">
+                <a href="/explorer" class="nav-link active">Explorer</a>
+                <a href="/learn" class="nav-link">Apprendre</a>
+                <a href="/blog" class="nav-link">Blog</a>
+                <a href="https://t.me/Bittensorwalletbot" class="nav-cta" target="_blank">Ouvrir Wallet</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="hero">
+            <h1>Explorez 🐉 l'écosystème</h1>
+            <p>Découvrez les subnets Bittensor et suivez le marché TAO</p>
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" placeholder="Rechercher un subnet, token...">
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2>🔥 Subnets Tendance</h2>
+                <a href="#" class="section-link">Voir tous →</a>
+            </div>
+            <div class="trending-grid">
+                <div class="trending-card">
+                    <div class="trending-top">
+                        <div class="trending-icon">1</div>
+                        <div>
+                            <div class="trending-name">SN1</div>
+                            <div class="trending-desc">Prompting</div>
+                        </div>
+                    </div>
+                    <div class="trending-stats">
+                        <div class="stat-item"><div class="stat-value up">+5.2%</div><div class="stat-label">24h</div></div>
+                        <div class="stat-item"><div class="stat-value">1,024</div><div class="stat-label">Miners</div></div>
+                    </div>
+                </div>
+                <div class="trending-card">
+                    <div class="trending-top">
+                        <div class="trending-icon">9</div>
+                        <div>
+                            <div class="trending-name">SN9</div>
+                            <div class="trending-desc">Pretraining</div>
+                        </div>
+                    </div>
+                    <div class="trending-stats">
+                        <div class="stat-item"><div class="stat-value up">+3.8%</div><div class="stat-label">24h</div></div>
+                        <div class="stat-item"><div class="stat-value">256</div><div class="stat-label">Miners</div></div>
+                    </div>
+                </div>
+                <div class="trending-card">
+                    <div class="trending-top">
+                        <div class="trending-icon">8</div>
+                        <div>
+                            <div class="trending-name">SN8</div>
+                            <div class="trending-desc">Taoshi</div>
+                        </div>
+                    </div>
+                    <div class="trending-stats">
+                        <div class="stat-item"><div class="stat-value up">+2.1%</div><div class="stat-label">24h</div></div>
+                        <div class="stat-item"><div class="stat-value">512</div><div class="stat-label">Miners</div></div>
+                    </div>
+                </div>
+                <div class="trending-card">
+                    <div class="trending-top">
+                        <div class="trending-icon">19</div>
+                        <div>
+                            <div class="trending-name">SN19</div>
+                            <div class="trending-desc">Vision</div>
+                        </div>
+                    </div>
+                    <div class="trending-stats">
+                        <div class="stat-item"><div class="stat-value down">-1.2%</div><div class="stat-label">24h</div></div>
+                        <div class="stat-item"><div class="stat-value">128</div><div class="stat-label">Miners</div></div>
+                    </div>
+                </div>
+                <div class="trending-card">
+                    <div class="trending-top">
+                        <div class="trending-icon">18</div>
+                        <div>
+                            <div class="trending-name">SN18</div>
+                            <div class="trending-desc">Cortex.t</div>
+                        </div>
+                    </div>
+                    <div class="trending-stats">
+                        <div class="stat-item"><div class="stat-value up">+4.5%</div><div class="stat-label">24h</div></div>
+                        <div class="stat-item"><div class="stat-value">384</div><div class="stat-label">Miners</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2>📈 Vue d'ensemble du marché</h2>
+            </div>
+            <table class="market-table">
+                <thead>
+                    <tr>
+                        <th>Token</th>
+                        <th>Prix</th>
+                        <th>24h</th>
+                        <th>Volume 24h</th>
+                        <th>Market Cap</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><div class="token-info"><div class="token-icon">🐉</div><div><div class="token-name">Bittensor</div><div class="token-symbol">TAO</div></div></div></td>
+                        <td id="tao-price">$450.00</td>
+                        <td class="up" id="tao-change">+2.5%</td>
+                        <td>$45M</td>
+                        <td>$3.2B</td>
+                    </tr>
+                    <tr>
+                        <td><div class="token-info"><div class="token-icon" style="background: linear-gradient(135deg, #627EEA 0%, #8A9BF4 100%);">🔷</div><div><div class="token-name">Wrapped TAO</div><div class="token-symbol">wTAO</div></div></div></td>
+                        <td>$450.00</td>
+                        <td class="up">+2.4%</td>
+                        <td>$8M</td>
+                        <td>$120M</td>
+                    </tr>
+                    <tr>
+                        <td><div class="token-info"><div class="token-icon" style="background: linear-gradient(135deg, #F7931A 0%, #FFAA00 100%);">₿</div><div><div class="token-name">Bitcoin</div><div class="token-symbol">BTC</div></div></div></td>
+                        <td>$97,500</td>
+                        <td class="down">-0.8%</td>
+                        <td>$28B</td>
+                        <td>$1.9T</td>
+                    </tr>
+                    <tr>
+                        <td><div class="token-info"><div class="token-icon" style="background: linear-gradient(135deg, #627EEA 0%, #8A9BF4 100%);">Ξ</div><div><div class="token-name">Ethereum</div><div class="token-symbol">ETH</div></div></div></td>
+                        <td>$2,650</td>
+                        <td class="down">-1.2%</td>
+                        <td>$12B</td>
+                        <td>$320B</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer>© 2026 Subnavis.io - Navigate the Bittensor Ecosystem</footer>
+
+    <script>
+        async function fetchPrice() {
+            try {
+                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bittensor&vs_currencies=usd&include_24hr_change=true');
+                const data = await res.json();
+                document.getElementById('tao-price').textContent = `$${data.bittensor.usd.toFixed(2)}`;
+                const change = data.bittensor.usd_24h_change;
+                const changeEl = document.getElementById('tao-change');
+                changeEl.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+                changeEl.className = change >= 0 ? 'up' : 'down';
+            } catch(e) {}
+        }
+        fetchPrice();
+    </script>
+</body>
+</html>

@@ -1,31 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subnavis - Navigate the Bittensor Ecosystem</title>
+    <meta name="description" content="Explorez l'écosystème Bittensor. Wallet TAO simple, subnets, staking et plus encore.">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="icon" type="image/png" sizes="32x32" href="/logo-32.png">
-    <link rel="icon" type="image/png" sizes="64x64" href="/logo-64.png">
-    <link rel="apple-touch-icon" href="/logo-256.png">
-    <meta property="og:image" content="https://subnavis.io/logo-512.png">
-    <meta property="og:title" content="Subnavis - Navigate the Bittensor Subnets">
-    <meta property="og:description" content="Real-time subnet analytics, whale alerts, portfolio tracking for Bittensor">
-    <title>Subnavis - Navigate the Bittensor Subnets</title>
-    <meta name="description" content="Real-time analytics, whale alerts, and portfolio tracking for Bittensor subnets. Your compass in the TAO ecosystem.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #0a0b0d;
-            --bg-secondary: #12141a;
-            --bg-card: #1a1d26;
-            --accent: #00d4aa;
-            --accent-dim: #00d4aa33;
-            --text-primary: #ffffff;
-            --text-secondary: #8b8f9a;
-            --border: #2a2d38;
-            --gradient: linear-gradient(135deg, #00d4aa 0%, #00a3ff 100%);
+            --bg: #09090b;
+            --bg-secondary: #18181b;
+            --bg-card: #1f1f23;
+            --accent: #ab9ff2;
+            --accent-bright: #c4b5fd;
+            --green: #22c55e;
+            --red: #ef4444;
+            --text: #fafafa;
+            --text-dim: #a1a1aa;
+            --border: rgba(255,255,255,0.08);
         }
 
         * {
@@ -35,17 +30,15 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
             line-height: 1.6;
-            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 24px;
+        a {
+            color: inherit;
+            text-decoration: none;
         }
 
         /* Navigation */
@@ -55,105 +48,76 @@
             left: 0;
             right: 0;
             z-index: 100;
-            padding: 20px 0;
-            background: rgba(10, 11, 13, 0.8);
+            padding: 16px 24px;
+            background: rgba(9, 9, 11, 0.8);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
         }
 
-        nav .container {
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .logo {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
             font-weight: 700;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-size: 20px;
         }
 
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: var(--gradient);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo-icon svg {
-            width: 20px;
-            height: 20px;
-            fill: white;
+        .logo img {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
         }
 
         .nav-links {
             display: flex;
-            gap: 32px;
-            align-items: center;
-        }
-
-        .nav-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.95rem;
-            transition: color 0.2s;
-        }
-
-        .nav-links a:hover {
-            color: var(--text-primary);
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-            display: inline-flex;
             align-items: center;
             gap: 8px;
         }
 
-        .btn-primary {
-            background: var(--gradient);
-            color: white;
-            border: none;
+        .nav-link {
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-dim);
+            transition: all 0.2s;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 40px rgba(0, 212, 170, 0.3);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-        }
-
-        .btn-secondary:hover {
+        .nav-link:hover {
+            color: var(--text);
             background: var(--bg-card);
-            border-color: var(--accent);
+        }
+
+        .nav-cta {
+            padding: 10px 20px;
+            background: var(--accent);
+            color: var(--bg);
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .nav-cta:hover {
+            background: var(--accent-bright);
         }
 
         /* Hero Section */
         .hero {
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            padding-top: 80px;
+            text-align: center;
+            padding: 120px 24px 80px;
             position: relative;
             overflow: hidden;
         }
@@ -161,174 +125,127 @@
         .hero::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at 50% 50%, var(--accent-dim) 0%, transparent 50%);
-            animation: pulse 8s ease-in-out infinite;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(171, 159, 242, 0.15) 0%, transparent 70%);
+            pointer-events: none;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.1); }
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
+        .hero-badge {
+            display: inline-flex;
             align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-bottom: 32px;
         }
 
-        .hero-text h1 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 3.5rem;
-            font-weight: 700;
+        .hero-badge span {
+            color: var(--accent);
+        }
+
+        .hero h1 {
+            font-size: clamp(48px, 8vw, 80px);
+            font-weight: 800;
             line-height: 1.1;
             margin-bottom: 24px;
+            max-width: 800px;
         }
 
-        .hero-text h1 span {
-            background: var(--gradient);
+        .hero h1 .gradient {
+            background: linear-gradient(135deg, var(--accent) 0%, #818cf8 50%, var(--accent-bright) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .hero-text p {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            margin-bottom: 32px;
-            max-width: 500px;
+        .hero p {
+            font-size: 20px;
+            color: var(--text-dim);
+            max-width: 600px;
+            margin-bottom: 48px;
         }
 
         .hero-buttons {
             display: flex;
             gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
-        .hero-visual {
-            position: relative;
-        }
-
-        .dashboard-preview {
-            background: var(--bg-card);
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            padding: 24px;
-            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
-        }
-
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .dashboard-title {
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--accent);
-            border-radius: 50%;
-            animation: blink 2s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .subnet-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .subnet-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 16px;
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            font-size: 0.9rem;
-        }
-
-        .subnet-name {
-            display: flex;
+        .btn {
+            display: inline-flex;
             align-items: center;
             gap: 10px;
-        }
-
-        .subnet-badge {
-            width: 28px;
-            height: 28px;
-            background: var(--gradient);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-
-        .subnet-change {
+            padding: 16px 28px;
+            border-radius: 14px;
+            font-size: 16px;
             font-weight: 600;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
         }
 
-        .subnet-change.positive {
-            color: #00d4aa;
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg);
         }
 
-        .subnet-change.negative {
-            color: #ff4757;
+        .btn-primary:hover {
+            background: var(--accent-bright);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
         }
 
         /* Features Section */
         .features {
-            padding: 120px 0;
-            background: var(--bg-secondary);
+            padding: 80px 24px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .section-header {
             text-align: center;
-            margin-bottom: 60px;
+            margin-bottom: 64px;
         }
 
         .section-header h2 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 2.5rem;
+            font-size: 40px;
+            font-weight: 700;
             margin-bottom: 16px;
         }
 
         .section-header p {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto;
+            font-size: 18px;
+            color: var(--text-dim);
         }
 
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 24px;
         }
 
         .feature-card {
-            background: var(--bg-card);
+            background: var(--bg-secondary);
             border: 1px solid var(--border);
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 32px;
             transition: all 0.3s;
         }
@@ -339,166 +256,267 @@
         }
 
         .feature-icon {
-            width: 48px;
-            height: 48px;
-            background: var(--accent-dim);
-            border-radius: 12px;
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(171, 159, 242, 0.2) 0%, rgba(129, 140, 248, 0.1) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 28px;
             margin-bottom: 20px;
-            font-size: 1.5rem;
         }
 
         .feature-card h3 {
-            font-size: 1.2rem;
+            font-size: 20px;
+            font-weight: 700;
             margin-bottom: 12px;
         }
 
         .feature-card p {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
+            color: var(--text-dim);
+            font-size: 15px;
         }
 
-        /* Pricing Section */
-        .pricing {
-            padding: 120px 0;
+        /* Market Overview */
+        .market {
+            padding: 80px 24px;
+            background: var(--bg-secondary);
         }
 
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-            max-width: 1000px;
+        .market-container {
+            max-width: 1200px;
             margin: 0 auto;
         }
 
-        .pricing-card {
+        .market-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .market-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .market-link {
+            color: var(--accent);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .trending-scroll {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding-bottom: 16px;
+            margin-bottom: 48px;
+        }
+
+        .trending-card {
+            min-width: 180px;
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 16px;
-            padding: 32px;
-            text-align: center;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .pricing-card.popular {
+        .trending-card:hover {
             border-color: var(--accent);
-            position: relative;
         }
 
-        .pricing-card.popular::before {
-            content: 'POPULAR';
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--gradient);
-            padding: 4px 16px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-
-        .pricing-name {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .pricing-price {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .pricing-price span {
-            font-size: 1rem;
-            color: var(--text-secondary);
-        }
-
-        .pricing-desc {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 24px;
-        }
-
-        .pricing-features {
-            list-style: none;
-            text-align: left;
-            margin-bottom: 24px;
-        }
-
-        .pricing-features li {
-            padding: 8px 0;
-            font-size: 0.95rem;
+        .trending-top {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            margin-bottom: 12px;
         }
 
-        .pricing-features li::before {
-            content: '✓';
+        .trending-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #9945FF 0%, #14F195 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .trending-name {
+            font-weight: 600;
+        }
+
+        .trending-change {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .trending-change.up { color: var(--green); }
+        .trending-change.down { color: var(--red); }
+
+        .trending-price {
+            font-size: 14px;
+            color: var(--text-dim);
+        }
+
+        /* Market Table */
+        .market-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .market-table th {
+            text-align: left;
+            padding: 16px;
+            font-size: 13px;
+            color: var(--text-dim);
+            font-weight: 500;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .market-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .market-table tr:hover {
+            background: var(--bg-card);
+        }
+
+        .token-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .token-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #9945FF 0%, #00d4aa 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .token-name {
+            font-weight: 600;
+        }
+
+        .token-symbol {
+            font-size: 13px;
+            color: var(--text-dim);
+        }
+
+        /* Learn Section */
+        .learn {
+            padding: 80px 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .learn-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .learn-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .learn-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+        }
+
+        .learn-image {
+            height: 160px;
+            background: linear-gradient(135deg, rgba(171, 159, 242, 0.3) 0%, rgba(129, 140, 248, 0.1) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+
+        .learn-content {
+            padding: 24px;
+        }
+
+        .learn-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(171, 159, 242, 0.2);
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 500;
             color: var(--accent);
-            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .learn-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .learn-card p {
+            color: var(--text-dim);
+            font-size: 14px;
         }
 
         /* CTA Section */
         .cta {
-            padding: 120px 0;
-            background: var(--bg-secondary);
+            padding: 80px 24px;
             text-align: center;
         }
 
+        .cta-box {
+            max-width: 800px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, rgba(171, 159, 242, 0.15) 0%, rgba(129, 140, 248, 0.05) 100%);
+            border: 1px solid rgba(171, 159, 242, 0.3);
+            border-radius: 32px;
+            padding: 64px 32px;
+        }
+
         .cta h2 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 2.5rem;
+            font-size: 36px;
+            font-weight: 700;
             margin-bottom: 16px;
         }
 
         .cta p {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
+            color: var(--text-dim);
+            font-size: 18px;
             margin-bottom: 32px;
-        }
-
-        .waitlist-form {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        .waitlist-form input {
-            flex: 1;
-            padding: 14px 20px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: var(--bg-card);
-            color: var(--text-primary);
-            font-size: 1rem;
-        }
-
-        .waitlist-form input::placeholder {
-            color: var(--text-secondary);
-        }
-
-        .waitlist-form input:focus {
-            outline: none;
-            border-color: var(--accent);
         }
 
         /* Footer */
         footer {
-            padding: 40px 0;
+            padding: 48px 24px;
             border-top: 1px solid var(--border);
         }
 
-        footer .container {
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 24px;
         }
 
         .footer-links {
@@ -507,324 +525,334 @@
         }
 
         .footer-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.9rem;
+            color: var(--text-dim);
+            font-size: 14px;
+            transition: color 0.2s;
         }
 
         .footer-links a:hover {
-            color: var(--text-primary);
+            color: var(--accent);
         }
 
-        /* Responsive */
-        @media (max-width: 968px) {
-            .hero-content {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
+        .footer-copy {
+            color: var(--text-dim);
+            font-size: 14px;
+        }
 
-            .hero-text p {
-                margin-left: auto;
-                margin-right: auto;
-            }
+        /* Mobile Menu */
+        .mobile-menu {
+            display: none;
+        }
 
-            .hero-buttons {
-                justify-content: center;
-            }
-
-            .hero-visual {
-                display: none;
-            }
-
-            .features-grid,
-            .pricing-grid {
-                grid-template-columns: 1fr;
-            }
-
+        @media (max-width: 768px) {
             .nav-links {
                 display: none;
             }
-        }
-
-        @media (max-width: 640px) {
-            .hero-text h1 {
-                font-size: 2.5rem;
+            
+            .mobile-menu {
+                display: block;
+                font-size: 24px;
+                cursor: pointer;
             }
 
-            .waitlist-form {
-                flex-direction: column;
+            .hero h1 {
+                font-size: 36px;
             }
 
-            footer .container {
+            .hero p {
+                font-size: 16px;
+            }
+
+            .hero-buttons {
                 flex-direction: column;
-                gap: 20px;
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .market-table {
+                font-size: 14px;
+            }
+
+            .market-table th:nth-child(4),
+            .market-table td:nth-child(4),
+            .market-table th:nth-child(5),
+            .market-table td:nth-child(5) {
+                display: none;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Navigation -->
     <nav>
-        <div class="container">
-            <div class="logo">
-                <div class="logo-icon">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                    </svg>
-                </div>
-                Subnavis
-            </div>
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <img src="/logo-64.png" alt="Subnavis">
+                <span>Subnavis</span>
+            </a>
             <div class="nav-links">
-                <a href="#features">Features</a>
-                <a href="/pricing.html">Pricing</a>
-                <a href="/app.html" class="btn btn-secondary" style="margin-right: 8px;">Log In</a>
-                <a href="/dashboard.html" class="btn btn-primary">Launch App</a>
+                <a href="/explorer" class="nav-link">Explorer</a>
+                <a href="/learn" class="nav-link">Apprendre</a>
+                <a href="/blog" class="nav-link">Blog</a>
+                <a href="https://t.me/Bittensorwalletbot" class="nav-cta" target="_blank">Ouvrir Wallet</a>
             </div>
+            <div class="mobile-menu">☰</div>
         </div>
     </nav>
 
+    <!-- Hero -->
     <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <div class="hero-text">
-                    <h1>Navigate the <span>Bittensor</span> Subnets</h1>
-                    <p>Real-time analytics, whale alerts, and portfolio tracking. Your compass in the TAO ecosystem.</p>
-                    <div class="hero-buttons">
-                        <a href="#waitlist" class="btn btn-primary">Join Waitlist</a>
-                        <a href="#features" class="btn btn-secondary">Learn More</a>
-                    </div>
-                </div>
-                <div class="hero-visual">
-                    <div class="dashboard-preview">
-                        <div class="dashboard-header">
-                            <span class="dashboard-title">Live Subnets</span>
-                            <span class="status-dot"></span>
+        <div class="hero-badge">
+            🐉 <span>Bittensor Ecosystem</span>
+        </div>
+        <h1>Navigate the <span class="gradient">Bittensor</span> Subnets</h1>
+        <p>Le wallet TAO le plus simple. Explorez les subnets, stakez vos TAO et suivez l'écosystème directement depuis Telegram.</p>
+        <div class="hero-buttons">
+            <a href="https://t.me/Bittensorwalletbot" class="btn btn-primary" target="_blank">
+                📱 Ouvrir TAO Wallet
+            </a>
+            <a href="/explorer" class="btn btn-secondary">
+                🔍 Explorer l'écosystème
+            </a>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features">
+        <div class="section-header">
+            <h2>Tout pour Bittensor</h2>
+            <p>Un wallet simple et puissant pour l'écosystème TAO</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">💼</div>
+                <h3>Wallet Non-Custodial</h3>
+                <p>Créez et gérez vos wallets TAO en toute sécurité. Vos clés restent les vôtres.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Staking Simplifié</h3>
+                <p>Stakez vos TAO sur les meilleurs validateurs et gagnez 15-25% APY.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔄</div>
+                <h3>Swap Instantané</h3>
+                <p>Échangez TAO contre USDT, BTC, ETH aux meilleurs taux.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Suivi des Subnets</h3>
+                <p>Explorez les 64+ subnets Bittensor et suivez leurs performances.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>Assistant IA</h3>
+                <p>Posez vos questions sur Bittensor à notre IA décentralisée.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎁</div>
+                <h3>Programme Referral</h3>
+                <p>Gagnez 20% de commission sur les swaps de vos filleuls.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Market Overview -->
+    <section class="market">
+        <div class="market-container">
+            <div class="market-header">
+                <h2>🔥 Subnets Tendance</h2>
+                <a href="/explorer" class="market-link">Voir plus →</a>
+            </div>
+            
+            <div class="trending-scroll">
+                <div class="trending-card">
+                    <div class="trending-top">
+                        <div class="trending-icon">1</div>
+                        <div>
+                            <div class="trending-name">SN1</div>
+                            <div class="trending-change up">+5.2%</div>
                         </div>
-                        <div class="subnet-list">
-                            <div class="subnet-item">
-                                <div class="subnet-name">
-                                    <div class="subnet-badge">7</div>
-                                    <span>Subvortex</span>
-                                </div>
-                                <span class="subnet-change positive">+12.4%</span>
-                            </div>
-                            <div class="subnet-item">
-                                <div class="subnet-name">
-                                    <div class="subnet-badge">28</div>
-                                    <span>Foundry</span>
-                                </div>
-                                <span class="subnet-change positive">+8.7%</span>
-                            </div>
-                            <div class="subnet-item">
-                                <div class="subnet-name">
-                                    <div class="subnet-badge">13</div>
-                                    <span>Dataverse</span>
-                                </div>
-                                <span class="subnet-change negative">-2.1%</span>
-                            </div>
-                            <div class="subnet-item">
-                                <div class="subnet-name">
-                                    <div class="subnet-badge">49</div>
-                                    <span>Autocast</span>
-                                </div>
-                                <span class="subnet-change positive">+5.3%</span>
-                            </div>
+                    </div>
+                    <div class="trending-price">Prompting</div>
+                </div>
+                <div class="trending-card">
+                    <div class="trending-top">
+                        <div class="trending-icon">9</div>
+                        <div>
+                            <div class="trending-name">SN9</div>
+                            <div class="trending-change up">+3.8%</div>
                         </div>
                     </div>
+                    <div class="trending-price">Pretraining</div>
+                </div>
+                <div class="trending-card">
+                    <div class="trending-top">
+                        <div class="trending-icon">8</div>
+                        <div>
+                            <div class="trending-name">SN8</div>
+                            <div class="trending-change up">+2.1%</div>
+                        </div>
+                    </div>
+                    <div class="trending-price">Taoshi</div>
+                </div>
+                <div class="trending-card">
+                    <div class="trending-top">
+                        <div class="trending-icon">19</div>
+                        <div>
+                            <div class="trending-name">SN19</div>
+                            <div class="trending-change down">-1.2%</div>
+                        </div>
+                    </div>
+                    <div class="trending-price">Vision</div>
+                </div>
+                <div class="trending-card">
+                    <div class="trending-top">
+                        <div class="trending-icon">18</div>
+                        <div>
+                            <div class="trending-name">SN18</div>
+                            <div class="trending-change up">+4.5%</div>
+                        </div>
+                    </div>
+                    <div class="trending-price">Cortex.t</div>
                 </div>
             </div>
+
+            <div class="market-header">
+                <h2>📈 Vue d'ensemble</h2>
+            </div>
+            
+            <table class="market-table">
+                <thead>
+                    <tr>
+                        <th>Token</th>
+                        <th>Prix</th>
+                        <th>24h</th>
+                        <th>Volume 24h</th>
+                        <th>Market Cap</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="token-info">
+                                <div class="token-icon">🐉</div>
+                                <div>
+                                    <div class="token-name">Bittensor</div>
+                                    <div class="token-symbol">TAO</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td id="tao-price">$450.00</td>
+                        <td class="trending-change up" id="tao-change">+2.5%</td>
+                        <td>$45M</td>
+                        <td>$3.2B</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="token-info">
+                                <div class="token-icon" style="background: linear-gradient(135deg, #627EEA 0%, #8A9BF4 100%);">🔷</div>
+                                <div>
+                                    <div class="token-name">Wrapped TAO</div>
+                                    <div class="token-symbol">wTAO</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td id="wtao-price">$450.00</td>
+                        <td class="trending-change up">+2.4%</td>
+                        <td>$8M</td>
+                        <td>$120M</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </section>
 
-    <section class="features" id="features">
-        <div class="container">
-            <div class="section-header">
-                <h2>Everything you need to track TAO</h2>
-                <p>Powerful tools for serious Bittensor investors and validators</p>
-            </div>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">📊</div>
-                    <h3>Real-time Dashboard</h3>
-                    <p>Monitor all 64 subnets with live price feeds, emissions, and validator performance metrics.</p>
+    <!-- Learn Section -->
+    <section class="learn">
+        <div class="section-header">
+            <h2>📚 Apprendre</h2>
+            <p>Guides et tutoriels pour maîtriser Bittensor</p>
+        </div>
+        <div class="learn-grid">
+            <a href="/learn/bittensor-intro" class="learn-card">
+                <div class="learn-image">🐉</div>
+                <div class="learn-content">
+                    <span class="learn-tag">Débutant</span>
+                    <h3>Qu'est-ce que Bittensor ?</h3>
+                    <p>Découvrez le réseau d'IA décentralisé qui révolutionne le machine learning.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🐋</div>
-                    <h3>Whale Alerts</h3>
-                    <p>Get instant notifications when large wallets move TAO. Stay ahead of market movements.</p>
+            </a>
+            <a href="/learn/staking-guide" class="learn-card">
+                <div class="learn-image">⚡</div>
+                <div class="learn-content">
+                    <span class="learn-tag">Guide</span>
+                    <h3>Comment staker ses TAO</h3>
+                    <p>Gagnez 15-25% APY en déléguant vos TAO aux validateurs.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">💼</div>
-                    <h3>Portfolio Tracking</h3>
-                    <p>Track your staked TAO across multiple wallets and subnets in one unified view.</p>
+            </a>
+            <a href="/learn/subnets-explained" class="learn-card">
+                <div class="learn-image">🧠</div>
+                <div class="learn-content">
+                    <span class="learn-tag">Avancé</span>
+                    <h3>Les Subnets expliqués</h3>
+                    <p>Comprenez l'architecture des 64+ sous-réseaux de Bittensor.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔔</div>
-                    <h3>Custom Alerts</h3>
-                    <p>Set price alerts, emission changes, or validator events. Delivered via Telegram or email.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📈</div>
-                    <h3>Historical Data</h3>
-                    <p>Access historical charts for prices, APR, and emissions to identify trends and patterns.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔌</div>
-                    <h3>API Access</h3>
-                    <p>Build your own tools with our comprehensive API. Full documentation included.</p>
-                </div>
-            </div>
+            </a>
         </div>
     </section>
 
-    <section class="pricing" id="pricing">
-        <div class="container">
-            <div class="section-header">
-                <h2>Simple, transparent pricing</h2>
-                <p>Start free, upgrade when you need more power</p>
-            </div>
-            <div class="pricing-grid">
-                <div class="pricing-card">
-                    <div class="pricing-name">Explorer</div>
-                    <div class="pricing-price">Free</div>
-                    <div class="pricing-desc">For casual observers</div>
-                    <ul class="pricing-features">
-                        <li>1 wallet tracking</li>
-                        <li>Basic dashboard</li>
-                        <li>Daily email digest</li>
-                        <li>Public subnet data</li>
-                    </ul>
-                    <a href="#waitlist" class="btn btn-secondary" style="width: 100%; justify-content: center;">Get Started</a>
-                </div>
-                <div class="pricing-card popular">
-                    <div class="pricing-name">Navigator</div>
-                    <div class="pricing-price">€15<span>/mo</span></div>
-                    <div class="pricing-desc">For active investors</div>
-                    <ul class="pricing-features">
-                        <li>Unlimited wallets</li>
-                        <li>Real-time whale alerts</li>
-                        <li>Custom notifications</li>
-                        <li>Historical data (90 days)</li>
-                        <li>Telegram integration</li>
-                    </ul>
-                    <a href="#waitlist" class="btn btn-primary" style="width: 100%; justify-content: center;">Join Waitlist</a>
-                </div>
-                <div class="pricing-card">
-                    <div class="pricing-name">Captain</div>
-                    <div class="pricing-price">€39<span>/mo</span></div>
-                    <div class="pricing-desc">For validators & builders</div>
-                    <ul class="pricing-features">
-                        <li>Everything in Navigator</li>
-                        <li>Full API access</li>
-                        <li>Historical data (1 year)</li>
-                        <li>Export to CSV/JSON</li>
-                        <li>Priority support</li>
-                    </ul>
-                    <a href="#waitlist" class="btn btn-secondary" style="width: 100%; justify-content: center;">Contact Us</a>
-                </div>
-            </div>
+    <!-- CTA -->
+    <section class="cta">
+        <div class="cta-box">
+            <h2>🚀 Prêt à explorer ?</h2>
+            <p>Rejoignez des milliers d'utilisateurs qui naviguent l'écosystème Bittensor avec Subnavis.</p>
+            <a href="https://t.me/Bittensorwalletbot" class="btn btn-primary" target="_blank">
+                Ouvrir TAO Wallet →
+            </a>
         </div>
     </section>
 
-    <section class="cta" id="waitlist">
-        <div class="container">
-            <h2>Be first to navigate</h2>
-            <p>Join the waitlist for early access and exclusive launch pricing</p>
-            <form class="waitlist-form" id="waitlistForm">
-                <input type="email" placeholder="Enter your email" required>
-                <button type="submit" class="btn btn-primary">Join Waitlist</button>
-            </form>
-            <p style="margin-top: 16px; font-size: 0.85rem; color: var(--text-secondary);">
-                🚀 Launching Q1 2026 • No spam, ever
-            </p>
-        </div>
-    </section>
-
+    <!-- Footer -->
     <footer>
-        <div class="container">
-            <div class="logo">
-                <div class="logo-icon">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                    </svg>
-                </div>
-                Subnavis
-            </div>
+        <div class="footer-container">
             <div class="footer-links">
-                <a href="#">Twitter</a>
-                <a href="#">Discord</a>
-                <a href="#">Docs</a>
-                <a href="#">Privacy</a>
+                <a href="/explorer">Explorer</a>
+                <a href="/learn">Apprendre</a>
+                <a href="/blog">Blog</a>
+                <a href="/privacy-policy.html">Confidentialité</a>
+                <a href="/terms-of-service.html">CGU</a>
+            </div>
+            <div class="footer-copy">
+                © 2026 Subnavis.io - Navigate the Bittensor Ecosystem
             </div>
         </div>
     </footer>
 
     <script>
-        // Supabase config
-        const SUPABASE_URL = 'https://srvfbbehmpnvocwodcpq.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_PWMkW8e2UJBdxcfX0DN_VQ_dvJCu_Vq';
-
-        // Waitlist form handling
-        document.getElementById('waitlistForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const emailInput = e.target.querySelector('input');
-            const email = emailInput.value;
-            const btn = e.target.querySelector('button');
-            
-            btn.textContent = 'Joining...';
-            btn.disabled = true;
-
+        // Fetch live TAO price
+        async function fetchPrice() {
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/subnavis_waitlist`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        source: 'landing_page'
-                    })
-                });
-
-                if (response.ok || response.status === 201) {
-                    btn.textContent = '✓ You\'re in!';
-                    btn.style.background = '#00d4aa';
-                    emailInput.value = '';
-                    
-                    // Reset after 3s
-                    setTimeout(() => {
-                        btn.textContent = 'Join Waitlist';
-                        btn.style.background = '';
-                        btn.disabled = false;
-                    }, 3000);
-                } else {
-                    throw new Error('Signup failed');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                btn.textContent = '✓ You\'re in!'; // Fail silently for UX
-                btn.style.background = '#00d4aa';
-                emailInput.value = '';
-                setTimeout(() => {
-                    btn.textContent = 'Join Waitlist';
-                    btn.style.background = '';
-                    btn.disabled = false;
-                }, 3000);
-            }
-        });
-
-        // Smooth scroll
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-        });
+                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bittensor&vs_currencies=usd&include_24hr_change=true');
+                const data = await res.json();
+                const price = data.bittensor?.usd || 450;
+                const change = data.bittensor?.usd_24h_change || 0;
+                
+                document.getElementById('tao-price').textContent = `$${price.toFixed(2)}`;
+                document.getElementById('wtao-price').textContent = `$${price.toFixed(2)}`;
+                
+                const changeEl = document.getElementById('tao-change');
+                changeEl.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+                changeEl.className = `trending-change ${change >= 0 ? 'up' : 'down'}`;
+            } catch (e) {}
+        }
+        
+        fetchPrice();
+        setInterval(fetchPrice, 60000);
     </script>
 </body>
 </html>
