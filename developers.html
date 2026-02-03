@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - SubNavis</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0b0d;
+            --bg-secondary: #12141a;
+            --bg-card: #1a1d26;
+            --bg-code: #0d1117;
+            --accent: #00d4aa;
+            --accent-dim: #00d4aa22;
+            --accent-blue: #00a3ff;
+            --text-primary: #ffffff;
+            --text-secondary: #8b8f9a;
+            --text-code: #e6edf3;
+            --border: #2a2d38;
+            --green: #00d4aa;
+            --red: #ff4757;
+            --orange: #ff9f43;
+            --purple: #a855f7;
+            --gradient: linear-gradient(135deg, #00d4aa 0%, #00a3ff 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 16px 24px;
+            background: rgba(10, 11, 13, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--text-primary);
+        }
+
+        /* Layout */
+        .container {
+            display: flex;
+            margin-top: 64px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            height: calc(100vh - 64px);
+            position: fixed;
+            overflow-y: auto;
+            padding: 24px;
+            border-right: 1px solid var(--border);
+            background: var(--bg-secondary);
+        }
+
+        .sidebar h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            margin-top: 24px;
+        }
+
+        .sidebar h3:first-child {
+            margin-top: 0;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 8px 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .sidebar a:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        .sidebar a.active {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        /* Main content */
+        .main {
+            margin-left: 280px;
+            flex: 1;
+            padding: 48px;
+            max-width: 900px;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 16px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-top: 48px;
+            margin-bottom: 16px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        h3 {
+            font-size: 18px;
+            margin-top: 32px;
+            margin-bottom: 12px;
+            color: var(--accent);
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        /* Code blocks */
+        pre {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--text-code);
+        }
+
+        .inline-code {
+            background: var(--bg-card);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        /* Endpoint cards */
+        .endpoint {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .endpoint-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .method {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .method.get { background: #00d4aa33; color: var(--green); }
+        .method.post { background: #00a3ff33; color: var(--accent-blue); }
+
+        .endpoint-path {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+        }
+
+        .endpoint-desc {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        /* Pricing table */
+        .pricing-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+        }
+
+        .pricing-table th,
+        .pricing-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pricing-table th {
+            background: var(--bg-card);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .pricing-table td {
+            color: var(--text-secondary);
+        }
+
+        .pricing-table tr:hover td {
+            background: var(--bg-card);
+        }
+
+        .tier-name {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .tier-price {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Try it button */
+        .try-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: var(--gradient);
+            color: var(--bg-primary);
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-top: 12px;
+        }
+
+        .try-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Response preview */
+        .response-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        /* Alert boxes */
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .alert.info {
+            background: #00a3ff22;
+            border-left: 3px solid var(--accent-blue);
+        }
+
+        .alert.warning {
+            background: #ff9f4322;
+            border-left: 3px solid var(--orange);
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main { margin-left: 0; padding: 24px; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="logo">🧭 SubNavis</a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/explorer.html">Explorer</a>
+            <a href="/pricing.html">Pricing</a>
+            <a href="/developers.html" class="active">API</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Getting Started</h3>
+            <a href="#introduction">Introduction</a>
+            <a href="#authentication">Authentication</a>
+            <a href="#pricing">Pricing</a>
+            
+            <h3>Endpoints</h3>
+            <a href="#price">GET /price</a>
+            <a href="#subnets">GET /subnets</a>
+            <a href="#subnet">GET /subnet/:id</a>
+            <a href="#wallet">GET /wallet/:address</a>
+            <a href="#whales">GET /whales</a>
+            
+            <h3>Resources</h3>
+            <a href="#errors">Error Handling</a>
+            <a href="#rate-limits">Rate Limits</a>
+            <a href="#changelog">Changelog</a>
+        </aside>
+
+        <main class="main">
+            <h1>SubNavis API</h1>
+            <p>The simplest way to access Bittensor data. Real-time prices, subnets analytics, wallet tracking, and whale alerts.</p>
+
+            <div class="alert info">
+                <strong>🚀 API v1 is LIVE!</strong> Start building with Bittensor data in minutes.
+            </div>
+
+            <h2 id="introduction">Introduction</h2>
+            <p>The SubNavis API provides unified access to Bittensor network data, aggregated from multiple sources including TaoStats, CoinGecko, and the blockchain directly.</p>
+            
+            <h3>Base URL</h3>
+            <pre><code>https://subnavis.io/api/v1</code></pre>
+
+            <h3>Quick Start</h3>
+            <pre><code># Get TAO price
+curl https://subnavis.io/api/v1/price
+
+# Get all subnets
+curl https://subnavis.io/api/v1/subnets
+
+# Get subnet details
+curl https://subnavis.io/api/v1/subnet/1</code></pre>
+
+            <h2 id="authentication">Authentication</h2>
+            <p>The free tier (Rebel) doesn't require authentication. For higher limits, include your API key in the header:</p>
+            <pre><code>Authorization: Bearer YOUR_API_KEY</code></pre>
+            
+            <div class="alert warning">
+                <strong>🔑 Coming soon:</strong> API key management dashboard. Currently in free beta!
+            </div>
+
+            <h2 id="pricing">Pricing</h2>
+            <p>Simple, cypherpunk-friendly pricing. Pay in EUR or get 20% off with TAO.</p>
+
+            <table class="pricing-table">
+                <thead>
+                    <tr>
+                        <th>Tier</th>
+                        <th>Price</th>
+                        <th>Requests/day</th>
+                        <th>TAO Price (-20%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="tier-name">🆓 Rebel</td>
+                        <td class="tier-price">Free</td>
+                        <td>500</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td class="tier-name">🛠️ Builder</td>
+                        <td class="tier-price">€5/mo</td>
+                        <td>10,000</td>
+                        <td>~0.02 τ/mo</td>
+                    </tr>
+                    <tr>
+                        <td class="tier-name">🎰 Degen</td>
+                        <td class="tier-price">€15/mo</td>
+                        <td>50,000</td>
+                        <td>~0.06 τ/mo</td>
+                    </tr>
+                    <tr>
+                        <td class="tier-name">🐋 Whale</td>
+                        <td class="tier-price">€49/mo</td>
+                        <td>Unlimited</td>
+                        <td>~0.2 τ/mo</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2 id="price">GET /price</h2>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="endpoint-path">/api/v1/price</span>
+                </div>
+                <p class="endpoint-desc">Get current TAO price aggregated from multiple sources (CoinGecko, TaoStats).</p>
+                
+                <h4>Response</h4>
+                <pre><code>{
+  "success": true,
+  "data": {
+    "symbol": "TAO",
+    "name": "Bittensor",
+    "price": {
+      "usd": 200.65,
+      "eur": 169.72
+    },
+    "change_24h": {
+      "usd": 1.88,
+      "eur": 1.63
+    },
+    "volume_24h": {
+      "usd": 123492665
+    },
+    "market_cap": {
+      "usd": 1930516318
+    },
+    "sources": ["coingecko", "taostats"],
+    "updated_at": "2026-02-03T21:23:25.031Z"
+  }
+}</code></pre>
+                <a href="/api/v1/price" target="_blank" class="try-btn">Try it →</a>
+            </div>
+
+            <h2 id="subnets">GET /subnets</h2>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="endpoint-path">/api/v1/subnets</span>
+                </div>
+                <p class="endpoint-desc">Get all Bittensor subnets with computed metrics (APY, performance, emissions).</p>
+                
+                <h4>Query Parameters</h4>
+                <table class="pricing-table">
+                    <tr>
+                        <td><code class="inline-code">sort</code></td>
+                        <td>Sort order: <code>perf_7d</code> (default), <code>numeric</code>, <code>apy</code>, <code>emission</code></td>
+                    </tr>
+                    <tr>
+                        <td><code class="inline-code">limit</code></td>
+                        <td>Number of results (default: 100)</td>
+                    </tr>
+                </table>
+
+                <h4>Example</h4>
+                <pre><code># Get subnets sorted by 7-day performance
+curl "https://subnavis.io/api/v1/subnets?sort=perf_7d"
+
+# Get top 10 by APY
+curl "https://subnavis.io/api/v1/subnets?sort=apy&limit=10"</code></pre>
+                <a href="/api/v1/subnets" target="_blank" class="try-btn">Try it →</a>
+            </div>
+
+            <h2 id="subnet">GET /subnet/:id</h2>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="endpoint-path">/api/v1/subnet/:id</span>
+                </div>
+                <p class="endpoint-desc">Get detailed information about a specific subnet, including top validators.</p>
+                
+                <h4>Path Parameters</h4>
+                <table class="pricing-table">
+                    <tr>
+                        <td><code class="inline-code">id</code></td>
+                        <td>Subnet ID (netuid), e.g., 1, 8, 19</td>
+                    </tr>
+                </table>
+
+                <h4>Example</h4>
+                <pre><code># Get Subnet 1 (Prompting)
+curl "https://subnavis.io/api/v1/subnet/1"
+
+# Get Subnet 8 (Taoshi)
+curl "https://subnavis.io/api/v1/subnet/8"</code></pre>
+                <a href="/api/v1/subnet/1" target="_blank" class="try-btn">Try it →</a>
+            </div>
+
+            <h2 id="wallet">GET /wallet/:address</h2>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="endpoint-path">/api/v1/wallet/:address</span>
+                </div>
+                <p class="endpoint-desc">Get wallet balance, staking positions, and portfolio valuation.</p>
+                
+                <div class="alert warning">
+                    <strong>🚧 Coming soon</strong> — This endpoint is under development.
+                </div>
+            </div>
+
+            <h2 id="whales">GET /whales</h2>
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="endpoint-path">/api/v1/whales</span>
+                </div>
+                <p class="endpoint-desc">Get recent whale movements (large stakes, unstakes, transfers).</p>
+                
+                <div class="alert warning">
+                    <strong>🚧 Coming soon</strong> — This endpoint is under development.
+                </div>
+            </div>
+
+            <h2 id="errors">Error Handling</h2>
+            <p>The API uses standard HTTP status codes and returns errors in a consistent format:</p>
+            <pre><code>{
+  "success": false,
+  "error": "Error type",
+  "message": "Human-readable description"
+}</code></pre>
+
+            <table class="pricing-table">
+                <tr><td><code>200</code></td><td>Success</td></tr>
+                <tr><td><code>400</code></td><td>Bad Request - Invalid parameters</td></tr>
+                <tr><td><code>401</code></td><td>Unauthorized - Invalid or missing API key</td></tr>
+                <tr><td><code>404</code></td><td>Not Found - Resource doesn't exist</td></tr>
+                <tr><td><code>429</code></td><td>Too Many Requests - Rate limit exceeded</td></tr>
+                <tr><td><code>500</code></td><td>Server Error - Something went wrong</td></tr>
+            </table>
+
+            <h2 id="rate-limits">Rate Limits</h2>
+            <p>Rate limits are applied per API key (or IP for unauthenticated requests):</p>
+            <ul style="color: var(--text-secondary); margin-left: 20px;">
+                <li>Rebel (Free): 500 requests/day</li>
+                <li>Builder: 10,000 requests/day</li>
+                <li>Degen: 50,000 requests/day</li>
+                <li>Whale: Unlimited</li>
+            </ul>
+            <p style="margin-top: 16px;">Rate limit headers are included in responses:</p>
+            <pre><code>X-RateLimit-Limit: 500
+X-RateLimit-Remaining: 423
+X-RateLimit-Reset: 1706998800</code></pre>
+
+            <h2 id="changelog">Changelog</h2>
+            <h3>v1.0.0 — February 3, 2026</h3>
+            <ul style="color: var(--text-secondary); margin-left: 20px;">
+                <li>🚀 Initial release</li>
+                <li>✅ GET /price endpoint</li>
+                <li>✅ GET /subnets endpoint with sorting</li>
+                <li>✅ GET /subnet/:id endpoint</li>
+            </ul>
+
+            <div style="margin-top: 64px; padding: 24px; background: var(--bg-card); border-radius: 12px; text-align: center;">
+                <h3 style="color: var(--text-primary); margin-bottom: 8px;">Need help?</h3>
+                <p>Join our Telegram for support and updates</p>
+                <a href="https://t.me/SubNavisAlerts" class="try-btn" style="margin-top: 16px;">Join @SubNavisAlerts →</a>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
