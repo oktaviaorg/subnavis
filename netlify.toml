@@ -5,6 +5,23 @@
 [functions]
   node_bundler = "esbuild"
 
+# API v1 endpoints
+[[redirects]]
+  from = "/api/v1/price"
+  to = "/.netlify/functions/v1-price"
+  status = 200
+
+[[redirects]]
+  from = "/api/v1/subnets"
+  to = "/.netlify/functions/v1-subnets"
+  status = 200
+
+[[redirects]]
+  from = "/api/v1/subnet/*"
+  to = "/.netlify/functions/v1-subnet"
+  status = 200
+
+# Legacy API
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
