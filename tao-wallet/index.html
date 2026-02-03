@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
     <title>TAO Wallet</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <style>
         :root {
             --bg-primary: #0c0c1d;
@@ -659,10 +660,7 @@
             </div>
             <div style="text-align: center;">
                 <div class="qr-container" id="qr-code">
-                    <svg width="150" height="150" viewBox="0 0 150 150">
-                        <rect fill="#fff" width="150" height="150"/>
-                        <text x="75" y="80" text-anchor="middle" fill="#999" font-size="12">QR Code</text>
-                    </svg>
+                    <canvas id="qr-canvas"></canvas>
                 </div>
                 <div class="address-text" id="wallet-address">Loading...</div>
                 <button class="copy-btn" onclick="copyAddress()">📋 Copy Address</button>
@@ -759,6 +757,18 @@
 
         function openReceive() {
             document.getElementById('receive-modal').classList.add('active');
+            // Generate QR code
+            const canvas = document.getElementById('qr-canvas');
+            QRCode.toCanvas(canvas, walletAddress, {
+                width: 150,
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#ffffff'
+                }
+            }, function(error) {
+                if (error) console.error('QR generation error:', error);
+            });
         }
 
         function openSwap() {
