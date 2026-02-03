@@ -2,19 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
     <title>TAO Wallet</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-primary: #1a1a2e;
-            --bg-secondary: #16213e;
-            --bg-card: #1f2544;
-            --accent: #00d4aa;
-            --accent-purple: #9945FF;
+            --bg-primary: #0c0c1d;
+            --bg-secondary: #13132b;
+            --bg-card: #1c1c3a;
+            --accent: #ab9ff2;
+            --accent-bright: #c4b5fd;
+            --green: #14F195;
+            --purple: #9945FF;
             --text: #ffffff;
             --text-dim: #8b8f9a;
-            --border: #2a2d38;
+            --border: rgba(255,255,255,0.08);
         }
 
         * {
@@ -25,137 +27,157 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
             background: var(--bg-primary);
             color: var(--text);
             min-height: 100vh;
             overflow-x: hidden;
         }
 
-        /* Header */
+        /* Header - Minimal like Phantom */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 16px 20px;
-            border-bottom: 1px solid var(--border);
         }
 
         .header-title {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             font-weight: 600;
             font-size: 18px;
         }
 
         .header-title img {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
         }
 
         .header-icon {
-            font-size: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--bg-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
             cursor: pointer;
         }
 
-        /* Tabs */
+        /* Tabs - Phantom style */
         .tabs {
             display: flex;
             justify-content: center;
             gap: 8px;
-            padding: 16px;
+            padding: 8px 20px 16px;
         }
 
         .tab {
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 500;
+            padding: 10px 24px;
+            border-radius: 24px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s;
             background: transparent;
             color: var(--text-dim);
             border: none;
         }
 
         .tab.active {
-            background: var(--accent-purple);
-            color: white;
+            background: var(--accent);
+            color: var(--bg-primary);
         }
 
-        /* Balance Section */
+        /* Balance Section - BIG like Phantom */
         .balance-section {
             text-align: center;
-            padding: 20px;
+            padding: 40px 20px 48px;
         }
 
         .balance-label {
             color: var(--text-dim);
-            font-size: 14px;
-            margin-bottom: 8px;
+            font-size: 15px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .balance-amount {
-            font-size: 48px;
+            font-size: clamp(48px, 12vw, 72px);
             font-weight: 700;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        .balance-amount .currency {
-            font-size: 32px;
+        .balance-amount .tau {
             color: var(--accent);
+            font-size: clamp(36px, 9vw, 54px);
         }
 
         .balance-usd {
             color: var(--text-dim);
-            font-size: 16px;
+            font-size: 18px;
         }
 
-        /* Action Buttons */
+        /* Action Buttons - LARGE like Phantom */
         .actions {
             display: flex;
             justify-content: center;
-            gap: 32px;
-            padding: 24px;
+            gap: clamp(24px, 6vw, 48px);
+            padding: 16px 20px 32px;
         }
 
         .action-btn {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
             cursor: pointer;
             transition: transform 0.2s;
         }
 
         .action-btn:active {
-            transform: scale(0.95);
+            transform: scale(0.92);
         }
 
         .action-icon {
-            width: 56px;
-            height: 56px;
+            width: clamp(64px, 16vw, 80px);
+            height: clamp(64px, 16vw, 80px);
             border-radius: 50%;
-            background: var(--bg-card);
+            background: linear-gradient(135deg, var(--purple) 0%, var(--accent) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            border: 1px solid var(--border);
+            font-size: clamp(28px, 7vw, 36px);
+            box-shadow: 0 8px 32px rgba(153, 69, 255, 0.3);
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover .action-icon {
+            box-shadow: 0 12px 40px rgba(153, 69, 255, 0.5);
+            transform: translateY(-4px);
         }
 
         .action-label {
-            font-size: 12px;
-            color: var(--text-dim);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
         }
 
         /* Promo Banner */
         .promo-banner {
-            margin: 16px;
-            padding: 16px;
-            background: linear-gradient(135deg, var(--accent-purple) 0%, #7c3aed 100%);
+            margin: 0 20px 24px;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, rgba(153, 69, 255, 0.2) 0%, rgba(171, 159, 242, 0.1) 100%);
+            border: 1px solid rgba(153, 69, 255, 0.3);
             border-radius: 16px;
             display: flex;
             justify-content: space-between;
@@ -164,25 +186,27 @@
 
         .promo-text {
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .promo-text span {
             display: block;
-            color: rgba(255,255,255,0.8);
+            color: var(--text-dim);
             font-size: 12px;
+            font-weight: 400;
             margin-top: 4px;
         }
 
         .promo-close {
-            font-size: 20px;
+            font-size: 24px;
             cursor: pointer;
-            opacity: 0.7;
+            opacity: 0.5;
+            padding: 8px;
         }
 
-        /* Asset List */
+        /* Asset List - Clean like Phantom */
         .assets-section {
-            padding: 0 16px;
+            padding: 0 20px;
         }
 
         .section-header {
@@ -191,7 +215,9 @@
             align-items: center;
             padding: 16px 0;
             color: var(--text-dim);
-            font-size: 14px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .asset-item {
@@ -199,26 +225,32 @@
             align-items: center;
             padding: 16px;
             background: var(--bg-card);
-            border-radius: 12px;
-            margin-bottom: 8px;
+            border-radius: 16px;
+            margin-bottom: 12px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s;
+            border: 1px solid transparent;
         }
 
-        .asset-item:active {
+        .asset-item:hover {
+            border-color: var(--accent);
             background: var(--bg-secondary);
         }
 
+        .asset-item:active {
+            transform: scale(0.98);
+        }
+
         .asset-icon {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            margin-right: 12px;
-            background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent) 100%);
+            font-size: 28px;
+            margin-right: 16px;
+            background: linear-gradient(135deg, var(--purple) 0%, var(--accent) 100%);
         }
 
         .asset-info {
@@ -227,13 +259,13 @@
 
         .asset-name {
             font-weight: 600;
-            font-size: 16px;
+            font-size: 17px;
         }
 
         .asset-price {
             color: var(--text-dim);
-            font-size: 13px;
-            margin-top: 2px;
+            font-size: 14px;
+            margin-top: 4px;
         }
 
         .asset-balance {
@@ -241,19 +273,19 @@
         }
 
         .asset-amount {
-            font-weight: 600;
-            font-size: 16px;
+            font-weight: 700;
+            font-size: 17px;
         }
 
         .asset-value {
             color: var(--text-dim);
-            font-size: 13px;
-            margin-top: 2px;
+            font-size: 14px;
+            margin-top: 4px;
         }
 
         /* Trending Section */
         .trending-section {
-            padding: 16px;
+            padding: 16px 20px;
         }
 
         .trending-grid {
@@ -264,53 +296,56 @@
 
         .trending-item {
             background: var(--bg-card);
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 16px;
             cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .trending-item:hover {
+            border-color: var(--accent);
         }
 
         .trending-header {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
+            gap: 10px;
+            margin-bottom: 12px;
         }
 
         .trending-icon {
-            width: 28px;
-            height: 28px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            background: var(--accent-purple);
+            background: linear-gradient(135deg, var(--purple) 0%, var(--green) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 14px;
+            font-weight: 700;
         }
 
         .trending-name {
-            font-weight: 600;
-            font-size: 14px;
+            font-weight: 700;
+            font-size: 16px;
         }
 
         .trending-change {
-            font-size: 12px;
+            font-size: 13px;
+            font-weight: 600;
             margin-left: auto;
         }
 
-        .trending-change.up { color: #14F195; }
+        .trending-change.up { color: var(--green); }
         .trending-change.down { color: #ff6b6b; }
 
-        .trending-chart {
-            height: 40px;
-            margin: 8px 0;
-        }
-
         .trending-price {
-            font-size: 13px;
+            font-size: 14px;
             color: var(--text-dim);
         }
 
-        /* Bottom Nav */
+        /* Bottom Nav - Phantom style */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -318,60 +353,42 @@
             right: 0;
             display: flex;
             justify-content: space-around;
-            padding: 12px 0 24px;
+            padding: 12px 0;
+            padding-bottom: calc(12px + env(safe-area-inset-bottom, 0));
             background: var(--bg-secondary);
             border-top: 1px solid var(--border);
+            backdrop-filter: blur(20px);
         }
 
         .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
             cursor: pointer;
-            padding: 8px 16px;
-            border-radius: 12px;
-            transition: background 0.2s;
+            padding: 8px 20px;
+            border-radius: 16px;
+            transition: all 0.2s;
         }
 
         .nav-item.active {
-            background: rgba(153, 69, 255, 0.2);
+            background: rgba(171, 159, 242, 0.15);
         }
 
         .nav-item.active .nav-icon,
         .nav-item.active .nav-label {
-            color: var(--accent-purple);
+            color: var(--accent);
         }
 
         .nav-icon {
-            font-size: 24px;
+            font-size: 26px;
             color: var(--text-dim);
         }
 
         .nav-label {
-            font-size: 11px;
+            font-size: 12px;
+            font-weight: 600;
             color: var(--text-dim);
-        }
-
-        /* Loading */
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 40px;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
         }
 
         /* Modal */
@@ -382,7 +399,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             z-index: 100;
             justify-content: center;
             align-items: flex-end;
@@ -395,9 +412,9 @@
         .modal-content {
             background: var(--bg-secondary);
             width: 100%;
-            max-height: 80vh;
-            border-radius: 24px 24px 0 0;
-            padding: 24px;
+            max-height: 85vh;
+            border-radius: 32px 32px 0 0;
+            padding: 28px;
             animation: slideUp 0.3s ease;
         }
 
@@ -410,30 +427,79 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .modal-title {
-            font-size: 20px;
-            font-weight: 600;
+            font-size: 22px;
+            font-weight: 700;
         }
 
         .modal-close {
-            font-size: 24px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
             cursor: pointer;
             color: var(--text-dim);
         }
 
-        /* Safe area for iOS */
-        @supports (padding-bottom: env(safe-area-inset-bottom)) {
-            .bottom-nav {
-                padding-bottom: calc(12px + env(safe-area-inset-bottom));
-            }
+        /* QR Code */
+        .qr-container {
+            background: white;
+            padding: 24px;
+            border-radius: 20px;
+            display: inline-block;
+            margin: 20px 0;
+        }
+
+        .address-text {
+            font-family: 'SF Mono', monospace;
+            font-size: 13px;
+            word-break: break-all;
+            color: var(--text-dim);
+            padding: 16px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            margin: 16px 0;
+        }
+
+        .copy-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent);
+            border: none;
+            border-radius: 16px;
+            color: var(--bg-primary);
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:active {
+            transform: scale(0.98);
         }
 
         /* Content padding for bottom nav */
         .content {
             padding-bottom: 100px;
+        }
+
+        /* Responsive */
+        @media (max-width: 380px) {
+            .actions {
+                gap: 16px;
+            }
+            .action-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 26px;
+            }
         }
     </style>
 </head>
@@ -444,7 +510,7 @@
             <img src="/tao-wallet-logo.jpg" alt="TAO">
             <span>TAO Wallet</span>
         </div>
-        <span class="header-icon" onclick="openSettings()">⚙️</span>
+        <div class="header-icon" onclick="openSettings()">⚙️</div>
     </div>
 
     <div class="content">
@@ -458,23 +524,23 @@
         <div class="balance-section">
             <div class="balance-label">Balance</div>
             <div class="balance-amount">
-                <span class="currency">τ</span><span id="balance">0.00</span>
+                <span class="tau">τ</span><span id="balance">0.0000</span>
             </div>
             <div class="balance-usd" id="balance-usd">≈ $0.00</div>
         </div>
 
-        <!-- Action Buttons -->
+        <!-- Action Buttons - LARGE -->
         <div class="actions">
             <div class="action-btn" onclick="openSend()">
-                <div class="action-icon">📤</div>
+                <div class="action-icon">↑</div>
                 <span class="action-label">Send</span>
             </div>
             <div class="action-btn" onclick="openReceive()">
-                <div class="action-icon">📥</div>
+                <div class="action-icon">↓</div>
                 <span class="action-label">Receive</span>
             </div>
             <div class="action-btn" onclick="openSwap()">
-                <div class="action-icon">🔄</div>
+                <div class="action-icon">⇄</div>
                 <span class="action-label">Swap</span>
             </div>
             <div class="action-btn" onclick="openStake()">
@@ -495,7 +561,7 @@
         <!-- Assets -->
         <div class="assets-section">
             <div class="section-header">
-                <span>Crypto</span>
+                <span>Tokens</span>
                 <span id="total-value">TOTAL: $0.00</span>
             </div>
 
@@ -506,7 +572,7 @@
                     <div class="asset-price">TAO · $<span id="tao-price">0</span></div>
                 </div>
                 <div class="asset-balance">
-                    <div class="asset-amount" id="tao-amount">0.00 τ</div>
+                    <div class="asset-amount" id="tao-amount">0.0000 τ</div>
                     <div class="asset-value" id="tao-value">$0.00</div>
                 </div>
             </div>
@@ -531,14 +597,13 @@
                 <span style="color: var(--accent); cursor: pointer;">More</span>
             </div>
 
-            <div class="trending-grid" id="trending-grid">
+            <div class="trending-grid">
                 <div class="trending-item">
                     <div class="trending-header">
                         <div class="trending-icon">1</div>
                         <span class="trending-name">SN1</span>
                         <span class="trending-change up">↑ 5.2%</span>
                     </div>
-                    <canvas class="trending-chart" id="chart-sn1"></canvas>
                     <div class="trending-price">Prompting</div>
                 </div>
                 <div class="trending-item">
@@ -547,7 +612,6 @@
                         <span class="trending-name">SN9</span>
                         <span class="trending-change up">↑ 3.8%</span>
                     </div>
-                    <canvas class="trending-chart" id="chart-sn9"></canvas>
                     <div class="trending-price">Pretraining</div>
                 </div>
                 <div class="trending-item">
@@ -556,7 +620,6 @@
                         <span class="trending-name">SN19</span>
                         <span class="trending-change down">↓ 1.2%</span>
                     </div>
-                    <canvas class="trending-chart" id="chart-sn19"></canvas>
                     <div class="trending-price">Vision</div>
                 </div>
                 <div class="trending-item">
@@ -565,7 +628,6 @@
                         <span class="trending-name">SN8</span>
                         <span class="trending-change up">↑ 2.1%</span>
                     </div>
-                    <canvas class="trending-chart" id="chart-sn8"></canvas>
                     <div class="trending-price">Taoshi</div>
                 </div>
             </div>
@@ -588,38 +650,37 @@
         </div>
     </div>
 
-    <!-- Send Modal -->
-    <div class="modal" id="send-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="modal-title">📤 Send TAO</span>
-                <span class="modal-close" onclick="closeModal('send-modal')">×</span>
-            </div>
-            <p style="color: var(--text-dim); text-align: center; padding: 40px 0;">
-                Use the Telegram bot for secure transactions<br><br>
-                <a href="https://t.me/Bittensorwalletbot" style="color: var(--accent);">Open @Bittensorwalletbot</a>
-            </p>
-        </div>
-    </div>
-
     <!-- Receive Modal -->
     <div class="modal" id="receive-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <span class="modal-title">📥 Receive TAO</span>
-                <span class="modal-close" onclick="closeModal('receive-modal')">×</span>
+                <span class="modal-title">Receive TAO</span>
+                <div class="modal-close" onclick="closeModal('receive-modal')">×</div>
             </div>
-            <div style="text-align: center; padding: 20px 0;">
-                <div id="qr-code" style="background: white; padding: 20px; border-radius: 12px; display: inline-block; margin-bottom: 16px;">
-                    <div style="width: 150px; height: 150px; background: #eee; display: flex; align-items: center; justify-content: center; color: #999;">QR Code</div>
+            <div style="text-align: center;">
+                <div class="qr-container" id="qr-code">
+                    <svg width="150" height="150" viewBox="0 0 150 150">
+                        <rect fill="#fff" width="150" height="150"/>
+                        <text x="75" y="80" text-anchor="middle" fill="#999" font-size="12">QR Code</text>
+                    </svg>
                 </div>
-                <p style="font-family: monospace; font-size: 12px; word-break: break-all; color: var(--text-dim); padding: 0 20px;" id="wallet-address">
-                    Loading...
-                </p>
-                <button style="margin-top: 16px; padding: 12px 24px; background: var(--accent); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer;" onclick="copyAddress()">
-                    📋 Copy Address
-                </button>
+                <div class="address-text" id="wallet-address">Loading...</div>
+                <button class="copy-btn" onclick="copyAddress()">📋 Copy Address</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Send Modal -->
+    <div class="modal" id="send-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">Send TAO</span>
+                <div class="modal-close" onclick="closeModal('send-modal')">×</div>
+            </div>
+            <p style="color: var(--text-dim); text-align: center; padding: 40px 0;">
+                For secure transactions, use the Telegram bot<br><br>
+                <a href="https://t.me/Bittensorwalletbot" style="color: var(--accent); font-weight: 600;">Open @Bittensorwalletbot →</a>
+            </p>
         </div>
     </div>
 
@@ -629,14 +690,13 @@
         if (tg) {
             tg.ready();
             tg.expand();
-            // Set theme
-            document.body.style.background = tg.themeParams?.bg_color || '#1a1a2e';
+            tg.enableClosingConfirmation();
         }
 
         // State
         let taoPrice = 450;
         let balance = 0;
-        let walletAddress = '';
+        let walletAddress = '5GcCZ2BPXBjgG88tXJCEtkbdg2hNrPbL4EFfbiVRvBZdSQDC';
 
         // Init
         async function init() {
@@ -659,13 +719,10 @@
         }
 
         async function fetchUserData() {
-            // Get user from Telegram
             const user = tg?.initDataUnsafe?.user;
             if (user) {
-                // In production: call your backend API to get user's wallet data
-                // For now, show demo data
+                // TODO: Fetch from backend
                 balance = 0;
-                walletAddress = '5GcCZ2BPXBjgG88tXJCEtkbdg2hNrPbL4EFfbiVRvBZdSQDC';
             }
             updateBalanceDisplay();
         }
@@ -676,7 +733,7 @@
             document.getElementById('tao-amount').textContent = `${balance.toFixed(4)} τ`;
             document.getElementById('tao-value').textContent = `$${(balance * taoPrice).toFixed(2)}`;
             document.getElementById('total-value').textContent = `TOTAL: $${(balance * taoPrice).toFixed(2)}`;
-            document.getElementById('wallet-address').textContent = walletAddress || 'No wallet connected';
+            document.getElementById('wallet-address').textContent = walletAddress;
         }
 
         // UI Functions
@@ -689,13 +746,9 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             event.currentTarget.classList.add('active');
             
-            if (nav === 'wallet') {
-                // Show wallet view
-            } else if (nav === 'subnets') {
-                // Show subnets view
+            if (nav === 'subnets') {
                 tg?.showAlert('Subnets explorer coming soon!');
             } else if (nav === 'history') {
-                // Show history view
                 tg?.showAlert('Transaction history coming soon!');
             }
         }
@@ -748,7 +801,6 @@
             });
         });
 
-        // Init
         init();
     </script>
 </body>
