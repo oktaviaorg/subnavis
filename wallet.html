@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/logo-32.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="/logo-64.png">
+    <link rel="apple-touch-icon" href="/logo-256.png">
+    <meta property="og:image" content="https://subnavis.io/logo-512.png">
+    <meta property="og:title" content="TAO Wallet - Secure Bittensor Wallet">
+    <meta property="og:description" content="Create, manage, and track your TAO wallets. Swap tokens, get AI insights, and earn with referrals.">
+    <title>TAO Wallet - Secure Bittensor Wallet | Subnavis</title>
+    <meta name="description" content="The easiest way to manage your Bittensor TAO. Create wallets, swap tokens, track prices, and earn 20% referral commissions.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0b0d;
+            --bg-secondary: #12141a;
+            --bg-card: #1a1d26;
+            --accent: #00d4aa;
+            --accent-secondary: #9945FF;
+            --text-primary: #ffffff;
+            --text-secondary: #8b8f9a;
+            --border: #2a2d38;
+            --gradient: linear-gradient(135deg, #00d4aa 0%, #00a3ff 100%);
+            --gradient-purple: linear-gradient(135deg, #9945FF 0%, #14F195 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Header */
+        header {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo img {
+            height: 40px;
+        }
+
+        .logo span {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover {
+            color: var(--accent);
+        }
+
+        /* Hero */
+        .hero {
+            padding: 80px 0 60px;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: var(--accent-secondary);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        h1 .gradient {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.25rem;
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+
+        /* CTA Buttons */
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 48px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 8px 24px rgba(0, 212, 170, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            box-shadow: 0 8px 24px rgba(0, 212, 170, 0.2);
+        }
+
+        .btn-chrome {
+            background: linear-gradient(135deg, #4285F4 0%, #34A853 50%, #FBBC05 75%, #EA4335 100%);
+            color: white;
+        }
+
+        .btn-chrome:hover {
+            box-shadow: 0 8px 24px rgba(66, 133, 244, 0.4);
+        }
+
+        .btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            flex-wrap: wrap;
+            padding: 32px 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 80px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Features */
+        .features {
+            padding: 60px 0;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+
+        .feature-card h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+        }
+
+        /* Platforms */
+        .platforms {
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .platforms-grid {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+            margin-top: 32px;
+        }
+
+        .platform-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px 48px;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .platform-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+        }
+
+        .platform-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+
+        .platform-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+
+        .platform-card span {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Referral */
+        .referral {
+            padding: 60px 0;
+        }
+
+        .referral-box {
+            background: var(--gradient-purple);
+            border-radius: 24px;
+            padding: 48px;
+            text-align: center;
+        }
+
+        .referral-box h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 16px;
+        }
+
+        .referral-box p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 24px;
+        }
+
+        .referral-highlight {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 24px 0;
+        }
+
+        /* Footer */
+        footer {
+            padding: 48px 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            .hero {
+                padding: 60px 0 40px;
+            }
+            .stats {
+                gap: 32px;
+            }
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <a href="/" class="logo">
+                <img src="/logo-64.png" alt="Subnavis">
+                <span>TAO Wallet</span>
+            </a>
+            <a href="/" class="nav-link">← Back to Subnavis</a>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <span class="hero-badge">🐉 Powered by Bittensor</span>
+                <h1>Your TAO,<br><span class="gradient">Your Control</span></h1>
+                <p class="hero-subtitle">Create, manage, and track your Bittensor wallets. Swap tokens, get AI-powered insights, and earn passive income with referrals.</p>
+                
+                <div class="cta-buttons">
+                    <a href="https://t.me/Bittensorwalletbot" class="btn btn-primary" target="_blank">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .37z"/></svg>
+                        Open in Telegram
+                    </a>
+                    <a href="#" class="btn btn-chrome" id="chromeBtn">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                        Chrome Extension
+                    </a>
+                    <a href="https://t.me/Bittensorwalletbot?start=track" class="btn btn-secondary" target="_blank">
+                        👁️ Track Only (No Seed)
+                    </a>
+                </div>
+
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value">100%</div>
+                        <div class="stat-label">Non-Custodial</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">AES-256</div>
+                        <div class="stat-label">Encryption</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">20%</div>
+                        <div class="stat-label">Referral Commission</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">24/7</div>
+                        <div class="stat-label">AI Assistant</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="container">
+                <h2 class="section-title">Everything you need for TAO</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🔐</div>
+                        <h3>Secure Wallet</h3>
+                        <p>Create or import wallets with military-grade AES-256 encryption. Your keys, your crypto.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💱</div>
+                        <h3>Instant Swaps</h3>
+                        <p>Swap TAO to USDT, BTC, ETH and more. Best rates aggregated from top exchanges.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>Live Charts</h3>
+                        <p>Real-time TAO price with 24h, 7d, 30d, 90d and 1Y charts. Track market trends.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🤖</div>
+                        <h3>AI Insights</h3>
+                        <p>Ask questions about Bittensor, subnets, staking strategies. Powered by decentralized AI.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔔</div>
+                        <h3>Deposit Alerts</h3>
+                        <p>Get notified instantly when TAO lands in your wallet. Never miss a payment.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎁</div>
+                        <h3>Referral Program</h3>
+                        <p>Earn 20% commission on all swap fees from users you invite. Passive income, forever.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="platforms">
+            <div class="container">
+                <h2 class="section-title">Available on</h2>
+                <div class="platforms-grid">
+                    <a href="https://t.me/Bittensorwalletbot" class="platform-card" target="_blank">
+                        <div class="platform-icon">📱</div>
+                        <h3>Telegram Bot</h3>
+                        <span>@Bittensorwalletbot</span>
+                    </a>
+                    <a href="#" class="platform-card" id="chromePlatform">
+                        <div class="platform-icon">🌐</div>
+                        <h3>Chrome Extension</h3>
+                        <span>Coming Soon</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="referral">
+            <div class="container">
+                <div class="referral-box">
+                    <h2>🎁 Earn with Referrals</h2>
+                    <p>Share your unique link and earn commission on every swap your friends make</p>
+                    <div class="referral-highlight">20% Forever</div>
+                    <a href="https://t.me/Bittensorwalletbot?start=referral" class="btn btn-secondary" target="_blank" style="background: white; color: #9945FF;">
+                        Get Your Referral Link
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p style="margin-bottom: 16px;">Built by <a href="https://subnavis.io">Subnavis.io</a> • Navigate the Bittensor ecosystem</p>
+            <p>Not your keys, not your crypto. TAO Wallet is non-custodial.<br>We never have access to your funds.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Chrome extension placeholder
+        document.getElementById('chromeBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Chrome Extension coming soon! Join our Telegram for updates.');
+        });
+        document.getElementById('chromePlatform').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Chrome Extension coming soon! Join our Telegram for updates.');
+        });
+    </script>
+</body>
+</html>
