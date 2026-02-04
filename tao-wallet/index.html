@@ -540,10 +540,7 @@
                 <div class="action-icon">↓</div>
                 <span class="action-label">Receive</span>
             </div>
-            <div class="action-btn" onclick="openSwap()">
-                <div class="action-icon">⇄</div>
-                <span class="action-label">Swap</span>
-            </div>
+            <!-- Swap retiré (trop complexe) -->
             <div class="action-btn" onclick="openStake()">
                 <div class="action-icon">⚡</div>
                 <span class="action-label">Stake</span>
@@ -771,9 +768,7 @@
             });
         }
 
-        function openSwap() {
-            tg?.openTelegramLink('https://t.me/Bittensorwalletbot?start=swap');
-        }
+        // Swap retiré (trop complexe à implémenter correctement)
 
         function openStake() {
             tg?.openTelegramLink('https://t.me/Bittensorwalletbot?start=stake');
