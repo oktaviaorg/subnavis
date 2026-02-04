@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Stake TAO - Earn 15-25% APY | Subnavis Learn</title>
+    <meta name="description" content="Complete guide to staking TAO tokens on Bittensor. Learn how to delegate to validators and earn 15-25% APY in rewards.">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #09090b;
+            --bg-secondary: #18181b;
+            --bg-card: #1f1f23;
+            --accent: #ab9ff2;
+            --accent-green: #22c55e;
+            --accent-yellow: #eab308;
+            --text: #fafafa;
+            --text-dim: #a1a1aa;
+            --border: rgba(255,255,255,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 16px 24px; background: rgba(9,9,11,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
+        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 20px; color: var(--text); }
+        .logo img { width: 36px; height: 36px; border-radius: 10px; }
+        .nav-links { display: flex; gap: 8px; }
+        .nav-link { padding: 10px 16px; border-radius: 12px; font-size: 15px; font-weight: 500; color: var(--text-dim); transition: all 0.2s; }
+        .nav-link:hover { color: var(--text); background: var(--bg-card); text-decoration: none; }
+
+        .article { max-width: 800px; margin: 0 auto; padding: 120px 24px 80px; }
+        
+        .breadcrumb { margin-bottom: 32px; font-size: 14px; color: var(--text-dim); }
+        .breadcrumb a { color: var(--text-dim); }
+        .breadcrumb a:hover { color: var(--accent); }
+
+        .article-header { margin-bottom: 48px; }
+        .article-tag { display: inline-block; padding: 6px 14px; background: rgba(171,159,242,0.2); border-radius: 100px; font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 16px; }
+        .article-header h1 { font-size: 42px; font-weight: 800; margin-bottom: 16px; line-height: 1.2; }
+        .article-meta { display: flex; align-items: center; gap: 16px; color: var(--text-dim); font-size: 14px; }
+
+        .article-content { font-size: 17px; }
+        .article-content h2 { font-size: 28px; font-weight: 700; margin: 48px 0 20px; color: var(--text); }
+        .article-content h3 { font-size: 22px; font-weight: 600; margin: 36px 0 16px; color: var(--text); }
+        .article-content p { margin-bottom: 20px; color: var(--text-dim); }
+        .article-content ul, .article-content ol { margin: 20px 0; padding-left: 24px; color: var(--text-dim); }
+        .article-content li { margin-bottom: 12px; }
+        .article-content strong { color: var(--text); }
+        
+        .highlight-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin: 32px 0; }
+        .highlight-box h4 { font-size: 18px; margin-bottom: 12px; color: var(--accent); }
+        .highlight-box.warning { border-color: var(--accent-yellow); }
+        .highlight-box.warning h4 { color: var(--accent-yellow); }
+        .highlight-box.success { border-color: var(--accent-green); }
+        .highlight-box.success h4 { color: var(--accent-green); }
+        
+        .step-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin: 24px 0; }
+        .step-number { display: inline-flex; width: 32px; height: 32px; background: var(--accent); color: var(--bg); border-radius: 50%; align-items: center; justify-content: center; font-weight: 700; margin-right: 12px; }
+        .step-card h4 { font-size: 18px; margin-bottom: 12px; display: flex; align-items: center; }
+        .step-card p { color: var(--text-dim); margin: 0; }
+
+        .apy-table { width: 100%; border-collapse: collapse; margin: 24px 0; }
+        .apy-table th, .apy-table td { padding: 16px; text-align: left; border-bottom: 1px solid var(--border); }
+        .apy-table th { color: var(--text-dim); font-weight: 500; font-size: 14px; }
+        .apy-table td { font-size: 15px; }
+        .apy-table tr:hover { background: var(--bg-card); }
+        .apy-badge { padding: 4px 10px; border-radius: 100px; font-size: 13px; font-weight: 600; }
+        .apy-badge.high { background: rgba(34,197,94,0.2); color: var(--accent-green); }
+        .apy-badge.medium { background: rgba(234,179,8,0.2); color: var(--accent-yellow); }
+
+        .cta-box { background: linear-gradient(135deg, rgba(171,159,242,0.2) 0%, rgba(129,140,248,0.1) 100%); border: 1px solid var(--accent); border-radius: 20px; padding: 32px; margin: 48px 0; text-align: center; }
+        .cta-box h3 { margin-bottom: 12px; }
+        .cta-box p { color: var(--text-dim); margin-bottom: 20px; }
+        .cta-btn { display: inline-block; padding: 14px 28px; background: var(--accent); color: var(--bg); border-radius: 12px; font-weight: 600; text-decoration: none; }
+        .cta-btn:hover { opacity: 0.9; text-decoration: none; }
+
+        footer { padding: 48px 24px; border-top: 1px solid var(--border); text-align: center; color: var(--text-dim); font-size: 14px; }
+
+        @media (max-width: 768px) {
+            .article-header h1 { font-size: 32px; }
+            .nav-links { display: none; }
+            .apy-table { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo"><img src="/logo-64.png" alt="Subnavis"><span>Subnavis</span></a>
+            <div class="nav-links">
+                <a href="/explorer" class="nav-link">Explorer</a>
+                <a href="/learn" class="nav-link">Learn</a>
+                <a href="/blog" class="nav-link">Blog</a>
+            </div>
+        </div>
+    </nav>
+
+    <article class="article">
+        <div class="breadcrumb">
+            <a href="/">Home</a> / <a href="/learn">Learn</a> / How to Stake TAO
+        </div>
+
+        <header class="article-header">
+            <span class="article-tag">⚡ Guide</span>
+            <h1>How to Stake TAO</h1>
+            <div class="article-meta">
+                <span>📖 8 min read</span>
+                <span>•</span>
+                <span>Earn 15-25% APY</span>
+            </div>
+        </header>
+
+        <div class="article-content">
+            <p><strong>Staking TAO is the easiest way to earn passive income on Bittensor.</strong> By delegating your tokens to validators, you help secure the network and earn 15-25% APY in rewards — without running any hardware.</p>
+
+            <div class="highlight-box success">
+                <h4>💰 What You'll Earn</h4>
+                <p>With 10 TAO staked at 20% APY, you'd earn approximately <strong>2 TAO per year</strong> (~$560 at current prices). Your rewards compound automatically.</p>
+            </div>
+
+            <h2>📋 What You Need</h2>
+            
+            <ul>
+                <li>A TAO wallet (Polkadot.js, Bittensor CLI, or compatible wallet)</li>
+                <li>TAO tokens to stake (minimum varies by validator)</li>
+                <li>5 minutes of your time</li>
+            </ul>
+
+            <h2>🔄 Step-by-Step Guide</h2>
+
+            <div class="step-card">
+                <h4><span class="step-number">1</span>Get a TAO Wallet</h4>
+                <p>If you don't have one yet, create a wallet using Polkadot.js extension or the Bittensor CLI. Your wallet address starts with "5".</p>
+            </div>
+
+            <div class="step-card">
+                <h4><span class="step-number">2</span>Buy TAO Tokens</h4>
+                <p>Purchase TAO on exchanges like MEXC, Gate.io, KuCoin, or Bitget. Transfer to your wallet address.</p>
+            </div>
+
+            <div class="step-card">
+                <h4><span class="step-number">3</span>Choose a Validator</h4>
+                <p>Pick a validator based on APY, reputation, and uptime. See our recommendations below. Each subnet has different validators.</p>
+            </div>
+
+            <div class="step-card">
+                <h4><span class="step-number">4</span>Delegate Your TAO</h4>
+                <p>Use the Bittensor CLI or a staking interface to delegate. Command: <code>btcli stake add --wallet.name YOUR_WALLET --subtensor.network finney</code></p>
+            </div>
+
+            <div class="step-card">
+                <h4><span class="step-number">5</span>Earn Rewards</h4>
+                <p>Rewards are distributed every ~12 seconds (tempo). They automatically compound — no action needed!</p>
+            </div>
+
+            <h2>📊 Validator APY Comparison</h2>
+            
+            <p>APY varies by subnet and validator. Here are some popular options:</p>
+
+            <table class="apy-table">
+                <thead>
+                    <tr>
+                        <th>Subnet</th>
+                        <th>Description</th>
+                        <th>Est. APY</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>SN1</strong></td>
+                        <td>Text Prompting (AI chat)</td>
+                        <td><span class="apy-badge high">18-22%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>SN7</strong></td>
+                        <td>Subvortex (data)</td>
+                        <td><span class="apy-badge high">20-25%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>SN8</strong></td>
+                        <td>Taoshi (trading)</td>
+                        <td><span class="apy-badge high">22-28%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>SN9</strong></td>
+                        <td>Pretraining</td>
+                        <td><span class="apy-badge medium">15-18%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>SN19</strong></td>
+                        <td>Image generation</td>
+                        <td><span class="apy-badge medium">16-20%</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="highlight-box warning">
+                <h4>⚠️ Important Notes</h4>
+                <ul style="margin:0; padding-left: 20px;">
+                    <li>APY is variable and depends on network conditions</li>
+                    <li>Unstaking has a ~7 day cooldown period</li>
+                    <li>Always keep some TAO unstaked for transaction fees</li>
+                    <li>Diversify across multiple subnets to reduce risk</li>
+                </ul>
+            </div>
+
+            <h2>🎯 How to Choose a Validator</h2>
+            
+            <p>Not all validators are equal. Consider these factors:</p>
+            
+            <ul>
+                <li><strong>Commission rate</strong> — Lower is better (typically 5-18%)</li>
+                <li><strong>Uptime</strong> — Look for 99%+ uptime</li>
+                <li><strong>Reputation</strong> — Check Discord/Twitter for feedback</li>
+                <li><strong>Total stake</strong> — Larger validators are more stable</li>
+                <li><strong>Subnet performance</strong> — Higher emission = more rewards</li>
+            </ul>
+
+            <h2>🔓 Unstaking Your TAO</h2>
+            
+            <p>Need your TAO back? You can unstake anytime, but there's a <strong>~7 day cooldown</strong> before tokens return to your wallet. Plan ahead!</p>
+            
+            <p>Command: <code>btcli stake remove --wallet.name YOUR_WALLET</code></p>
+
+            <h2>❓ FAQ</h2>
+            
+            <h3>What's the minimum to stake?</h3>
+            <p>There's no network minimum, but some validators set their own minimums (usually 0.1-1 TAO). Gas fees are minimal.</p>
+            
+            <h3>Are my tokens safe?</h3>
+            <p>Yes! Staked TAO never leaves your wallet. You're delegating voting power, not custody. You can unstake anytime.</p>
+            
+            <h3>How often do I get rewards?</h3>
+            <p>Rewards are distributed every tempo (~12 seconds on most subnets). They compound automatically.</p>
+            
+            <h3>Can I stake on multiple subnets?</h3>
+            <p>Yes! You can split your TAO across multiple validators and subnets. This is actually recommended for diversification.</p>
+
+            <div class="cta-box">
+                <h3>Track your staking rewards</h3>
+                <p>Monitor your TAO positions and see real-time APY with Subnavis.</p>
+                <a href="/portfolio" class="cta-btn">View Portfolio →</a>
+            </div>
+
+            <h2>📚 Related Guides</h2>
+            
+            <ul>
+                <li><a href="/learn/choose-validator">How to Choose a Validator</a></li>
+                <li><a href="/learn/subnets-explained">Understanding Subnets</a></li>
+                <li><a href="/learn/what-is-bittensor">What is Bittensor?</a></li>
+            </ul>
+        </div>
+    </article>
+
+    <footer>© 2026 Subnavis.io — Navigate the Bittensor Ecosystem</footer>
+</body>
+</html>

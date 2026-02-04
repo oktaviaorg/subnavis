@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bittensor Subnets Explained | Subnavis Learn</title>
+    <meta name="description" content="Deep dive into Bittensor's 64+ subnets. Learn how they work, which ones are most profitable, and how to participate.">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #09090b;
+            --bg-secondary: #18181b;
+            --bg-card: #1f1f23;
+            --accent: #ab9ff2;
+            --accent-green: #22c55e;
+            --accent-blue: #3b82f6;
+            --accent-orange: #f97316;
+            --text: #fafafa;
+            --text-dim: #a1a1aa;
+            --border: rgba(255,255,255,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 16px 24px; background: rgba(9,9,11,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
+        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 20px; color: var(--text); }
+        .logo img { width: 36px; height: 36px; border-radius: 10px; }
+        .nav-links { display: flex; gap: 8px; }
+        .nav-link { padding: 10px 16px; border-radius: 12px; font-size: 15px; font-weight: 500; color: var(--text-dim); transition: all 0.2s; }
+        .nav-link:hover { color: var(--text); background: var(--bg-card); text-decoration: none; }
+
+        .article { max-width: 800px; margin: 0 auto; padding: 120px 24px 80px; }
+        
+        .breadcrumb { margin-bottom: 32px; font-size: 14px; color: var(--text-dim); }
+        .breadcrumb a { color: var(--text-dim); }
+
+        .article-header { margin-bottom: 48px; }
+        .article-tag { display: inline-block; padding: 6px 14px; background: rgba(171,159,242,0.2); border-radius: 100px; font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 16px; }
+        .article-header h1 { font-size: 42px; font-weight: 800; margin-bottom: 16px; line-height: 1.2; }
+        .article-meta { display: flex; align-items: center; gap: 16px; color: var(--text-dim); font-size: 14px; }
+
+        .article-content { font-size: 17px; }
+        .article-content h2 { font-size: 28px; font-weight: 700; margin: 48px 0 20px; color: var(--text); }
+        .article-content h3 { font-size: 22px; font-weight: 600; margin: 36px 0 16px; color: var(--text); }
+        .article-content p { margin-bottom: 20px; color: var(--text-dim); }
+        .article-content ul, .article-content ol { margin: 20px 0; padding-left: 24px; color: var(--text-dim); }
+        .article-content li { margin-bottom: 12px; }
+        .article-content strong { color: var(--text); }
+        
+        .subnet-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin: 20px 0; }
+        .subnet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .subnet-id { background: var(--accent); color: var(--bg); padding: 4px 12px; border-radius: 8px; font-weight: 700; font-size: 14px; }
+        .subnet-card h4 { font-size: 20px; margin-bottom: 8px; }
+        .subnet-card p { color: var(--text-dim); margin: 0 0 12px; font-size: 15px; }
+        .subnet-stats { display: flex; gap: 20px; font-size: 13px; color: var(--text-dim); }
+        .subnet-stats span { display: flex; align-items: center; gap: 4px; }
+
+        .category-section { margin: 32px 0; padding: 24px; background: var(--bg-card); border-radius: 16px; }
+        .category-section h3 { color: var(--accent); margin-bottom: 16px; }
+
+        .highlight-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin: 32px 0; }
+        .highlight-box h4 { font-size: 18px; margin-bottom: 12px; color: var(--accent); }
+
+        .cta-box { background: linear-gradient(135deg, rgba(171,159,242,0.2) 0%, rgba(129,140,248,0.1) 100%); border: 1px solid var(--accent); border-radius: 20px; padding: 32px; margin: 48px 0; text-align: center; }
+        .cta-box h3 { margin-bottom: 12px; }
+        .cta-box p { color: var(--text-dim); margin-bottom: 20px; }
+        .cta-btn { display: inline-block; padding: 14px 28px; background: var(--accent); color: var(--bg); border-radius: 12px; font-weight: 600; text-decoration: none; }
+        .cta-btn:hover { opacity: 0.9; text-decoration: none; }
+
+        footer { padding: 48px 24px; border-top: 1px solid var(--border); text-align: center; color: var(--text-dim); font-size: 14px; }
+
+        @media (max-width: 768px) {
+            .article-header h1 { font-size: 32px; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo"><img src="/logo-64.png" alt="Subnavis"><span>Subnavis</span></a>
+            <div class="nav-links">
+                <a href="/explorer" class="nav-link">Explorer</a>
+                <a href="/learn" class="nav-link">Learn</a>
+                <a href="/blog" class="nav-link">Blog</a>
+            </div>
+        </div>
+    </nav>
+
+    <article class="article">
+        <div class="breadcrumb">
+            <a href="/">Home</a> / <a href="/learn">Learn</a> / Subnets Explained
+        </div>
+
+        <header class="article-header">
+            <span class="article-tag">🧠 Advanced</span>
+            <h1>Bittensor Subnets Explained</h1>
+            <div class="article-meta">
+                <span>📖 12 min read</span>
+                <span>•</span>
+                <span>64+ Active Subnets</span>
+            </div>
+        </header>
+
+        <div class="article-content">
+            <p><strong>Subnets are the beating heart of Bittensor.</strong> Each subnet is a specialized network focused on a specific AI task — from language models to image generation to financial predictions. Understanding subnets is key to navigating the TAO ecosystem.</p>
+
+            <h2>🌐 What is a Subnet?</h2>
+            
+            <p>Think of Bittensor as a <strong>network of networks</strong>. Each subnet is an independent marketplace where:</p>
+            
+            <ul>
+                <li><strong>Miners</strong> run AI models and compete to provide the best responses</li>
+                <li><strong>Validators</strong> score miners and distribute rewards</li>
+                <li><strong>Stakers</strong> (you!) delegate TAO to validators and earn a share</li>
+            </ul>
+            
+            <p>There are currently <strong>64+ active subnets</strong>, each with its own focus, team, and reward pool.</p>
+
+            <h2>⚙️ How Subnets Work</h2>
+            
+            <div class="highlight-box">
+                <h4>🔄 The Subnet Cycle</h4>
+                <ol>
+                    <li><strong>Query</strong> — Validators send tasks to miners (e.g., "generate text about X")</li>
+                    <li><strong>Response</strong> — Miners run their AI models and return answers</li>
+                    <li><strong>Scoring</strong> — Validators rate responses based on quality</li>
+                    <li><strong>Rewards</strong> — TAO is distributed to top performers</li>
+                </ol>
+                <p style="margin-top:12px; margin-bottom:0;">This cycle repeats every <strong>tempo</strong> (~12 seconds on most subnets).</p>
+            </div>
+
+            <h2>🏆 Top Subnets by Category</h2>
+
+            <div class="category-section">
+                <h3>🤖 AI & Language</h3>
+                
+                <div class="subnet-card">
+                    <div class="subnet-header">
+                        <span class="subnet-id">SN1</span>
+                    </div>
+                    <h4>Text Prompting</h4>
+                    <p>The original subnet. General-purpose language AI similar to ChatGPT. Miners compete to generate the best text responses.</p>
+                    <div class="subnet-stats">
+                        <span>📊 High emission</span>
+                        <span>⚡ ~18-22% APY</span>
+                        <span>👥 256 miners</span>
+                    </div>
+                </div>
+
+                <div class="subnet-card">
+                    <div class="subnet-header">
+                        <span class="subnet-id">SN9</span>
+                    </div>
+                    <h4>Pretraining</h4>
+                    <p>Trains foundational AI models from scratch. Miners contribute to building the next generation of open-source LLMs.</p>
+                    <div class="subnet-stats">
+                        <span>📊 High emission</span>
+                        <span>⚡ ~15-18% APY</span>
+                        <span>🔬 Research-focused</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-section">
+                <h3>📊 Data & Analytics</h3>
+                
+                <div class="subnet-card">
+                    <div class="subnet-header">
+                        <span class="subnet-id">SN7</span>
+                    </div>
+                    <h4>Subvortex</h4>
+                    <p>Decentralized data scraping and aggregation. Miners collect and process data from across the web.</p>
+                    <div class="subnet-stats">
+                        <span>📊 Very high emission</span>
+                        <span>⚡ ~20-25% APY</span>
+                        <span>🔥 Popular for staking</span>
+                    </div>
+                </div>
+
+                <div class="subnet-card">
+                    <div class="subnet-header">
+                        <span class="subnet-id">SN13</span>
+                    </div>
+                    <h4>Data Universe</h4>
+                    <p>Large-scale data collection and labeling. Powers training datasets for other AI models.</p>
+                    <div class="subnet-stats">
+                        <span>📊 Medium emission</span>
+                        <span>⚡ ~16-20% APY</span>
+                        <span>📈 Growing</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-section">
+                <h3>💰 Trading & Finance</h3>
+                
+                <div class="subnet-card">
+                    <div class="subnet-header">
+                        <span class="subnet-id">SN8</span>
+                    </div>
+                    <h4>Taoshi (Proprietary Trading)</h4>
+                    <p>AI-powered trading signals and predictions. Miners compete to predict market movements accurately.</p>
+                    <div class="subnet-stats">
+                        <span>📊 High emission</span>
+                        <span>⚡ ~22-28% APY</span>
+                        <span>💎 Premium subnet</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-section">
+                <h3>🎨 Creative & Media</h3>
+                
+                <div class="subnet-card">
+                    <div class="subnet-header">
+                        <span class="subnet-id">SN19</span>
+                    </div>
+                    <h4>Namoray (Image Generation)</h4>
+                    <p>Text-to-image AI generation. Miners run diffusion models to create images from prompts.</p>
+                    <div class="subnet-stats">
+                        <span>📊 Medium emission</span>
+                        <span>⚡ ~16-20% APY</span>
+                        <span>🎨 Creative focus</span>
+                    </div>
+                </div>
+
+                <div class="subnet-card">
+                    <div class="subnet-header">
+                        <span class="subnet-id">SN17</span>
+                    </div>
+                    <h4>Three Gen (3D)</h4>
+                    <p>3D model and scene generation from text descriptions.</p>
+                    <div class="subnet-stats">
+                        <span>📊 Low emission</span>
+                        <span>⚡ ~12-15% APY</span>
+                        <span>🆕 Newer subnet</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-section">
+                <h3>🔧 Infrastructure</h3>
+                
+                <div class="subnet-card">
+                    <div class="subnet-header">
+                        <span class="subnet-id">SN21</span>
+                    </div>
+                    <h4>FileTAO (Storage)</h4>
+                    <p>Decentralized file storage on Bittensor. Like IPFS but incentivized with TAO.</p>
+                    <div class="subnet-stats">
+                        <span>📊 Medium emission</span>
+                        <span>⚡ ~14-18% APY</span>
+                        <span>💾 Storage-focused</span>
+                    </div>
+                </div>
+            </div>
+
+            <h2>📈 How Emissions Work</h2>
+            
+            <p>Every block, new TAO is created and distributed to subnets. But not equally — subnets compete for emissions based on their <strong>performance and utility</strong>.</p>
+            
+            <ul>
+                <li><strong>Root Network (SN0)</strong> — Validators vote on which subnets get more emissions</li>
+                <li><strong>High-performing subnets</strong> — Get more TAO, attracting more miners and stakers</li>
+                <li><strong>Underperforming subnets</strong> — May lose emissions or be deregistered</li>
+            </ul>
+            
+            <p>This creates a <strong>natural selection</strong> where the most useful AI networks thrive.</p>
+
+            <h2>🎯 How to Participate</h2>
+            
+            <h3>As a Staker (Easiest)</h3>
+            <p>Delegate your TAO to validators on high-performing subnets. Earn 15-25% APY with zero hardware required.</p>
+            
+            <h3>As a Validator (Intermediate)</h3>
+            <p>Run a validator node to score miners and earn higher rewards. Requires technical setup and a significant TAO stake.</p>
+            
+            <h3>As a Miner (Advanced)</h3>
+            <p>Run AI models and compete for rewards. Requires GPUs and machine learning expertise.</p>
+
+            <div class="cta-box">
+                <h3>Explore All Subnets</h3>
+                <p>See real-time stats, APY, and activity for all 64+ Bittensor subnets.</p>
+                <a href="/explorer" class="cta-btn">Open Explorer →</a>
+            </div>
+
+            <h2>📚 Keep Learning</h2>
+            
+            <ul>
+                <li><a href="/learn/what-is-bittensor">What is Bittensor?</a> — Start here if you're new</li>
+                <li><a href="/learn/how-to-stake-tao">How to Stake TAO</a> — Earn passive income</li>
+                <li><a href="/learn/choose-validator">Choosing a Validator</a> — Pick the best one</li>
+            </ul>
+        </div>
+    </article>
+
+    <footer>© 2026 Subnavis.io — Navigate the Bittensor Ecosystem</footer>
+</body>
+</html>

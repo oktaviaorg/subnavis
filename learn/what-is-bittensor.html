@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What is Bittensor? - Subnavis Learn</title>
+    <meta name="description" content="Discover Bittensor, the decentralized AI network revolutionizing machine learning. Learn about TAO, subnets, and how to get started.">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #09090b;
+            --bg-secondary: #18181b;
+            --bg-card: #1f1f23;
+            --accent: #ab9ff2;
+            --text: #fafafa;
+            --text-dim: #a1a1aa;
+            --border: rgba(255,255,255,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 16px 24px; background: rgba(9,9,11,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
+        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 20px; color: var(--text); }
+        .logo img { width: 36px; height: 36px; border-radius: 10px; }
+        .nav-links { display: flex; gap: 8px; }
+        .nav-link { padding: 10px 16px; border-radius: 12px; font-size: 15px; font-weight: 500; color: var(--text-dim); transition: all 0.2s; }
+        .nav-link:hover { color: var(--text); background: var(--bg-card); text-decoration: none; }
+
+        .article { max-width: 800px; margin: 0 auto; padding: 120px 24px 80px; }
+        
+        .breadcrumb { margin-bottom: 32px; font-size: 14px; color: var(--text-dim); }
+        .breadcrumb a { color: var(--text-dim); }
+        .breadcrumb a:hover { color: var(--accent); }
+
+        .article-header { margin-bottom: 48px; }
+        .article-tag { display: inline-block; padding: 6px 14px; background: rgba(171,159,242,0.2); border-radius: 100px; font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 16px; }
+        .article-header h1 { font-size: 42px; font-weight: 800; margin-bottom: 16px; line-height: 1.2; }
+        .article-meta { display: flex; align-items: center; gap: 16px; color: var(--text-dim); font-size: 14px; }
+
+        .article-content { font-size: 17px; }
+        .article-content h2 { font-size: 28px; font-weight: 700; margin: 48px 0 20px; color: var(--text); }
+        .article-content h3 { font-size: 22px; font-weight: 600; margin: 36px 0 16px; color: var(--text); }
+        .article-content p { margin-bottom: 20px; color: var(--text-dim); }
+        .article-content ul, .article-content ol { margin: 20px 0; padding-left: 24px; color: var(--text-dim); }
+        .article-content li { margin-bottom: 12px; }
+        .article-content strong { color: var(--text); }
+        
+        .highlight-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin: 32px 0; }
+        .highlight-box h4 { font-size: 18px; margin-bottom: 12px; color: var(--accent); }
+        
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 32px 0; }
+        .info-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; }
+        .info-card .icon { font-size: 32px; margin-bottom: 12px; }
+        .info-card h5 { font-size: 16px; margin-bottom: 8px; }
+        .info-card p { font-size: 14px; color: var(--text-dim); margin: 0; }
+
+        .cta-box { background: linear-gradient(135deg, rgba(171,159,242,0.2) 0%, rgba(129,140,248,0.1) 100%); border: 1px solid var(--accent); border-radius: 20px; padding: 32px; margin: 48px 0; text-align: center; }
+        .cta-box h3 { margin-bottom: 12px; }
+        .cta-box p { color: var(--text-dim); margin-bottom: 20px; }
+        .cta-btn { display: inline-block; padding: 14px 28px; background: var(--accent); color: var(--bg); border-radius: 12px; font-weight: 600; text-decoration: none; }
+        .cta-btn:hover { opacity: 0.9; text-decoration: none; }
+
+        footer { padding: 48px 24px; border-top: 1px solid var(--border); text-align: center; color: var(--text-dim); font-size: 14px; }
+
+        @media (max-width: 768px) {
+            .article-header h1 { font-size: 32px; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo"><img src="/logo-64.png" alt="Subnavis"><span>Subnavis</span></a>
+            <div class="nav-links">
+                <a href="/explorer" class="nav-link">Explorer</a>
+                <a href="/learn" class="nav-link">Learn</a>
+                <a href="/blog" class="nav-link">Blog</a>
+            </div>
+        </div>
+    </nav>
+
+    <article class="article">
+        <div class="breadcrumb">
+            <a href="/">Home</a> / <a href="/learn">Learn</a> / What is Bittensor?
+        </div>
+
+        <header class="article-header">
+            <span class="article-tag">🐉 Beginner</span>
+            <h1>What is Bittensor?</h1>
+            <div class="article-meta">
+                <span>📖 5 min read</span>
+                <span>•</span>
+                <span>Updated February 2026</span>
+            </div>
+        </header>
+
+        <div class="article-content">
+            <p><strong>Bittensor is the decentralized AI network that's changing how machine learning models are created, shared, and rewarded.</strong> Think of it as "Bitcoin for AI" — a global network where anyone can contribute computing power and intelligence to earn TAO tokens.</p>
+
+            <h2>🧠 The Problem Bittensor Solves</h2>
+            
+            <p>Today's AI is controlled by a handful of tech giants. OpenAI, Google, Meta — they own the models, the data, and the profits. If you want to use AI, you pay them. If you want to build AI, good luck competing.</p>
+            
+            <p><strong>Bittensor flips this model.</strong> Instead of one company training one model, thousands of independent "miners" around the world train specialized AI models. These models compete to provide the best intelligence, and the winners earn TAO.</p>
+
+            <h2>🔑 Key Concepts</h2>
+
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="icon">🪙</div>
+                    <h5>TAO Token</h5>
+                    <p>The native currency. Miners earn it, stakers multiply it.</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🌐</div>
+                    <h5>Subnets</h5>
+                    <p>64+ specialized networks for different AI tasks.</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">⛏️</div>
+                    <h5>Miners</h5>
+                    <p>Run AI models and earn TAO for good responses.</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">✅</div>
+                    <h5>Validators</h5>
+                    <p>Score miners and secure the network. You can stake with them.</p>
+                </div>
+            </div>
+
+            <h2>🔗 How Subnets Work</h2>
+            
+            <p>Bittensor isn't one AI — it's a network of <strong>64+ specialized subnets</strong>, each focused on a different task:</p>
+            
+            <ul>
+                <li><strong>SN1 (Text Prompting)</strong> — General language AI, like ChatGPT</li>
+                <li><strong>SN7 (Subvortex)</strong> — Data scraping and aggregation</li>
+                <li><strong>SN8 (Taoshi)</strong> — Financial predictions and trading</li>
+                <li><strong>SN9 (Pretraining)</strong> — Training foundational models</li>
+                <li><strong>SN19 (Namoray)</strong> — Image generation</li>
+                <li><strong>SN21 (FileTAO)</strong> — Decentralized storage</li>
+                <li>...and many more!</li>
+            </ul>
+            
+            <p>Each subnet has its own miners, validators, and reward pool. The best-performing subnets attract more TAO emissions.</p>
+
+            <h2>💰 TAO Economics</h2>
+            
+            <div class="highlight-box">
+                <h4>📊 Quick Stats</h4>
+                <ul>
+                    <li><strong>Max Supply:</strong> 21 million TAO (like Bitcoin)</li>
+                    <li><strong>Current Price:</strong> ~$280-350 USD</li>
+                    <li><strong>Staking APY:</strong> 15-25% depending on validator</li>
+                    <li><strong>Halving:</strong> Every 4 years (next: ~2027)</li>
+                </ul>
+            </div>
+            
+            <p>TAO is earned by miners who run AI models. But you don't need expensive hardware to participate — you can <strong>stake your TAO</strong> with validators and earn passive rewards.</p>
+
+            <h2>🚀 How to Get Started</h2>
+            
+            <ol>
+                <li><strong>Get a wallet</strong> — Create a TAO wallet to store your tokens</li>
+                <li><strong>Buy TAO</strong> — Available on major exchanges (MEXC, Gate.io, etc.)</li>
+                <li><strong>Stake your TAO</strong> — Delegate to validators and earn 15-25% APY</li>
+                <li><strong>Track your portfolio</strong> — Use Subnavis to monitor your positions</li>
+            </ol>
+
+            <h2>🐋 Why TAO is Different</h2>
+            
+            <p>Most crypto projects are solutions looking for problems. Bittensor is different:</p>
+            
+            <ul>
+                <li>✅ <strong>Real utility</strong> — The network produces actual AI that developers use</li>
+                <li>✅ <strong>Deflationary</strong> — 21M max supply, halving every 4 years</li>
+                <li>✅ <strong>Growing ecosystem</strong> — 64+ subnets and counting</li>
+                <li>✅ <strong>First mover</strong> — No real competitor in decentralized AI</li>
+            </ul>
+
+            <div class="cta-box">
+                <h3>Ready to explore Bittensor?</h3>
+                <p>Track subnets, monitor whales, and manage your portfolio with Subnavis.</p>
+                <a href="/explorer" class="cta-btn">Explore Subnets →</a>
+            </div>
+
+            <h2>📚 Next Steps</h2>
+            
+            <ul>
+                <li><a href="/learn/how-to-stake-tao">How to Stake TAO</a> — Earn 15-25% APY on your holdings</li>
+                <li><a href="/learn/subnets-explained">Subnets Explained</a> — Deep dive into subnet architecture</li>
+                <li><a href="/learn/choose-validator">Choosing a Validator</a> — Pick the best validator for staking</li>
+            </ul>
+        </div>
+    </article>
+
+    <footer>© 2026 Subnavis.io — Navigate the Bittensor Ecosystem</footer>
+</body>
+</html>
