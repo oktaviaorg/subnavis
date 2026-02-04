@@ -596,9 +596,10 @@
             </a>
             <div class="nav-links">
                 <a href="/explorer" class="nav-link">Explorer</a>
-                <a href="/learn" class="nav-link">Apprendre</a>
-                <a href="/blog" class="nav-link">Blog</a>
-                <a href="https://t.me/Bittensorwalletbot" class="nav-cta" target="_blank">Ouvrir Wallet</a>
+                <a href="/learn" class="nav-link">Learn</a>
+                <a href="/wallet-app" class="nav-link">Wallet</a>
+                <a href="/api-pricing" class="nav-link">API</a>
+                <div id="connect-btn"></div>
             </div>
             <div class="mobile-menu">☰</div>
         </div>
@@ -853,6 +854,21 @@
         
         fetchPrice();
         setInterval(fetchPrice, 60000);
+    </script>
+
+    <!-- Wallet Connect -->
+    <script src="/js/wallet-connect.js"></script>
+    <script src="/js/connect-button.js"></script>
+    <script>
+        // Initialiser le bouton de connexion
+        createConnectButton('connect-btn', {
+            onConnect: (result) => {
+                console.log('Connected:', result.address);
+            },
+            onDisconnect: () => {
+                console.log('Disconnected');
+            }
+        });
     </script>
 </body>
 </html>
