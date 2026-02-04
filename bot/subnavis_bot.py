@@ -19,6 +19,13 @@ import logging
 from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement depuis .env
+load_dotenv()
+
+# Import du client TaoStats pour les vraies données
+from taostats_api import taostats, format_portfolio, format_whale_alerts
 
 # Config - Charger depuis variables d'environnement
 BOT_TOKEN = os.getenv("SUBNAVIS_BOT_TOKEN")
@@ -134,7 +141,7 @@ async def track(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def portfolio(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Show user's portfolio"""
+    """Show user's portfolio - VRAIES DONNÉES via TaoStats"""
     user_id = update.effective_user.id
     
     if user_id not in user_wallets or not user_wallets[user_id]:
@@ -145,36 +152,20 @@ async def portfolio(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
     
-    # Mock portfolio data
-    wallet = user_wallets[user_id][0]
+    # Envoyer un message "chargement"
+    loading_msg = await update.message.reply_text("⏳ Loading portfolio data...")
     
-    portfolio_text = f"""
-💼 *Your Portfolio*
-
-📍 Wallet: `{wallet[:8]}...{wallet[-6:]}`
-
-━━━━━━━━━━━━━━━
-💰 *Total Balance:* 1.26 τ (~$359)
-📊 *Staked:* 1.16 τ (92%)
-🆓 *Free:* 0.10 τ
-━━━━━━━━━━━━━━━
-
-📈 *Positions:*
-
-*SN7 - Subvortex*
-├ Staked: 1.16 τ
-├ Value: $331
-└ APR: 22.5% 🟢
-
-━━━━━━━━━━━━━━━
-_Updated: {datetime.now().strftime('%H:%M UTC')}_
-"""
+    # Récupérer les VRAIES données via TaoStats API
+    wallet = user_wallets[user_id][0]
+    portfolio_text = await format_portfolio(wallet)
     
     keyboard = [
         [InlineKeyboardButton("🔄 Refresh", callback_data="refresh_portfolio")],
         [InlineKeyboardButton("🌐 Full Dashboard", url="https://subnavis.io/portfolio.html")]
     ]
     
+    # Supprimer le message de chargement et envoyer le résultat
+    await loading_msg.delete()
     await update.message.reply_text(
         portfolio_text,
         parse_mode='Markdown',
@@ -182,35 +173,22 @@ _Updated: {datetime.now().strftime('%H:%M UTC')}_
     )
 
 async def whale(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Show latest whale alerts"""
+    """Show latest whale alerts - VRAIES DONNÉES via TaoStats"""
     
-    whale_text = """
-🐋 *Latest Whale Activity*
-
-🟢 *Stake* on SN7 — 2 min ago
-└ 125,000 τ (~$35.6M)
-
-🔴 *Unstake* on SN13 — 8 min ago
-└ 89,500 τ (~$25.5M)
-
-🔵 *Transfer* ROOT — 15 min ago
-└ 250,000 τ (~$71.2M)
-
-🟢 *Stake* on SN28 — 23 min ago
-└ 67,200 τ (~$19.1M)
-
-🟢 *Stake* on SN1 — 1 hour ago
-└ 445,000 τ (~$126.8M)
-
-━━━━━━━━━━━━━━━
-💎 *Pro users* get instant alerts!
-"""
+    # Envoyer un message "chargement"
+    loading_msg = await update.message.reply_text("⏳ Scanning whale activity...")
+    
+    # Récupérer les VRAIES données
+    whale_text = await format_whale_alerts()
+    whale_text += "\n\n━━━━━━━━━━━━━━━\n💎 *Pro users* get instant alerts!"
     
     keyboard = [
         [InlineKeyboardButton("🔔 Set Whale Alerts", callback_data="set_alerts")],
         [InlineKeyboardButton("🌐 Live Dashboard", url="https://subnavis.io/dashboard.html")]
     ]
     
+    # Supprimer le message de chargement et envoyer le résultat
+    await loading_msg.delete()
     await update.message.reply_text(
         whale_text,
         parse_mode='Markdown',
