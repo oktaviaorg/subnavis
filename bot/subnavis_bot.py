@@ -20,10 +20,13 @@ from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
 
-# Config
-BOT_TOKEN = "8364153314:AAFcOgQ6Vtpdqkw0znlTtLIjU4YMXpsTTxk"
-SUPABASE_URL = "https://srvfbbehmpnvocwodcpq.supabase.co"
-SUPABASE_KEY = "sb_publishable_PWMkW8e2UJBdxcfX0DN_VQ_dvJCu_Vq"
+# Config - Charger depuis variables d'environnement
+BOT_TOKEN = os.getenv("SUBNAVIS_BOT_TOKEN")
+SUPABASE_URL = os.getenv("SUBNAVIS_SUPABASE_URL", "https://srvfbbehmpnvocwodcpq.supabase.co")
+SUPABASE_KEY = os.getenv("SUBNAVIS_SUPABASE_KEY")
+
+if not BOT_TOKEN:
+    raise ValueError("❌ SUBNAVIS_BOT_TOKEN non défini ! Ajoute-le dans les variables d'environnement.")
 
 # Logging
 logging.basicConfig(level=logging.INFO)
