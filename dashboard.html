@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SubNavis | Your TAO Portfolio</title>
+    <meta name="description" content="Track your TAO balance, staking positions, and rewards across all Bittensor subnets.">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #09090b;
+            --bg-card: #18181b;
+            --bg-input: #1f1f23;
+            --accent: #ab9ff2;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --accent-yellow: #eab308;
+            --accent-blue: #3b82f6;
+            --text: #fafafa;
+            --text-dim: #71717a;
+            --border: rgba(255,255,255,0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Nav */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 16px 24px;
+            background: rgba(9,9,11,0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 20px;
+            color: var(--text);
+            text-decoration: none;
+        }
+        .logo img { width: 36px; height: 36px; border-radius: 10px; }
+        .nav-links { display: flex; gap: 8px; align-items: center; }
+        .nav-link {
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .nav-link:hover, .nav-link.active { color: var(--text); background: var(--bg-card); }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 100px 24px 60px;
+        }
+
+        /* Connect Prompt */
+        .connect-prompt {
+            text-align: center;
+            padding: 120px 24px;
+        }
+        .connect-prompt h1 {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+        .connect-prompt p {
+            color: var(--text-dim);
+            margin-bottom: 32px;
+        }
+        .connect-prompt .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Dashboard (hidden until connected) */
+        .dashboard { display: none; }
+        .dashboard.show { display: block; }
+
+        /* Header */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+        .dashboard-title h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .dashboard-title p {
+            color: var(--text-dim);
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+        }
+        .refresh-btn {
+            padding: 10px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .refresh-btn:hover { border-color: var(--accent); }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        @media (max-width: 1000px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        .stat-value span { font-size: 18px; color: var(--text-dim); }
+        .stat-sub {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+        .stat-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .stat-change.up { background: rgba(34,197,94,0.1); color: var(--accent-green); }
+        .stat-change.down { background: rgba(239,68,68,0.1); color: var(--accent-red); }
+
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 24px;
+        }
+        @media (max-width: 1000px) { .main-grid { grid-template-columns: 1fr; } }
+
+        /* Staking Table */
+        .staking-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .section-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section-header h2 {
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .stake-btn {
+            padding: 8px 16px;
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .staking-table {
+            width: 100%;
+        }
+        .staking-table th {
+            text-align: left;
+            padding: 14px 24px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+        }
+        .staking-table td {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+        .staking-table tr:last-child td { border-bottom: none; }
+        .staking-table tr:hover { background: rgba(255,255,255,0.02); }
+
+        .subnet-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .subnet-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-blue));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+        }
+        .subnet-name { font-weight: 600; }
+        .subnet-id { color: var(--text-dim); font-size: 12px; }
+
+        .amount-cell {
+            font-family: 'Space Mono', monospace;
+        }
+        .amount-usd {
+            color: var(--text-dim);
+            font-size: 12px;
+        }
+
+        .apy-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .apy-badge.high { background: rgba(34,197,94,0.1); color: var(--accent-green); }
+        .apy-badge.medium { background: rgba(234,179,8,0.1); color: var(--accent-yellow); }
+        .apy-badge.low { background: rgba(255,255,255,0.05); color: var(--text-dim); }
+
+        .action-btn {
+            padding: 6px 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-dim);
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .action-btn:hover { border-color: var(--accent); color: var(--text); }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Balance Card */
+        .balance-card {
+            background: linear-gradient(135deg, rgba(171,159,242,0.1) 0%, rgba(59,130,246,0.1) 100%);
+            border: 1px solid var(--accent);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        .balance-card h3 {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-bottom: 12px;
+        }
+        .balance-total {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .balance-total span { color: var(--text-dim); font-size: 20px; }
+        .balance-usd {
+            color: var(--text-dim);
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .balance-breakdown {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .breakdown-item {
+            padding: 12px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+        .breakdown-label {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-bottom: 4px;
+        }
+        .breakdown-value {
+            font-size: 18px;
+            font-weight: 600;
+            font-family: 'Space Mono', monospace;
+        }
+
+        /* Rewards Card */
+        .rewards-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        .rewards-card h3 {
+            font-size: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .reward-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .reward-item:last-child { border-bottom: none; }
+        .reward-period { color: var(--text-dim); font-size: 14px; }
+        .reward-amount {
+            font-family: 'Space Mono', monospace;
+            color: var(--accent-green);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        .quick-actions h3 {
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .quick-action {
+            padding: 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quick-action:hover { border-color: var(--accent); }
+        .quick-action .icon { font-size: 24px; margin-bottom: 8px; }
+        .quick-action .label { font-size: 13px; font-weight: 500; }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: var(--text-dim);
+        }
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 24px;
+            color: var(--text-dim);
+        }
+        .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo"><img src="/logo-64.png" alt="SubNavis"><span>SubNavis</span></a>
+            <div class="nav-links">
+                <a href="/explorer" class="nav-link">Explorer</a>
+                <a href="/dashboard" class="nav-link active">Dashboard</a>
+                <a href="/wallet-app" class="nav-link">Wallet</a>
+                <a href="/api-pricing" class="nav-link">API</a>
+                <div id="connect-btn"></div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Connect Prompt (shown when not connected) -->
+        <div id="connect-prompt" class="connect-prompt">
+            <h1>🧭 Your TAO Dashboard</h1>
+            <p>Connect your wallet to view your balance, staking positions, and rewards.</p>
+            <button class="btn" onclick="connectWallet()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="4" width="20" height="16" rx="2"/>
+                    <path d="M12 8v8M8 12h8"/>
+                </svg>
+                Connect Wallet
+            </button>
+            <p style="margin-top:24px;font-size:14px;color:var(--text-dim);">
+                Don't have a wallet? <a href="https://polkadot.js.org/extension/" target="_blank" style="color:var(--accent);">Install Polkadot.js Extension</a>
+            </p>
+        </div>
+
+        <!-- Dashboard (shown when connected) -->
+        <div id="dashboard" class="dashboard">
+            <!-- Header -->
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h1>👋 Welcome back</h1>
+                    <p id="user-address">5Gx8c...abc123</p>
+                </div>
+                <button class="refresh-btn" onclick="refreshData()">
+                    <span id="refresh-icon">🔄</span> Refresh
+                </button>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">💰 Total Balance</div>
+                    <div class="stat-value"><span id="total-tao">0.00</span> <span>τ</span></div>
+                    <div class="stat-sub">≈ $<span id="total-usd">0.00</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">📊 Staked</div>
+                    <div class="stat-value"><span id="staked-tao">0.00</span> <span>τ</span></div>
+                    <div class="stat-sub"><span id="staked-percent">0</span>% of balance</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">🆓 Available</div>
+                    <div class="stat-value"><span id="free-tao">0.00</span> <span>τ</span></div>
+                    <div class="stat-sub">Ready to stake or send</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">📈 TAO Price</div>
+                    <div class="stat-value">$<span id="tao-price">0</span></div>
+                    <div class="stat-sub">
+                        <span id="price-change" class="stat-change up">+0.00%</span> 24h
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Grid -->
+            <div class="main-grid">
+                <!-- Staking Positions -->
+                <div class="staking-section">
+                    <div class="section-header">
+                        <h2>⚡ Staking Positions</h2>
+                        <button class="stake-btn" onclick="openStakeModal()">+ Stake TAO</button>
+                    </div>
+                    
+                    <div id="staking-loading" class="loading">
+                        <div class="loading-spinner"></div>
+                        Loading positions...
+                    </div>
+
+                    <div id="staking-empty" class="empty-state" style="display:none;">
+                        <div class="icon">📭</div>
+                        <p>No staking positions yet</p>
+                        <button class="stake-btn" style="margin-top:16px;" onclick="openStakeModal()">Start Staking</button>
+                    </div>
+
+                    <table id="staking-table" class="staking-table" style="display:none;">
+                        <thead>
+                            <tr>
+                                <th>Subnet</th>
+                                <th>Staked</th>
+                                <th>APY</th>
+                                <th>Rewards</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="staking-tbody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="sidebar">
+                    <!-- Balance Breakdown -->
+                    <div class="balance-card">
+                        <h3>💼 Balance Breakdown</h3>
+                        <div class="balance-total"><span id="breakdown-total">0.00</span> <span>τ</span></div>
+                        <div class="balance-usd">≈ $<span id="breakdown-usd">0.00</span></div>
+                        <div class="balance-breakdown">
+                            <div class="breakdown-item">
+                                <div class="breakdown-label">🆓 Free</div>
+                                <div class="breakdown-value" id="breakdown-free">0.00 τ</div>
+                            </div>
+                            <div class="breakdown-item">
+                                <div class="breakdown-label">🔒 Staked</div>
+                                <div class="breakdown-value" id="breakdown-staked">0.00 τ</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estimated Rewards -->
+                    <div class="rewards-card">
+                        <h3>🎁 Estimated Rewards</h3>
+                        <div class="reward-item">
+                            <span class="reward-period">Daily</span>
+                            <span class="reward-amount" id="reward-daily">+0.000 τ</span>
+                        </div>
+                        <div class="reward-item">
+                            <span class="reward-period">Weekly</span>
+                            <span class="reward-amount" id="reward-weekly">+0.000 τ</span>
+                        </div>
+                        <div class="reward-item">
+                            <span class="reward-period">Monthly</span>
+                            <span class="reward-amount" id="reward-monthly">+0.000 τ</span>
+                        </div>
+                        <div class="reward-item">
+                            <span class="reward-period">Yearly</span>
+                            <span class="reward-amount" id="reward-yearly">+0.000 τ</span>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <h3>⚡ Quick Actions</h3>
+                        <div class="action-grid">
+                            <div class="quick-action" onclick="openStakeModal()">
+                                <div class="icon">📈</div>
+                                <div class="label">Stake</div>
+                            </div>
+                            <div class="quick-action" onclick="openUnstakeModal()">
+                                <div class="icon">📤</div>
+                                <div class="label">Unstake</div>
+                            </div>
+                            <div class="quick-action" onclick="window.location='/wallet-app'">
+                                <div class="icon">💸</div>
+                                <div class="label">Send</div>
+                            </div>
+                            <div class="quick-action" onclick="window.location='/explorer'">
+                                <div class="icon">🔍</div>
+                                <div class="label">Explore</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/wallet-connect.js"></script>
+    <script src="/js/connect-button.js"></script>
+    <script>
+        // State
+        let taoPrice = 285;
+        let priceChange = 0;
+        let walletData = null;
+
+        // Initialize
+        createConnectButton('connect-btn', {
+            onConnect: async (result) => {
+                showDashboard(result.address);
+                await loadWalletData(result.address);
+            },
+            onDisconnect: () => {
+                hideDashboard();
+            }
+        });
+
+        // Check existing session
+        document.addEventListener('DOMContentLoaded', async () => {
+            await fetchPrice();
+            
+            const session = await window.subnavisAuth.restoreSession();
+            if (session) {
+                showDashboard(session.address);
+                await loadWalletData(session.address);
+            }
+        });
+
+        // Connect wallet from prompt
+        async function connectWallet() {
+            const result = await window.subnavisAuth.connect();
+            if (result.success) {
+                showDashboard(result.address);
+                await loadWalletData(result.address);
+            } else if (result.error === 'NO_EXTENSION') {
+                alert('Please install the Polkadot.js extension to connect your wallet.\n\nhttps://polkadot.js.org/extension/');
+            }
+        }
+
+        function showDashboard(address) {
+            document.getElementById('connect-prompt').style.display = 'none';
+            document.getElementById('dashboard').classList.add('show');
+            document.getElementById('user-address').textContent = address.slice(0, 8) + '...' + address.slice(-6);
+        }
+
+        function hideDashboard() {
+            document.getElementById('connect-prompt').style.display = 'block';
+            document.getElementById('dashboard').classList.remove('show');
+        }
+
+        // Fetch TAO price
+        async function fetchPrice() {
+            try {
+                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bittensor&vs_currencies=usd&include_24hr_change=true');
+                const data = await res.json();
+                taoPrice = data.bittensor?.usd || 285;
+                priceChange = data.bittensor?.usd_24h_change || 0;
+                
+                document.getElementById('tao-price').textContent = taoPrice.toFixed(2);
+                const changeEl = document.getElementById('price-change');
+                changeEl.textContent = `${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(2)}%`;
+                changeEl.className = `stat-change ${priceChange >= 0 ? 'up' : 'down'}`;
+            } catch (e) {
+                console.error('Price fetch failed:', e);
+            }
+        }
+
+        // Load wallet data from TaoStats API
+        async function loadWalletData(address) {
+            try {
+                // Show loading
+                document.getElementById('staking-loading').style.display = 'block';
+                document.getElementById('staking-table').style.display = 'none';
+                document.getElementById('staking-empty').style.display = 'none';
+
+                // Fetch balance
+                const balanceRes = await fetch(`https://api.taostats.io/api/v1/balance/latest?address=${address}`);
+                const balanceData = await balanceRes.json();
+
+                // Fetch stakes
+                const stakesRes = await fetch(`https://api.taostats.io/api/v1/stake/latest?address=${address}&limit=50`);
+                const stakesData = await stakesRes.json();
+
+                // Process balance
+                let totalBalance = 0;
+                let stakedBalance = 0;
+                let freeBalance = 0;
+
+                if (balanceData?.data?.length > 0) {
+                    const b = balanceData.data[0];
+                    totalBalance = (parseFloat(b.balance) || 0) / 1e9;
+                    stakedBalance = (parseFloat(b.stake) || 0) / 1e9;
+                    freeBalance = (parseFloat(b.free) || 0) / 1e9;
+                }
+
+                // Update stats
+                document.getElementById('total-tao').textContent = totalBalance.toFixed(4);
+                document.getElementById('total-usd').textContent = (totalBalance * taoPrice).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                document.getElementById('staked-tao').textContent = stakedBalance.toFixed(4);
+                document.getElementById('staked-percent').textContent = totalBalance > 0 ? Math.round(stakedBalance / totalBalance * 100) : 0;
+                document.getElementById('free-tao').textContent = freeBalance.toFixed(4);
+
+                // Update breakdown
+                document.getElementById('breakdown-total').textContent = totalBalance.toFixed(4);
+                document.getElementById('breakdown-usd').textContent = (totalBalance * taoPrice).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                document.getElementById('breakdown-free').textContent = freeBalance.toFixed(4) + ' τ';
+                document.getElementById('breakdown-staked').textContent = stakedBalance.toFixed(4) + ' τ';
+
+                // Calculate estimated rewards (assuming 20% APY average)
+                const avgAPY = 0.20;
+                const yearlyReward = stakedBalance * avgAPY;
+                document.getElementById('reward-daily').textContent = '+' + (yearlyReward / 365).toFixed(4) + ' τ';
+                document.getElementById('reward-weekly').textContent = '+' + (yearlyReward / 52).toFixed(4) + ' τ';
+                document.getElementById('reward-monthly').textContent = '+' + (yearlyReward / 12).toFixed(4) + ' τ';
+                document.getElementById('reward-yearly').textContent = '+' + yearlyReward.toFixed(4) + ' τ';
+
+                // Process stakes
+                document.getElementById('staking-loading').style.display = 'none';
+
+                if (!stakesData?.data || stakesData.data.length === 0) {
+                    document.getElementById('staking-empty').style.display = 'block';
+                    return;
+                }
+
+                // Group stakes by subnet
+                const stakesBySubnet = {};
+                for (const s of stakesData.data) {
+                    const netuid = s.netuid || 0;
+                    if (!stakesBySubnet[netuid]) {
+                        stakesBySubnet[netuid] = {
+                            netuid: netuid,
+                            total: 0,
+                            validators: []
+                        };
+                    }
+                    const amount = (parseFloat(s.stake) || 0) / 1e9;
+                    stakesBySubnet[netuid].total += amount;
+                    stakesBySubnet[netuid].validators.push({
+                        hotkey: s.hotkey,
+                        amount: amount
+                    });
+                }
+
+                // Subnet names (hardcoded for now)
+                const subnetNames = {
+                    0: 'Root',
+                    1: 'Text Prompting',
+                    7: 'Subvortex',
+                    8: 'Taoshi',
+                    9: 'Pretraining',
+                    13: 'Data Universe',
+                    19: 'Namoray',
+                    21: 'FileTAO'
+                };
+
+                // APY estimates by subnet
+                const subnetAPY = {
+                    0: 12, 1: 18, 7: 22, 8: 25, 9: 15, 13: 17, 19: 18, 21: 16
+                };
+
+                // Render table
+                const tbody = document.getElementById('staking-tbody');
+                tbody.innerHTML = '';
+
+                const sortedSubnets = Object.values(stakesBySubnet).sort((a, b) => b.total - a.total);
+
+                for (const subnet of sortedSubnets) {
+                    const name = subnetNames[subnet.netuid] || `Subnet ${subnet.netuid}`;
+                    const apy = subnetAPY[subnet.netuid] || 15;
+                    const apyClass = apy >= 20 ? 'high' : apy >= 15 ? 'medium' : 'low';
+                    const yearlyReward = subnet.total * (apy / 100);
+                    const dailyReward = yearlyReward / 365;
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>
+                            <div class="subnet-cell">
+                                <div class="subnet-icon">SN${subnet.netuid}</div>
+                                <div>
+                                    <div class="subnet-name">${name}</div>
+                                    <div class="subnet-id">${subnet.validators.length} validator(s)</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="amount-cell">${subnet.total.toFixed(4)} τ</div>
+                            <div class="amount-usd">$${(subnet.total * taoPrice).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        </td>
+                        <td><span class="apy-badge ${apyClass}">${apy}%</span></td>
+                        <td>
+                            <div class="amount-cell" style="color:var(--accent-green);">+${dailyReward.toFixed(4)}/day</div>
+                        </td>
+                        <td>
+                            <button class="action-btn" onclick="unstakeFromSubnet(${subnet.netuid})">Unstake</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                }
+
+                document.getElementById('staking-table').style.display = 'table';
+
+            } catch (error) {
+                console.error('Failed to load wallet data:', error);
+                document.getElementById('staking-loading').style.display = 'none';
+                document.getElementById('staking-empty').innerHTML = `
+                    <div class="icon">⚠️</div>
+                    <p>Failed to load data. Please try again.</p>
+                    <button class="stake-btn" style="margin-top:16px;" onclick="refreshData()">Retry</button>
+                `;
+                document.getElementById('staking-empty').style.display = 'block';
+            }
+        }
+
+        // Refresh data
+        async function refreshData() {
+            const address = window.subnavisAuth.getAddress();
+            if (address) {
+                document.getElementById('refresh-icon').textContent = '⏳';
+                await fetchPrice();
+                await loadWalletData(address);
+                document.getElementById('refresh-icon').textContent = '🔄';
+            }
+        }
+
+        // Stake modal (placeholder)
+        function openStakeModal() {
+            alert('Staking modal coming soon!\n\nFor now, use the Bittensor CLI:\nbtcli stake add --wallet.name YOUR_WALLET');
+        }
+
+        // Unstake modal (placeholder)
+        function openUnstakeModal() {
+            alert('Unstaking modal coming soon!\n\nFor now, use the Bittensor CLI:\nbtcli stake remove --wallet.name YOUR_WALLET');
+        }
+
+        function unstakeFromSubnet(netuid) {
+            alert(`Unstaking from SN${netuid} coming soon!\n\nFor now, use the Bittensor CLI.`);
+        }
+
+        // Refresh price periodically
+        setInterval(fetchPrice, 60000);
+    </script>
+</body>
+</html>
